@@ -1,19 +1,17 @@
-/* 
+/*
   Localizable.strings
   iWallet
 
   Created by Владислав Новошинский on 13.04.2023.
-  
 */
 
-// HomeView
+// Shared and legacy strings.
+
 "Balance" = "Баланс";
 "Expense average" = "Средний расход";
 "Income" = "Доход";
 "Expense" = "Расход";
 "Settings" = "Настройки";
-
-// AddTransaction
 "Enter amount:" = "Введите сумму:";
 "Note" = "Заметка";
 "Enter note:" = "Введите заметку:";
@@ -22,43 +20,29 @@
 "Purpose:" = "Назначание:";
 "Date" = "Дата";
 "Enter date:" = "Введите дату:";
-"Cancel" = "Отменить";
+"Cancel" = "Отмена";
 "Add" = "Добавить";
-"Please enter amount" = "Пожалуйста введите сумму";
-"Please select a category" = "Пожалуйста, выберите категорию";
+"Please enter amount" = "Введите сумму";
+"Please select a category" = "Выберите категорию";
 "Okay" = "Хорошо";
 "Select a category" = "Выберите категорию";
 "Category:" = "Категория:";
 "Addendum" = "Добавление";
-
-// TransactionView
-"Transactions" = "Транзакции";
-"Back" = "Назад";
-
-// AddCategoryView
+"Transactions" = "Операции";
 "Back" = "Назад";
 "New" = "Новая";
-
-// AddCategory
 "Select type:" = "Выберите тип:";
 "Name" = "Название";
 "Enter Name" = "Введите название";
-"Choose an icon:" = "Выберите иконку:";
+"Choose an icon:" = "Выберите значок:";
 "Choose color:" = "Выберите цвет:";
-"Create a category" = "Создание категории";
-"Back" = "Назад";
-"Add" = "Добавить";
-
-// SettingView
-"Back" = "Назад";
-"Settings" = "Настройки";
-"Transactions" = "Транзакции";
+"Create a category" = "Создать категорию";
 "Categories" = "Категории";
 "Data" = "Данные";
 "Web-site" = "Веб-сайт";
 "Community" = "Сообщество";
 "Write to the developer" = "Написать разработчику";
-"Feedback" = "Обратная звязь";
+"Feedback" = "Обратная связь";
 "Application" = "Приложение";
 "Currency" = "Валюта";
 "Vibration" = "Вибрация";
@@ -66,27 +50,21 @@
 "https://t.me/idevnva" = "https://t.me/idevnva";
 "App version: 1.1.5" = "Версия приложения: 1.1.5";
 "Rounding numbers" = "Округление чисел";
-
-//PreviewCard
 "Welcome" = "Добро пожаловать!";
-"The list of transactions is currently empty," = "Список транзакций в настоящее время пуст,";
-"please add transaction." = "пожалуйста добавьте транзакцию.";
-"Welcome" = "Добро пожаловать!";
-"The list of categories is currently empty," = "Список категорий в настоящее время пуст,";
-"please add category." = "пожалуйста добавьте категорию.";
-"There are currently no categories." = "В настоящее время нет категорий.";
-"Please add." = "Пожалуйста, добавьте.";
-
-// DefaultCategories
-// Все категории для расхода
+"The list of transactions is currently empty," = "Пока нет операций.";
+"please add transaction." = "Добавьте первую операцию.";
+"The list of categories is currently empty," = "Пока нет категорий.";
+"please add category." = "Добавьте первую категорию.";
+"There are currently no categories." = "Пока нет категорий.";
+"Please add." = "Добавьте категорию.";
 "Car" = "Автомобиль";
 "Bank" = "Банк";
-"Business services" = "Бизнес услуги";
+"Business services" = "Бизнес-услуги";
 "Charity" = "Благотворительность";
 "State" = "Государство";
 "Children" = "Дети";
 "House" = "Дом";
-"Pets" = "Домашние животные";
+"Pets" = "Питомцы";
 "Eating out" = "Еда вне дома";
 "Health" = "Здоровье";
 "Beauty" = "Красота";
@@ -94,33 +72,141 @@
 "Education" = "Образование";
 "Clothing and footwear" = "Одежда и обувь";
 "Present" = "Подарки";
-"Food" = "Продукты питания";
-"Trips" = "Путешествие";
-"Entertainment" = "Развлечение";
+"Food" = "Продукты";
+"Trips" = "Путешествия";
+"Entertainment" = "Развлечения";
 "Technique" = "Техника";
 "Transport" = "Транспорт";
-
-// Все категории для дохода
 "Rent" = "Аренда";
 "Exchange" = "Биржа";
 "Dividends" = "Дивиденды";
-"Wage" = "Заработная плата";
-"Present" = "Подарки";
+"Wage" = "Зарплата";
 "Part time job" = "Подработка";
 "Interest on accounts" = "Проценты по счетам";
-
-// WelcomeView
 "iWallet" = "iWallet";
-"Currency" = "Валюта";
 "Initial application setup" = "Первоначальная настройка приложения:";
 "Basic categories" = "Базовые категории";
 "Note: Enabling this feature will create base categories for expenses and income." = "Примечание: При включении этой функции будут созданы базовые категории расходов и доходов.";
 "Continue" = "Продолжить";
-
-// PickerCategoryView
-"Categories" = "Категории";
 "Create category" = "Создать категорию";
-
-// EditTransactionView
 "Editing" = "Редактирование";
 "Edit" = "Изменить";
+
+/* Native application: navigation, forms, accessibility and errors. */
+
+"A clear view of your everyday finances." = "Доходы и расходы — как на ладони.";
+"A little clarity, every day" = "Финансы под контролем";
+"About iWallet" = "Об iWallet";
+"Add category" = "Добавить категорию";
+"Add first transaction" = "Добавить первую операцию";
+"Add transaction" = "Добавить операцию";
+"Add your first transaction to see where your money goes." = "Добавьте первую операцию, чтобы видеть, на что уходят деньги.";
+"Add your first transaction to see your money in perspective." = "Добавьте первую операцию, чтобы начать следить за доходами и расходами.";
+"All" = "Все";
+"All time" = "Всё время";
+"Amount" = "Сумма";
+"An exported file contains your financial history. Only share it with people and apps you trust." = "Файл экспорта содержит вашу финансовую историю. Передавайте его только людям и приложениям, которым доверяете.";
+"Archive" = "В архив";
+"Archive category" = "Архивировать категорию";
+"Archive category?" = "Архивировать категорию?";
+"Archiving a category preserves its transactions in your history." = "После архивирования категории все её операции останутся в истории.";
+"Blue" = "Синий";
+"Brown" = "Коричневый";
+"Card" = "Карта";
+"Cash" = "Наличные";
+"Category name" = "Название категории";
+"Changing the currency keeps the entered amount. No conversion is performed." = "Смена валюты не меняет введённую сумму. Пересчёт по курсу не выполняется.";
+"Choose a category" = "Выберите категорию";
+"Choose a supported currency." = "Выберите валюту из списка.";
+"Choose an active category for the new transaction." = "Для новой операции выберите категорию, которая не в архиве.";
+"Choose an available category." = "Выберите доступную категорию.";
+"Clothing" = "Одежда";
+"Coffee" = "Кофе";
+"Color" = "Цвет";
+"Create a category to organize this transaction." = "Создайте категорию для этой операции.";
+"Create categories that match your everyday life." = "Создавайте категории для своих доходов и расходов.";
+"Default currency" = "Основная валюта";
+"Delete" = "Удалить";
+"Delete transaction" = "Удалить операцию";
+"Delete transaction?" = "Удалить операцию?";
+"Dining" = "Кафе и рестораны";
+"Display currency" = "Валюта обзора";
+"Done" = "Готово";
+"Edit transaction" = "Изменить операцию";
+"Enter a category name." = "Введите название категории.";
+"Enter a valid amount using your decimal separator." = "Введите сумму с десятичным разделителем вашего региона.";
+"Expenses" = "Расходы";
+"Export all data" = "Экспортировать все данные";
+"Export saves your categories and transactions as a JSON file. Keep it somewhere safe. Importing this file will be available in a future update." = "Экспорт сохранит категории и операции в файл JSON. Храните его в надёжном месте. Импорт этого файла появится в одном из следующих обновлений.";
+"Games" = "Игры";
+"Gifts" = "Подарки";
+"Gray" = "Серый";
+"Green" = "Зелёный";
+"Groceries" = "Продукты";
+"Home" = "Дом";
+"Icon" = "Значок";
+"Income minus expenses · all time" = "Доходы минус расходы за всё время";
+"It will be hidden when adding transactions. Existing transactions will stay in your history." = "Категория будет скрыта при добавлении новых операций. Прежние операции останутся в истории.";
+"Make room for what matters" = "Пока нет категорий";
+"Medicine" = "Лекарства";
+"New category" = "Новая категория";
+"New transaction" = "Новая операция";
+"No expenses for this period" = "За этот период расходов нет";
+"No matching transactions" = "Операции не найдены";
+"No tracking" = "Без отслеживания";
+"Note (optional)" = "Заметка (необязательно)";
+"OK" = "Хорошо";
+"On this device" = "На этом устройстве";
+"Opening your wallet" = "Открываем кошелёк";
+"Other" = "Другое";
+"Overview" = "Обзор";
+"Period" = "Период";
+"Personal care" = "Уход за собой";
+"Phone" = "Телефон";
+"Privacy" = "Конфиденциальность";
+"Purple" = "Фиолетовый";
+"Recent transactions" = "Последние операции";
+"Red" = "Красный";
+"Save" = "Сохранить";
+"Save a copy of previous data" = "Сохранить копию прежних данных";
+"Search transactions" = "Поиск операций";
+"See all" = "Все";
+"Shopping" = "Покупки";
+"Spending by category" = "Расходы по категориям";
+"Sports" = "Спорт";
+"Storage" = "Хранение";
+"Stored on your device" = "Хранятся на вашем устройстве";
+"The amount must be greater than zero." = "Сумма должна быть больше нуля.";
+"The category must match the transaction type." = "Тип категории должен совпадать с типом операции.";
+"The total exceeds the supported range." = "Итоговая сумма превышает допустимое значение.";
+"This amount is too large." = "Сумма слишком большая.";
+"This category is archived. It is kept here for your existing transaction." = "Категория в архиве. Вы можете сохранить её для этой операции.";
+"This currency allows %d decimal places." = "Максимум знаков после запятой для этой валюты: %d.";
+"This month" = "Этот месяц";
+"This transaction is no longer available." = "Эта операция больше недоступна.";
+"This transaction will be permanently removed." = "Операция будет удалена без возможности восстановления.";
+"This version contains no advertising or analytics services and does not require an account." = "В этой версии нет рекламы и сервисов аналитики. Создавать аккаунт не нужно.";
+"Total is too large to display" = "Сумма слишком велика для отображения";
+"Transaction type" = "Тип операции";
+"Travel" = "Путешествия";
+"Try a different search or transaction type." = "Измените поисковый запрос или тип операций.";
+"Try again" = "Попробовать снова";
+"Unable to archive category" = "Не удалось архивировать категорию";
+"Unable to delete transaction" = "Не удалось удалить операцию";
+"Unable to export data" = "Не удалось экспортировать данные";
+"Unable to open your wallet" = "Не удалось открыть кошелёк";
+"Unable to save category" = "Не удалось сохранить категорию";
+"Unable to save transaction" = "Не удалось сохранить операцию";
+"Uncategorized" = "Без категории";
+"Used for new transactions. Existing amounts keep their original currency; no conversion is performed." = "Используется для новых операций. Валюта и суммы прежних операций не меняются. Пересчёт по курсу не выполняется.";
+"Version" = "Версия";
+"We found data from the previous version. This preview cannot import it yet. Your original wallet has not been changed. Please keep a backup until the transfer is ready." = "Найдены данные прежней версии. Эта предварительная версия пока не умеет их импортировать. Исходные данные не изменены. Сохраните их копию, пока мы готовим перенос.";
+"Work" = "Работа";
+"Yellow" = "Жёлтый";
+"You control your exports" = "Вы решаете, кому передать данные";
+"Your categories, amounts and notes are saved locally. iWallet does not send them to a server." = "Категории, суммы и заметки хранятся на устройстве. iWallet не отправляет их на сервер.";
+"Your data" = "Ваши данные";
+"Your data has not been reset. Free up space on your device and try again." = "Ваши данные не сброшены. Освободите место на устройстве и попробуйте снова.";
+"Your finances stay on your device" = "Ваши финансовые данные — на вашем устройстве";
+"Your previous wallet is safe" = "Прежние данные сохранены";
+"Your story starts here" = "Пока нет операций";

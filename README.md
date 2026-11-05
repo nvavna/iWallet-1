@@ -1,52 +1,44 @@
-<h1 align="center">✨ iWallet - Expenses and Income ✨</h1>
+# iWallet
 
-![iWallet](https://github.com/idevnva/iWallet/assets/127990298/5f509056-3207-4b3e-8995-4be1347d28c6)
+Личный учёт доходов и расходов на **SwiftUI + SwiftData**, iOS 17 и новее. Нативная версия восстанавливает [первое приложение iWallet](https://github.com/iWalletTeam/iWallet), сохраняя историю проекта и Bundle ID `com.idevnva.iwallet`.
 
-<h3 align="center">
-It is a personal finance management assessment tool that will help you keep track of your income and expenses, keep an eye on your budget, and achieve your financial goals. Install iWallet and enjoy complete control over your finances!
-</h3>
-  
-<h3 align="center">
-<p float="left">
-  <a href="https://apps.apple.com/us/app/iwallet-expenses-and-income/id6447585809">
-    <img src="https://img.shields.io/badge/App Store-0D96F6?style=flat" height="40">
-  </a>
-  <a href="https://idevnva.com/iwallet">
-    <img src="https://img.shields.io/badge/Web site-238636?style=flat" height="40">
-  </a>
-</p>
-</h3>
+> Версия 2.0 находится в разработке. Это ещё не готовое обновление App Store: автоматический перенос старой базы Realm не реализован. При обнаружении прежней базы приложение сохраняет её нетронутой и показывает экран сохранения копии, а не пустой кошелёк.
 
-## You can
-* Calculate the average expense per day, taking into account all financial transactions, for more accurate planning and control of your budget.
+## Что уже реализовано
 
-* Data security and privacy, since all data is stored on your device and you have full control over access to it.
+- Обзор баланса, доходов и расходов; периоды «Этот месяц» / «Всё время»; категории расходов и последние операции.
+- История с поиском и фильтрами, добавление и редактирование через отдельный черновик, подтверждение удаления.
+- Категории с иконкой и цветом; архивирование сохраняет финансовую историю.
+- Локальное хранилище SwiftData без сторонних зависимостей, без аккаунта и аналитики.
+- Точные суммы в `Int64` минимальных единицах валюты; расчёты и ввод через `Decimal`; ISO-код у каждой операции. Разные валюты не складываются и автоматически не конвертируются.
+- Экспорт категорий и операций в JSON. Импорт экспорта пока не реализован.
+- Русский и английский интерфейс, системные темы и масштабируемый текст.
 
-## Create categories
-* One of the main features of iWallet is the ability to create custom categories for expenses and income.
+## Запуск
 
-* You can choose a unique icon and color for each category to help you better represent your financial activities. In addition, the application allows you to analyze data and identify areas where you can reduce costs.
+Откройте `iWallet.xcodeproj`, выберите схему **iWallet** и доступный iOS Simulator. Для физического устройства настройте signing в своей Apple Developer Team. Для выпуска используйте Xcode/SDK, соответствующие текущим требованиям Apple; локально проверяется Xcode 27.2.
 
-## Recording transactions
-* iWallet is a reliable financial management assistant: track all income and expenses with high accuracy (including date, category and notes) and control your finances with convenience.
+```sh
+xcodebuild -project iWallet.xcodeproj -scheme iWallet   -configuration Debug -destination 'generic/platform=iOS Simulator'   -derivedDataPath build/DerivedData CODE_SIGNING_ALLOWED=NO build
+```
 
-* Be aware of your financial flows and make informed decisions about your money.
+Это компиляция для симулятора; она сама по себе не запускает приложение и не заменяет проверку интерфейса.
 
-![iWalletTeam](https://github.com/iWalletTeam/iWallet/assets/127990298/41e45886-da1c-445c-b5d0-e5c3a2605a30)
+## Проверки хранения и денег
 
-## Our team
-* Our team is working on the development of iWallet — an open source project that allows users to manage their finances more efficiently. We believe that everyone should have access to a quality tool to keep track of their income and expenses.
+Тесты используют SwiftData на macOS 14+ и временные/изолированные базы, не личный кошелёк:
 
-* We strive to create an application that is convenient and easy to use, but at the same time functional and powerful. We are constantly working to improve iWallet and add new features so that our users can get the most out of it.
+```sh
+swift test -j 2
+```
 
-* Our team consists of beginner developers, designers and a huge amount of motivation. We work with open source to ensure that our project is transparent and accessible to everyone. We also welcome contributions from the community and encourage participation in iWallet development.
+Они проверяют точность и локализованный ввод сумм (включая арабские/персидские цифры), запрет некорректных значений, переполнение, раздельные валюты, сохранение и редактирование, архивирование, повторное открытие базы, откат после реальной ошибки записи и сохранность обнаруженных legacy-файлов.
 
-## iWalletTeam
-> ### " Our goal is to make iWallet the best financial accounting tool available to everyone. We believe that every person deserves financial stability and we do our best to help them achieve this goal. "
+## Перед выпуском
 
-![iWallet](https://github.com/idevnva/iWallet/assets/127990298/c1397684-89f4-4d84-b936-4c32f6962dfc)
+- [Аудит и план восстановления](docs/RESTORATION.md).
+- [Перенос пользовательской истории из Realm](docs/LEGACY-MIGRATION.md) — обязательный блокер выпуска поверх прежней версии.
+- Проверить приложение на симуляторе и устройстве, обе темы, крупный текст, русский/английский, экспорт и обновление с существующими данными.
+- Проверить прежнюю карточку App Store Connect, signing, privacy/support URL, возрастной рейтинг, TestFlight и финальный архив.
 
-
-
-
-
+Оригинальная версия 1.1.8 доступна в истории Git (commit `b521ad4`). Новая ветка разработки: `restoration/foundation`.
