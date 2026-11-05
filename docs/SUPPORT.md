@@ -1,0 +1,67 @@
+# iWallet — Support / Поддержка
+
+Contact / Написать: [idevnva@icloud.com](mailto:idevnva@icloud.com)
+
+## English
+
+iWallet is a manual income and expense tracker. Version 2.0.0 requires iOS 17 or later and stores your wallet locally on your device.
+
+### Get help
+
+Email [idevnva@icloud.com](mailto:idevnva@icloud.com). Include your iWallet version from Settings, device model, iOS version, what you tried and what happened. A screenshot with private details removed can help.
+
+Do not send passwords, verification codes, banking credentials or a full database in your first message. Describe the issue before sharing financial files.
+
+### Moving from an older version
+
+If iWallet finds a supported older database, it offers a local transfer into the new wallet. Confirm the currency represented by the old amounts. Some symbols, such as `$`, do not identify one currency, and the older app did not save a currency for each transaction.
+
+Review any rounding changes before confirming the transfer. Keep a copy of the original data. The original database is retained; an unsupported format or an inconsistent record can stop the transfer so it can be investigated. If an error appears, note its text and contact support. Compatibility with every historical database is not guaranteed.
+
+### JSON backups
+
+In Overview > Settings, use Export all data to save your categories and transactions as JSON. Choose where to save the file and keep track of that location.
+
+Import a backup lets you review a compatible file before importing. The import adds missing records, skips identical records and stops if an existing record with the same identifier has different contents. It does not overwrite your current records. Importing an old backup therefore cannot be used to silently undo edits to matching records.
+
+The export contains financial information. Share it only with a destination you intend to receive it. The developer does not automatically receive exports and cannot retrieve a wallet from an iWallet server. If you no longer have the original data or a usable copy, support cannot reconstruct the missing transactions.
+
+### Currency and categories
+
+The default currency applies to new transactions. Existing transactions keep their own currency, and totals are shown separately. No exchange-rate conversion is performed.
+
+Archiving a category keeps its transactions in your history and hides the category when creating new entries. Deleting a transaction removes it from the active wallet, but does not remove copies from previously saved exports or retained legacy migration files.
+
+[Privacy policy](https://github.com/nvavna/iWallet-1/blob/restoration/foundation/docs/PRIVACY.md)
+
+## Русский
+
+iWallet — приложение для ручного учёта доходов и расходов. Версия 2.0.0 требует iOS 17 или новее и хранит кошелёк локально на устройстве.
+
+### Как получить помощь
+
+Напишите на [idevnva@icloud.com](mailto:idevnva@icloud.com). Укажите версию iWallet из настроек, модель устройства, версию iOS, последовательность действий и результат. При необходимости приложите скриншот без личных сведений.
+
+В первом сообщении не присылайте пароли, коды подтверждения, банковские реквизиты или полную базу. Сначала опишите проблему, прежде чем передавать финансовые файлы.
+
+### Переход со старой версии
+
+Если iWallet найдёт поддерживаемую старую базу, приложение предложит локально перенести её в новый кошелёк. Подтвердите валюту, в которой были записаны старые суммы. Некоторые символы, например `$`, относятся к нескольким валютам, а старое приложение не хранило валюту каждой операции.
+
+Проверьте изменения округления перед подтверждением переноса. Сохраните копию исходных данных. Исходная база остаётся на месте; неподдерживаемый формат или несогласованная запись могут остановить перенос для проверки. Если появилась ошибка, запишите её текст и обратитесь в поддержку. Совместимость со всеми историческими базами не гарантируется.
+
+### Резервные копии JSON
+
+Откройте настройки из экрана обзора и выберите экспорт всех данных, чтобы сохранить категории и операции в JSON-файл. Выберите место сохранения и запомните его.
+
+Импорт резервной копии позволяет проверить совместимый файл перед добавлением данных. Импорт добавляет отсутствующие записи, пропускает идентичные и останавливается, если запись с тем же идентификатором уже имеет другое содержимое. Текущие записи не перезаписываются. Поэтому импорт старой копии не отменяет автоматически изменения совпадающих записей.
+
+Экспорт содержит финансовую информацию. Передавайте его только в выбранное вами место назначения. Разработчик не получает экспорт автоматически и не может загрузить ваш кошелёк с сервера iWallet. Если исходных данных и пригодной копии больше нет, поддержка не сможет восстановить отсутствующие операции.
+
+### Валюта и категории
+
+Основная валюта используется для новых операций. Существующие операции сохраняют свою валюту, а итоги показываются отдельно. Пересчёт по обменному курсу не выполняется.
+
+Архивирование категории сохраняет её операции в истории и скрывает категорию при создании новых записей. Удаление операции убирает её из действующего кошелька, но не удаляет копии из ранее сохранённых экспортов и оставленных файлов миграции.
+
+[Политика конфиденциальности](https://github.com/nvavna/iWallet-1/blob/restoration/foundation/docs/PRIVACY.md)
