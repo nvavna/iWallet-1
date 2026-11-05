@@ -39,7 +39,7 @@ enum WalletDateRange {
 @MainActor
 enum WalletStore {
     static func makeContainer(inMemory: Bool = false) throws -> ModelContainer {
-        let schema = Schema([WalletCategory.self, WalletTransaction.self, WalletMigrationReceipt.self])
+        let schema = Schema([WalletCategory.self, WalletTransaction.self, WalletMigrationReceipt.self, WalletRecurringPayment.self])
         let configuration: ModelConfiguration
         if inMemory {
             configuration = ModelConfiguration("iWalletNative", schema: schema,

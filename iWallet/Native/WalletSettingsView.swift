@@ -95,6 +95,7 @@ struct WalletSettingsView: View {
                         Section("Backup contents") {
                             LabeledContent("Categories", value: String(preview.backup.categories.count))
                             LabeledContent("Transactions", value: String(preview.backup.transactions.count))
+                            LabeledContent("Payments", value: String(preview.backup.recurringPayments.count))
                             LabeledContent("Created", value: preview.backup.createdAt.formatted(date: .abbreviated, time: .shortened))
                         }
                         Section {
@@ -130,9 +131,9 @@ struct WalletSettingsView: View {
                 }
             } message: {
                 if let summary = importSummary {
-                    Text(String(format: NSLocalizedString("Added %d categories and %d transactions. Skipped %d identical records.", comment: "Import result"),
-                                summary.insertedCategories, summary.insertedTransactions,
-                                summary.skippedCategories + summary.skippedTransactions))
+                    Text(String(format: NSLocalizedString("Added %d categories, %d transactions and %d payments. Skipped %d identical records.", comment: "Import result"),
+                                summary.insertedCategories, summary.insertedTransactions, summary.insertedRecurringPayments,
+                                summary.skippedCategories + summary.skippedTransactions + summary.skippedRecurringPayments))
                 } else {
                     Text(errorMessage ?? "")
                 }
@@ -145,7 +146,7 @@ struct WalletSettingsView: View {
             Section {
                 Label("Stored on your device", systemImage: "iphone")
                     .font(.headline)
-                Text("Your categories, amounts and notes are saved locally. iWallet does not send them to a server.")
+                Text("Your categories, transactions and payment schedules are saved locally. iWallet does not send them to a server.")
                     .foregroundStyle(.secondary)
             }
             Section {

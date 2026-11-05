@@ -281,15 +281,17 @@ struct TransactionEditorView: View {
                             .accessibilityIdentifier("transactionAmountError")
                     }
 
-                    Picker(selection: $currencyCode) {
-                        ForEach(WalletCurrency.allCases) { currency in
-                            Text(currency.displayName).tag(currency.rawValue)
-                        }
-                        if WalletCurrency(rawValue: currencyCode) == nil {
-                            Text(currencyCode).tag(currencyCode)
+                    Menu {
+                        Picker("Currency", selection: $currencyCode) {
+                            ForEach(WalletCurrency.allCases) { currency in
+                                Text(currency.displayName).tag(currency.rawValue)
+                            }
+                            if WalletCurrency(rawValue: currencyCode) == nil {
+                                Text(currencyCode).tag(currencyCode)
+                            }
                         }
                     } label: {
-                        Label("Currency", systemImage: "globe")
+                        WalletFormMenuLabel("Currency", value: WalletCurrency(rawValue: currencyCode)?.displayName ?? currencyCode)
                     }
                     .accessibilityIdentifier("transactionCurrency")
                 } header: {
@@ -299,14 +301,16 @@ struct TransactionEditorView: View {
                 }
 
                 Section {
-                    Picker(selection: $selectedCategoryID) {
-                        Text("Choose a category").tag(UUID?.none)
-                        ForEach(availableCategories) { category in
-                            Label(category.name, systemImage: WalletTheme.categorySymbol(category.icon))
-                                .tag(Optional(category.id))
+                    Menu {
+                        Picker("Category", selection: $selectedCategoryID) {
+                            Text("Choose a category").tag(UUID?.none)
+                            ForEach(availableCategories) { category in
+                                Label(category.name, systemImage: WalletTheme.categorySymbol(category.icon))
+                                    .tag(Optional(category.id))
+                            }
                         }
                     } label: {
-                        Label("Category", systemImage: "square.grid.2x2")
+                        WalletFormMenuLabel("Category", value: selectedCategory?.name ?? String(localized: "Choose a category"))
                     }
                     .accessibilityIdentifier("transactionCategory")
 
@@ -326,11 +330,12 @@ struct TransactionEditorView: View {
                     DatePicker(selection: $date, displayedComponents: .date) {
                         Label("Date", systemImage: "calendar")
                     }
-                    HStack(spacing: 12) {
-                        Image(systemName: "text.alignleft")
+                    VStack(alignment: .leading, spacing: 8) {
+                        Label("Note (optional)", systemImage: "text.alignleft")
                             .foregroundStyle(.secondary)
-                            .accessibilityHidden(true)
-                        TextField("Note (optional)", text: $note, axis: .vertical)
+                            .font(.subheadline)
+                            .fixedSize(horizontal: false, vertical: true)
+                        TextField("", text: $note, axis: .vertical)
                             .focused($focusedField, equals: .note)
                             .lineLimit(1...5)
                             .textInputAutocapitalization(.sentences)

@@ -21,6 +21,8 @@ final class WalletCategory {
     var isArchived: Bool
     @Relationship(deleteRule: .nullify, inverse: \WalletTransaction.category)
     var transactions: [WalletTransaction] = []
+    @Relationship(deleteRule: .nullify, inverse: \WalletRecurringPayment.category)
+    var recurringPayments: [WalletRecurringPayment] = []
 
     var kind: TransactionKind {
         get { TransactionKind(rawValue: kindRaw) ?? .expense }

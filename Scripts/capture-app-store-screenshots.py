@@ -16,6 +16,9 @@ EXPECTED_CAPTURES = (
     "04-new-transaction.png",
     "05-new-category.png",
     "06-settings.png",
+    "07-payments.png",
+    "08-analytics.png",
+    "09-category-chart.png",
 )
 
 
@@ -87,7 +90,7 @@ for test in json.loads((attachments / "manifest.json").read_text()):
             raise RuntimeError("Use iPhone 18 Pro at its native 1206 × 2622 resolution.")
         captured[filename] = image
 if set(captured) != set(EXPECTED_CAPTURES):
-    raise RuntimeError(f"Expected all six named captures; found {sorted(captured)}")
+    raise RuntimeError(f"Expected all {len(EXPECTED_CAPTURES)} named captures; found {sorted(captured)}")
 for filename in EXPECTED_CAPTURES:
     shutil.copyfile(captured[filename], destination / filename)
 print(f"Saved unchanged RGB screenshots to {destination}: {', '.join(EXPECTED_CAPTURES)}")

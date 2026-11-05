@@ -185,6 +185,121 @@ final class WalletSmokeTests: XCTestCase {
         attachScreenshot("Discarded draft absent after relaunch")
     }
 
+    func testRecurringPaymentRecordsOnlyConfirmedOccurrencesAndPreservesHistory() throws {
+        XCTAssertTrue(home.waitForExistence(timeout: 15), "Use a dedicated simulator without a pending legacy import.")
+        let suffix = String(UUID().uuidString.prefix(8))
+        let categoryName = "AAA Recurring \(suffix)"
+        let paymentName = "UI subscription \(suffix)"
+
+        openCategories()
+        app.navigationBars["Categories"].buttons["Add category"].tap()
+        let categoryNameField = app.textFields["categoryName"]
+        XCTAssertTrue(categoryNameField.waitForExistence(timeout: 5))
+        categoryNameField.tap()
+        categoryNameField.typeText(categoryName)
+        app.buttons["saveCategory"].tap()
+        XCTAssertTrue(categoryElement(containing: categoryName).waitForExistence(timeout: 5))
+        let initialBalance = try overviewUSDBalance()
+
+        openPayments()
+        app.buttons["newRecurringPayment"].tap()
+        let name = app.textFields["paymentName"]
+        XCTAssertTrue(name.waitForExistence(timeout: 5))
+        name.tap()
+        name.typeText(paymentName)
+        app.buttons["Done"].firstMatch.tap()
+        let subscription = app.switches["paymentSubscription"]
+        reveal(subscription)
+        subscription.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5)).tap()
+        XCTAssertEqual(subscription.value as? String, "1")
+        let amount = app.textFields["paymentAmount"]
+        reveal(amount)
+        amount.tap()
+        amount.typeText("12.34")
+        app.buttons["Done"].firstMatch.tap()
+        reveal(app.buttons["paymentCurrency"])
+        app.buttons["paymentCurrency"].tap()
+        app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "USD")).firstMatch.tap()
+        reveal(app.buttons["paymentCategory"])
+        app.buttons["paymentCategory"].tap()
+        app.buttons[categoryName].firstMatch.tap()
+        reveal(app.buttons["paymentCadence"])
+        app.buttons["paymentCadence"].tap()
+        app.buttons["Weekly"].firstMatch.tap()
+        attachScreenshot("Recurring payment draft")
+        app.buttons["saveRecurringPayment"].tap()
+        waitForPaymentsRoot()
+        XCTAssertTrue(name.waitForNonExistence(timeout: 5))
+        XCTAssertEqual(try overviewUSDBalance(), initialBalance, "Creating a plan must not change the ledger balance.")
+        assertNoTransaction(named: paymentName)
+
+        openPayment(named: paymentName)
+        let originalDue = try recurringDueDate()
+        reveal(app.buttons["markRecurringPaid"])
+        app.buttons["markRecurringPaid"].tap()
+        // Native iOS 27 confirmation popovers expose a nested button with the
+        // same identifier. Select the first node of that one visible action.
+        let paidConfirmation = app.buttons["confirmRecurringPaid"].firstMatch
+        XCTAssertTrue(paidConfirmation.waitForExistence(timeout: 5))
+        attachScreenshot("Confirm one recurring expense")
+        paidConfirmation.tap()
+        waitForPaymentsRoot()
+        openPayment(named: paymentName)
+        let paidDue = try recurringDueDate()
+        XCTAssertGreaterThan(paidDue, originalDue, "Recording a payment must advance the due date.")
+        let paidBalance = initialBalance.subtracting(NSDecimalNumber(string: "12.34"))
+        XCTAssertEqual(try overviewUSDBalance(), paidBalance)
+        assertSingleTransaction(named: paymentName, amount: "$12.34")
+
+        openPayment(named: paymentName)
+        reveal(app.buttons["skipRecurringPayment"])
+        app.buttons["skipRecurringPayment"].tap()
+        let skipConfirmation = app.buttons["confirmRecurringSkip"].firstMatch
+        XCTAssertTrue(skipConfirmation.waitForExistence(timeout: 5))
+        skipConfirmation.tap()
+        waitForPaymentsRoot()
+        openPayment(named: paymentName)
+        let skippedDue = try recurringDueDate()
+        XCTAssertGreaterThan(skippedDue, paidDue, "Skipping must advance the due date without recording a transaction.")
+        XCTAssertEqual(try overviewUSDBalance(), paidBalance)
+        assertSingleTransaction(named: paymentName, amount: "$12.34")
+
+        openPayment(named: paymentName)
+        reveal(app.buttons["pauseRecurringPayment"])
+        app.buttons["pauseRecurringPayment"].tap()
+        waitForPaymentsRoot()
+        XCTAssertTrue(app.staticTexts["Paused"].exists)
+        openPayment(named: paymentName)
+        XCTAssertFalse(app.buttons["markRecurringPaid"].exists, "A paused plan must not offer payment recording.")
+        XCTAssertEqual(try recurringDueDate(), skippedDue)
+        reveal(app.buttons["resumeRecurringPayment"])
+        app.buttons["resumeRecurringPayment"].tap()
+        waitForPaymentsRoot()
+        openPayment(named: paymentName)
+        XCTAssertEqual(try recurringDueDate(), skippedDue, "Pause/resume must not silently reschedule a payment.")
+        reveal(app.buttons["markRecurringPaid"])
+        XCTAssertTrue(app.buttons["markRecurringPaid"].isEnabled)
+
+        reveal(app.buttons["deleteRecurringPayment"])
+        app.buttons["deleteRecurringPayment"].tap()
+        let deleteConfirmation = app.buttons["confirmRecurringDelete"].firstMatch
+        XCTAssertTrue(deleteConfirmation.waitForExistence(timeout: 5))
+        deleteConfirmation.tap()
+        waitForPaymentsRoot()
+        XCTAssertTrue(paymentRow(named: paymentName).waitForNonExistence(timeout: 5))
+        XCTAssertEqual(try overviewUSDBalance(), paidBalance)
+        assertSingleTransaction(named: paymentName, amount: "$12.34")
+
+        app.terminate()
+        app.launch()
+        XCTAssertTrue(home.waitForExistence(timeout: 15))
+        XCTAssertEqual(try overviewUSDBalance(), paidBalance)
+        openPayments()
+        XCTAssertFalse(paymentRow(named: paymentName).exists, "A deleted plan must remain deleted after relaunch.")
+        assertSingleTransaction(named: paymentName, amount: "$12.34")
+        attachScreenshot("Recorded expense preserved after plan deletion and relaunch")
+    }
+
     /// The host supplies the synthetic old-engine fixture in Documents/default.realm
     /// before launch. A normal clean-install run intentionally skips this method.
     func testLegacyMigrationReviewAndTransfer() throws {
@@ -242,6 +357,84 @@ final class WalletSmokeTests: XCTestCase {
     private func openHistory() {
         selectTab("Transactions")
         XCTAssertTrue(app.navigationBars["Transactions"].waitForExistence(timeout: 5))
+    }
+
+    private var paymentsList: XCUIElement {
+        app.descendants(matching: .any).matching(identifier: "recurringPaymentsList").firstMatch
+    }
+
+    private func openPayments() {
+        selectTab("Payments")
+        if app.navigationBars["Payment"].exists {
+            app.navigationBars["Payment"].buttons.element(boundBy: 0).tap()
+        }
+        XCTAssertTrue(paymentsList.waitForExistence(timeout: 5))
+    }
+
+    private func waitForPaymentsRoot() {
+        // Successful isolated writes recreate the container and navigation
+        // stack. Query the new root instead of reusing the old detail element.
+        XCTAssertTrue(app.navigationBars["Payment"].waitForNonExistence(timeout: 10))
+        XCTAssertTrue(app.navigationBars["Payments"].waitForExistence(timeout: 10))
+        XCTAssertTrue(paymentsList.waitForExistence(timeout: 10))
+        XCTAssertTrue(app.tabBars.buttons["Payments"].isSelected)
+    }
+
+    private func paymentRow(named name: String) -> XCUIElement {
+        paymentsList.buttons.matching(NSPredicate(format: "label CONTAINS %@", name)).firstMatch
+    }
+
+    private func openPayment(named name: String) {
+        openPayments()
+        let row = paymentRow(named: name)
+        reveal(row)
+        row.tap()
+        XCTAssertTrue(app.navigationBars["Payment"].waitForExistence(timeout: 5))
+    }
+
+    private func recurringDueDate() throws -> Date {
+        let row = app.descendants(matching: .any).matching(identifier: "recurringNextPayment").firstMatch
+        reveal(row)
+        let value = try XCTUnwrap(row.value as? String, "The due date must expose its full accessible value.")
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US")
+        formatter.calendar = Calendar(identifier: .gregorian)
+        formatter.timeZone = .current
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        return try XCTUnwrap(formatter.date(from: value), "Unable to parse visible due date: \(value)")
+    }
+
+    private func overviewUSDBalance() throws -> NSDecimalNumber {
+        goHome()
+        chooseOverviewUSD()
+        let balance = app.descendants(matching: .any).matching(identifier: "overviewBalance").firstMatch
+        XCTAssertTrue(balance.waitForExistence(timeout: 5))
+        let value = try XCTUnwrap(balance.value as? String)
+        let formatter = NumberFormatter()
+        formatter.locale = Locale(identifier: "en_US")
+        formatter.numberStyle = .currency
+        formatter.currencyCode = "USD"
+        formatter.generatesDecimalNumbers = true
+        let parsed = try XCTUnwrap(formatter.number(from: value), "Unable to parse visible balance: \(value)")
+        return NSDecimalNumber(decimal: parsed.decimalValue)
+    }
+
+    private func assertNoTransaction(named name: String) {
+        openHistory()
+        findTransaction(name)
+        let empty = app.staticTexts.matching(NSPredicate(format: "label IN %@",
+            ["No matching transactions", "Your story starts here"] as NSArray)).firstMatch
+        XCTAssertTrue(empty.waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons.matching(NSPredicate(format: "label CONTAINS %@", name)).firstMatch.exists)
+    }
+
+    private func assertSingleTransaction(named name: String, amount: String) {
+        openHistory()
+        findTransaction(name)
+        let rows = app.buttons.matching(NSPredicate(format: "label CONTAINS %@ AND label CONTAINS %@", name, amount))
+        XCTAssertTrue(rows.firstMatch.waitForExistence(timeout: 5))
+        XCTAssertEqual(rows.count, 1, "Only one confirmed occurrence may be recorded; skip/delete/relaunch must not add another.")
     }
 
     private func selectTab(_ title: String) {
@@ -347,7 +540,12 @@ final class WalletSmokeTests: XCTestCase {
             let clear = search.buttons["Clear text"]
             if clear.exists { clear.tap() }
             search.typeText(note)
-            XCTAssertEqual(search.value as? String, note)
+            // The native search field can report its first typed character
+            // before its accessibility snapshot catches up with the screen.
+            let enteredText = XCTNSPredicateExpectation(
+                predicate: NSPredicate(format: "value == %@", note), object: search)
+            XCTAssertEqual(XCTWaiter.wait(for: [enteredText], timeout: 5), .completed,
+                           "Search must contain the entire requested note before checking results.")
         }
     }
 
@@ -416,6 +614,9 @@ final class WalletAppStoreScreenshotTests: XCTestCase {
             // Refuse a populated wallet: seeding must never modify personal data.
             XCTAssertTrue(app.buttons[russian ? "Добавить операцию" : "Add transaction"].exists)
             XCTAssertTrue(emptyWallet.exists, "Create a fresh dedicated simulator before capturing screenshots.")
+            selectTab(app, title: russian ? "Платежи" : "Payments")
+            XCTAssertTrue(app.staticTexts[russian ? "Пока нет платежей" : "No payments yet"].waitForExistence(timeout: 5),
+                          "Fresh capture must not add demo plans to an existing wallet.")
         } else {
             XCTAssertFalse(emptyWallet.exists, "Read-only capture requires the already seeded dedicated screenshot simulator.")
         }
@@ -463,10 +664,11 @@ final class WalletAppStoreScreenshotTests: XCTestCase {
                 XCTAssertTrue(amountField.waitForNonExistence(timeout: 5))
                 XCTAssertTrue(home.waitForExistence(timeout: 5))
             }
+            seedPayments(app, language: language)
         }
 
-        // All modes capture the same six resting screens. Refresh and QA change
-        // no fields, and both new editors are canceled without creating records.
+        // All modes capture the same nine resting screens. Only the fresh
+        // mode seeds plans; refresh/QA change no stored data or editor fields.
         app.terminate()
         app.launch()
         XCTAssertTrue(home.waitForExistence(timeout: 10))
@@ -479,6 +681,7 @@ final class WalletAppStoreScreenshotTests: XCTestCase {
         let transactions = russian ? "Операции" : "Transactions"
         let categories = russian ? "Категории" : "Categories"
         let settings = russian ? "Настройки" : "Settings"
+        let payments = russian ? "Платежи" : "Payments"
         let newTransaction = russian ? "Новая операция" : "New transaction"
         let newCategory = russian ? "Новая категория" : "New category"
         let cancel = russian ? "Отмена" : "Cancel"
@@ -517,6 +720,107 @@ final class WalletAppStoreScreenshotTests: XCTestCase {
         app.navigationBars[categories].buttons.element(boundBy: 0).tap()
         XCTAssertTrue(app.navigationBars[settings].waitForExistence(timeout: 5))
         screenshot(app, name: "\(prefix)-06-settings")
+
+        selectTab(app, title: payments)
+        XCTAssertTrue(app.navigationBars[payments].waitForExistence(timeout: 5))
+        screenshot(app, name: "\(prefix)-07-payments")
+
+        selectTab(app, title: overview)
+        XCTAssertTrue(home.waitForExistence(timeout: 5))
+        scrollToChart(app, identifier: "timelineChartCard")
+        screenshot(app, name: "\(prefix)-08-analytics")
+        scrollToChart(app, identifier: "categoryChartCard")
+        screenshot(app, name: "\(prefix)-09-category-chart")
+    }
+
+    private func seedPayments(_ app: XCUIApplication, language: String) {
+        let russian = language == "ru"
+        let payments = russian ? "Платежи" : "Payments"
+        let done = russian ? "Готово" : "Done"
+        let currency = russian ? "RUB" : "USD"
+        let rows: [(String, String, String)] = russian ? [
+            ("Музыка", "399", "Развлечения"),
+            ("Облачное хранилище", "149", "Дом")
+        ] : [
+            ("Music", "10.99", "Entertainment"),
+            ("Cloud storage", "2.99", "House")
+        ]
+        selectTab(app, title: payments)
+        for (name, amount, category) in rows {
+            app.buttons["newRecurringPayment"].tap()
+            let nameField = app.textFields["paymentName"]
+            XCTAssertTrue(nameField.waitForExistence(timeout: 5))
+            nameField.tap()
+            nameField.typeText(name)
+            app.buttons[done].firstMatch.tap()
+            let subscription = app.switches["paymentSubscription"]
+            reveal(subscription, in: app)
+            subscription.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5)).tap()
+            XCTAssertEqual(subscription.value as? String, "1")
+            let amountField = app.textFields["paymentAmount"]
+            reveal(amountField, in: app)
+            amountField.tap()
+            amountField.typeText(amount)
+            app.buttons[done].firstMatch.tap()
+            reveal(app.buttons["paymentCurrency"], in: app)
+            app.buttons["paymentCurrency"].tap()
+            app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", currency)).firstMatch.tap()
+            reveal(app.buttons["paymentCategory"], in: app)
+            app.buttons["paymentCategory"].tap()
+            app.buttons[category].firstMatch.tap()
+            app.buttons["saveRecurringPayment"].tap()
+            XCTAssertTrue(nameField.waitForNonExistence(timeout: 10))
+            XCTAssertTrue(app.navigationBars[payments].waitForExistence(timeout: 10))
+            XCTAssertTrue(app.tabBars.buttons[payments].isSelected, "Saving a plan must preserve the selected tab.")
+        }
+    }
+
+    private func scrollToChart(_ app: XCUIApplication, identifier: String) {
+        let charts = app.descendants(matching: .any).matching(identifier: identifier)
+        let navigation = app.navigationBars.firstMatch
+        let top = navigation.frame.maxY + 12
+        let bottom = app.tabBars.firstMatch.frame.minY - 12
+        let viewportHeight = bottom - top
+        let allowsOversizedCard = ProcessInfo.processInfo.environment["IWALLET_QA_SCROLL"] == "1"
+        func cardFrame() -> CGRect? {
+            let frames = charts.allElementsBoundByIndex.map(\.frame).filter {
+                !$0.isEmpty && !$0.isNull && !$0.isInfinite &&
+                $0.minX.isFinite && $0.minY.isFinite && $0.maxX.isFinite && $0.maxY.isFinite
+            }
+            guard let first = frames.first else { return nil }
+            return frames.dropFirst().reduce(first) { $0.union($1) }
+        }
+        let geometry = XCTAttachment(string: charts.debugDescription)
+        geometry.name = "Chart accessibility geometry \(identifier)"
+        geometry.lifetime = .keepAlways
+        add(geometry)
+        func isReady(_ frame: CGRect?) -> Bool {
+            guard let frame else { return false }
+            if frame.height <= viewportHeight {
+                return frame.minY >= top && frame.maxY <= bottom
+            }
+            // Accessibility QA captures the top, then additional lower pages.
+            // Normal App Store captures must contain the entire card.
+            return allowsOversizedCard && frame.minY >= top && frame.minY <= top + 60
+        }
+        for _ in 0..<10 {
+            let frame = cardFrame()
+            if isReady(frame) { return }
+            let targetTop = frame.map { top + max(0, (viewportHeight - $0.height) / 2) } ?? top
+            let distance = frame.map { $0.minY - targetTop } ?? 250
+            // A short flick coasted past the target on iOS 27, oscillating
+            // above and below it. Approach with a damped, held drag instead.
+            let shift = min(max(distance * 0.5, -200), 200)
+            // Drag along the scroll view's margin rather than across the
+            // interactive chart, preserving its unselected resting state.
+            let origin = app.coordinate(withNormalizedOffset: .zero)
+            let startY = (top + bottom) / 2
+            origin.withOffset(CGVector(dx: 8, dy: startY)).press(forDuration: 0.1,
+                thenDragTo: origin.withOffset(CGVector(dx: 8, dy: startY - shift)),
+                withVelocity: .slow, thenHoldForDuration: 0.2)
+        }
+        XCTAssertTrue(isReady(cardFrame()),
+                      "The real chart card \(identifier) must fit between navigation and tabs before capturing it. Frame: \(String(describing: cardFrame())), viewport: \(top)...\(bottom).")
     }
 
     private func selectTab(_ app: XCUIApplication, title: String) {
@@ -549,7 +853,57 @@ final class WalletAppStoreScreenshotTests: XCTestCase {
                 app.swipeUp()
                 captureAttachment(app, name: "\(name)-lower-\(page)")
             }
+            if name.hasSuffix("-02-transactions") {
+                let lastTransaction = app.buttons.matching(NSPredicate(
+                    format: "label CONTAINS %@ OR label CONTAINS %@", "Зарплата за месяц", "Monthly salary"))
+                captureBottom(app, matching: lastTransaction, name: "\(name)-bottom")
+            } else if name.hasSuffix("-06-settings") {
+                let storage = app.staticTexts.matching(NSPredicate(
+                    format: "label CONTAINS %@ OR label CONTAINS %@ OR label IN %@ OR value IN %@",
+                    "Хранение", "Storage",
+                    ["На этом устройстве", "On this device"] as NSArray,
+                    ["На этом устройстве", "On this device"] as NSArray))
+                captureBottom(app, matching: storage, name: "\(name)-bottom")
+            }
         }
+    }
+
+    private func captureBottom(_ app: XCUIApplication, matching elements: XCUIElementQuery, name: String) {
+        func targetFrame() -> CGRect? {
+            let frames = elements.allElementsBoundByIndex.map(\.frame).filter {
+                !$0.isEmpty && !$0.isNull && !$0.isInfinite && $0.minY.isFinite && $0.maxY.isFinite
+            }
+            guard let first = frames.first else { return nil }
+            return frames.dropFirst().reduce(first) { $0.union($1) }
+        }
+        func visibleRange() -> ClosedRange<CGFloat> {
+            var top = app.navigationBars.firstMatch.frame.maxY + 12
+            let search = app.searchFields.firstMatch
+            if search.exists && search.isHittable { top = max(top, search.frame.maxY + 12) }
+            return top...(app.tabBars.firstMatch.frame.minY - 12)
+        }
+        func isVisible(_ frame: CGRect?, in range: ClosedRange<CGFloat>) -> Bool {
+            guard let frame else { return false }
+            return frame.minY >= range.lowerBound && frame.maxY <= range.upperBound
+        }
+        for _ in 0..<10 {
+            let frame = targetFrame()
+            let range = visibleRange()
+            if isVisible(frame, in: range) {
+                captureAttachment(app, name: name)
+                return
+            }
+            let middle = (range.lowerBound + range.upperBound) / 2
+            let distance = frame.map { $0.midY - middle } ?? 400
+            let shift = min(max(distance * 0.5, -200), 200)
+            let origin = app.coordinate(withNormalizedOffset: .zero)
+            origin.withOffset(CGVector(dx: 8, dy: middle)).press(forDuration: 0.1,
+                thenDragTo: origin.withOffset(CGVector(dx: 8, dy: middle - shift)),
+                withVelocity: .slow, thenHoldForDuration: 0.2)
+        }
+        captureAttachment(app, name: name)
+        XCTAssertTrue(isVisible(targetFrame(), in: visibleRange()),
+                      "The last seeded row must be entirely visible above the tab bar. \(elements.debugDescription)")
     }
 
     private func captureAttachment(_ app: XCUIApplication, name: String) {

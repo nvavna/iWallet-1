@@ -259,8 +259,40 @@ final class WalletStoreTests: XCTestCase {
     }
 
     @MainActor
+    func testFailedNewTransactionDoesNotAppearInHistoryOrCategory() async throws {
+        for originalCount in 0...1 {
+            let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+            defer { try? FileManager.default.removeItem(at: directory) }
+            let url = directory.appendingPathComponent("readonly-insert.store")
+            try autoreleasepool {
+                let source = try diskContainer(at: url)
+                let category = try WalletStore.saveCategory(context: source.mainContext, name: "Food", icon: "cart", color: "colorPurple", kind: .expense)
+                if originalCount > 0 {
+                    try WalletStore.saveTransaction(context: source.mainContext, amountMinor: 100, currencyCode: "USD", date: .now,
+                                                    note: "Previously saved", kind: .expense, category: category)
+                }
+            }
+            let readonly = try diskContainer(at: url, allowsSave: false)
+            let context = readonly.mainContext
+            let category = try XCTUnwrap(context.fetch(FetchDescriptor<WalletCategory>()).first)
+            let originalIDs = Set(try context.fetch(FetchDescriptor<WalletTransaction>()).map(\.id))
+            XCTAssertEqual(category.transactions.count, originalCount)
+            XCTAssertThrowsError(try WalletStore.saveTransaction(context: context, amountMinor: 500, currencyCode: "USD", date: .now,
+                                                                  note: "Must remain unsaved", kind: .expense, category: category))
+            XCTAssertEqual(Set(try context.fetch(FetchDescriptor<WalletTransaction>()).map(\.id)), originalIDs,
+                           "A failed save must not leave a phantom transaction visible in the UI context.")
+            XCTAssertEqual(Set(category.transactions.map(\.id)), originalIDs,
+                           "The existing category must not retain the failed transaction.")
+            XCTAssertFalse(context.hasChanges)
+            let reopened = try diskContainer(at: url, allowsSave: false)
+            XCTAssertEqual(Set(try reopened.mainContext.fetch(FetchDescriptor<WalletTransaction>()).map(\.id)), originalIDs)
+        }
+    }
+
+    @MainActor
     private func diskContainer(at url: URL, allowsSave: Bool = true) throws -> ModelContainer {
-        let schema = Schema([WalletCategory.self, WalletTransaction.self])
+        let schema = Schema([WalletCategory.self, WalletTransaction.self, WalletMigrationReceipt.self, WalletRecurringPayment.self])
         let configuration = ModelConfiguration("Test", schema: schema, url: url, allowsSave: allowsSave, cloudKitDatabase: .none)
         let container = try ModelContainer(for: schema, configurations: [configuration])
         container.mainContext.autosaveEnabled = false

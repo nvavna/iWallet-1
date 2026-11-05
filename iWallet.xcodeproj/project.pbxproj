@@ -5,6 +5,46 @@
 	"objectVersion" = "56";
 	"archiveVersion" = "1";
 	"objects" = {
+		"F1F6234F6700D90912F93F49" = {
+			"isa" = "PBXFileReference";
+			"path" = "RecurringPayments.swift";
+			"lastKnownFileType" = "sourcecode.swift";
+			"sourceTree" = "<group>";
+		};
+		"75EBE4CC82AF1AE24CA8EF9C" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "F1F6234F6700D90912F93F49";
+		};
+		"B011E83ABFB753A8D48EDA96" = {
+			"isa" = "PBXFileReference";
+			"path" = "RecurringPaymentViews.swift";
+			"lastKnownFileType" = "sourcecode.swift";
+			"sourceTree" = "<group>";
+		};
+		"2D9ABD76E5B92DDD625A3CA9" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "B011E83ABFB753A8D48EDA96";
+		};
+		"F89B6C49BA0D9D2753052D7D" = {
+			"isa" = "PBXFileReference";
+			"path" = "WalletInsights.swift";
+			"lastKnownFileType" = "sourcecode.swift";
+			"sourceTree" = "<group>";
+		};
+		"930A77D3AB9E29C4A2E1FC40" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "F89B6C49BA0D9D2753052D7D";
+		};
+		"D41C84318BDCED1C77C76759" = {
+			"isa" = "PBXFileReference";
+			"path" = "WalletAnalyticsViews.swift";
+			"lastKnownFileType" = "sourcecode.swift";
+			"sourceTree" = "<group>";
+		};
+		"FBE9CC476E36576B303E5FE7" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "D41C84318BDCED1C77C76759";
+		};
 		"AF971BEAA298D7E0FAD93111" = {
 			"isa" = "PBXFileReference";
 			"path" = "ThirdPartyNotices.txt";
@@ -187,6 +227,10 @@
 			"isa" = "PBXSourcesBuildPhase";
 			"buildActionMask" = "2147483647";
 			"files" = (
+				"75EBE4CC82AF1AE24CA8EF9C",
+				"2D9ABD76E5B92DDD625A3CA9",
+				"930A77D3AB9E29C4A2E1FC40",
+				"FBE9CC476E36576B303E5FE7",
 				"5296095B1EEE05DC8BF1606A",
 				"8B07E6D169A4CEF8E025FD39",
 				"FB4F0C84EE771E6AFE5B7BCD",
@@ -303,7 +347,7 @@
 				"INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad" = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				"MARKETING_VERSION" = "2.0.0";
 				"DEVELOPMENT_TEAM" = "4243BL8MP3";
-				"CURRENT_PROJECT_VERSION" = "4";
+				"CURRENT_PROJECT_VERSION" = "5";
 				"SUPPORTED_PLATFORMS" = "iphoneos iphonesimulator";
 				"INFOPLIST_KEY_LSApplicationCategoryType" = "public.app-category.finance";
 				"INFOPLIST_KEY_ITSAppUsesNonExemptEncryption" = "NO";
@@ -359,6 +403,10 @@
 			"path" = "Native";
 			"isa" = "PBXGroup";
 			"children" = (
+				"F1F6234F6700D90912F93F49",
+				"B011E83ABFB753A8D48EDA96",
+				"F89B6C49BA0D9D2753052D7D",
+				"D41C84318BDCED1C77C76759",
 				"AF971BEAA298D7E0FAD93111",
 				"823B7724940DF522A80AA396",
 				"E2D34980A71C66F03B0C8C32",
@@ -482,7 +530,7 @@
 				"INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad" = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				"MARKETING_VERSION" = "2.0.0";
 				"DEVELOPMENT_TEAM" = "4243BL8MP3";
-				"CURRENT_PROJECT_VERSION" = "4";
+				"CURRENT_PROJECT_VERSION" = "5";
 				"SUPPORTED_PLATFORMS" = "iphoneos iphonesimulator";
 				"INFOPLIST_KEY_LSApplicationCategoryType" = "public.app-category.finance";
 				"INFOPLIST_KEY_ITSAppUsesNonExemptEncryption" = "NO";

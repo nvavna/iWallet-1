@@ -11,11 +11,14 @@ struct iWalletApp: App {
     }
 }
 
+private enum WalletDestination: Hashable { case overview, transactions, payments, settings }
+
 private struct WalletBootstrapView: View {
     @State private var container: ModelContainer?
     @State private var failure: String?
     @State private var legacyFiles: [URL] = []
     @State private var revision = 0
+    @State private var selection: WalletDestination = .overview
 
     var body: some View {
         Group {
@@ -25,10 +28,11 @@ private struct WalletBootstrapView: View {
                         openWallet()
                     }
                 } else {
-                    WalletRootView()
+                    WalletRootView(selection: $selection)
                         .id(revision)
                         .modelContainer(container)
-                        .environment(\.walletDidRestore, { revision += 1 })
+                        .environment(\.walletDidRestore, reloadWallet)
+                        .environment(\.walletDidChange, reloadWallet)
                 }
             } else if let failure {
                 ContentUnavailableView {
@@ -45,6 +49,12 @@ private struct WalletBootstrapView: View {
             }
         }
         .task { if container == nil && failure == nil { openWallet() } }
+    }
+
+    @MainActor
+    private func reloadWallet() {
+        openWallet()
+        revision += 1
     }
 
     @MainActor
@@ -71,14 +81,22 @@ private struct WalletBootstrapView: View {
 }
 
 private struct WalletRootView: View {
+    @Binding var selection: WalletDestination
+
     var body: some View {
-        TabView {
-            WalletHomeView()
+        TabView(selection: $selection) {
+            WalletHomeView(showPayments: { selection = .payments })
                 .tabItem { Label("Overview", systemImage: "chart.pie") }
+                .tag(WalletDestination.overview)
             TransactionListView(isPresentedModally: false)
                 .tabItem { Label("Transactions", systemImage: "list.bullet.rectangle") }
+                .tag(WalletDestination.transactions)
+            RecurringPaymentListView()
+                .tabItem { Label("Payments", systemImage: "calendar") }
+                .tag(WalletDestination.payments)
             WalletSettingsView(isPresentedModally: false)
                 .tabItem { Label("Settings", systemImage: "gearshape") }
+                .tag(WalletDestination.settings)
         }
     }
 }
@@ -87,7 +105,15 @@ private struct WalletDidRestoreKey: EnvironmentKey {
     static let defaultValue: () -> Void = {}
 }
 
+private struct WalletDidChangeKey: EnvironmentKey {
+    static let defaultValue: () -> Void = {}
+}
+
 extension EnvironmentValues {
+    var walletDidChange: () -> Void {
+        get { self[WalletDidChangeKey.self] }
+        set { self[WalletDidChangeKey.self] = newValue }
+    }
     var walletDidRestore: () -> Void {
         get { self[WalletDidRestoreKey.self] }
         set { self[WalletDidRestoreKey.self] = newValue }

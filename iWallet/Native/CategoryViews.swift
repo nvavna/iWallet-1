@@ -143,6 +143,7 @@ struct CategoryEditorView: View {
     @State private var showsDiscardConfirmation = false
     private let initialKind: TransactionKind
     private let isPresentedModally: Bool
+    private let allowKindSelection: Bool
     private let onSave: ((WalletCategory) -> Void)?
     private let columns = [GridItem(.adaptive(minimum: 48), spacing: 12)]
 
@@ -161,11 +162,13 @@ struct CategoryEditorView: View {
     init(
         kind: TransactionKind = .expense,
         isPresentedModally: Bool = true,
+        allowKindSelection: Bool = true,
         onSave: ((WalletCategory) -> Void)? = nil
     ) {
         _kind = State(initialValue: kind)
         initialKind = kind
         self.isPresentedModally = isPresentedModally
+        self.allowKindSelection = allowKindSelection
         self.onSave = onSave
     }
 
@@ -207,11 +210,13 @@ struct CategoryEditorView: View {
                     .accessibilityIdentifier("categoryName")
                     .textInputAutocapitalization(.sentences)
                     .submitLabel(.done)
-                Picker("Category type", selection: $kind) {
-                    Text(LocalizedStringKey(TransactionKind.expense.localizedName)).tag(TransactionKind.expense)
-                    Text(LocalizedStringKey(TransactionKind.income.localizedName)).tag(TransactionKind.income)
+                if allowKindSelection {
+                    Picker("Category type", selection: $kind) {
+                        Text(LocalizedStringKey(TransactionKind.expense.localizedName)).tag(TransactionKind.expense)
+                        Text(LocalizedStringKey(TransactionKind.income.localizedName)).tag(TransactionKind.income)
+                    }
+                    .pickerStyle(.segmented)
                 }
-                .pickerStyle(.segmented)
             }
 
             Section {

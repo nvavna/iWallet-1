@@ -48,3 +48,25 @@ struct WalletSurface: ViewModifier {
 extension View {
     func walletSurface() -> some View { modifier(WalletSurface()) }
 }
+
+struct WalletFormMenuLabel: View {
+    let title: LocalizedStringKey
+    let value: String
+    init(_ title: LocalizedStringKey, value: String) { self.title = title; self.value = value }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title).font(.subheadline).foregroundStyle(Color(uiColor: .secondaryLabel))
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                Text(value).foregroundStyle(WalletTheme.accent)
+                    .fixedSize(horizontal: false, vertical: true)
+                Spacer(minLength: 0)
+                Image(systemName: "chevron.up.chevron.down")
+                    .font(.caption.weight(.semibold)).accessibilityHidden(true)
+            }
+        }
+        .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+        .contentShape(Rectangle())
+        .accessibilityElement(children: .combine)
+    }
+}

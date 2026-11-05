@@ -3,37 +3,57 @@ import SwiftData
 
 struct WalletHomeView: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.scenePhase) private var scenePhase
     @Query(sort: \WalletTransaction.date, order: .reverse) private var transactions: [WalletTransaction]
+    @Query(sort: \WalletRecurringPayment.nextDueDate) private var payments: [WalletRecurringPayment]
     @AppStorage("preferredCurrencyCode") private var preferredCurrency = WalletDefaults.currencyCode
-    @State private var selectedCurrency = ""
-    @State private var selectedKind: TransactionKind = .expense
+    @SceneStorage("wallet.overview.currency") private var selectedCurrency = ""
+    @SceneStorage("wallet.overview.kind") private var storedKind = TransactionKind.expense.rawValue
     @State private var showingEditor = false
-    @State private var allTime = true
+    @State private var now = Date()
+    @SceneStorage("wallet.overview.period") private var storedPeriod = WalletInsights.Period.month.rawValue
+    var showPayments: () -> Void = {}
 
     private var currency: String { selectedCurrency.isEmpty ? preferredCurrency : selectedCurrency }
-    private var currencies: [String] { Set(transactions.map(\.currencyCode) + [preferredCurrency]).sorted() }
-    private var currencyTransactions: [WalletTransaction] { transactions.filter { $0.currencyCode == currency } }
-    private var periodTransactions: [WalletTransaction] {
-        guard !allTime, let interval = Calendar.current.dateInterval(of: .month, for: .now) else {
-            return currencyTransactions
-        }
-        return currencyTransactions.filter { $0.date >= interval.start && $0.date < interval.end }
+    private var period: WalletInsights.Period { WalletInsights.Period(rawValue: storedPeriod) ?? .month }
+    private var selectedKind: TransactionKind { TransactionKind(rawValue: storedKind) ?? .expense }
+    private var currencies: [String] {
+        Set(transactions.map(\.currencyCode) + payments.map(\.currencyCode) + [preferredCurrency]).sorted()
     }
-    private var expenses: [WalletTransaction] { periodTransactions.filter { $0.kind == .expense } }
+    private var currencyTransactions: [WalletTransaction] { transactions.filter { $0.currencyCode == currency } }
+    private var upcomingPayments: [WalletRecurringPayment] {
+        Array(payments.filter { $0.isActive && $0.currencyCode == currency }.prefix(3))
+    }
+    private var dashboard: WalletInsights.SnapshotResult {
+        WalletInsights.result(entries: transactions.map { WalletInsights.Entry(transaction: $0) },
+                              currencyCode: currency, period: period, now: now)
+    }
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
                     balanceHeader
-                    summary
-                    VStack(spacing: 12) {
-                        Picker("Transaction type", selection: $selectedKind) {
-                            Text("Expense").tag(TransactionKind.expense)
-                            Text("Income").tag(TransactionKind.income)
+                    periodHeader
+                    switch dashboard {
+                    case .success(let snapshot):
+                        summary(snapshot)
+                        WalletTimelineCard(snapshot: snapshot)
+                        upcomingSection
+                        VStack(spacing: 16) {
+                            Picker("Transaction type", selection: Binding(get: { selectedKind }, set: { storedKind = $0.rawValue })) {
+                                Text("Expense").tag(TransactionKind.expense)
+                                Text("Income").tag(TransactionKind.income)
+                            }
+                            .pickerStyle(.segmented)
+                            .accessibilityIdentifier("homeTransactionType")
+                            WalletCategoryChartCard(snapshot: snapshot, kind: selectedKind)
+                            categorySummary(snapshot)
                         }
-                        .pickerStyle(.segmented)
-                        .accessibilityIdentifier("homeTransactionType")
-                        categorySummary
+                    case .failure:
+                        Label("Total is too large to display", systemImage: "exclamationmark.triangle")
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .walletSurface()
+                        upcomingSection
                     }
                 }
                 .padding(.horizontal, 20)
@@ -52,6 +72,19 @@ struct WalletHomeView: View {
             .sheet(isPresented: $showingEditor) {
                 TransactionEditorView(initialKind: selectedKind, initialCurrencyCode: currency)
             }
+            .task { await refreshClock() }
+            .onChange(of: scenePhase) { _, phase in
+                if phase == .active { now = Date() }
+            }
+        }
+    }
+
+    @MainActor
+    private func refreshClock() async {
+        while !Task.isCancelled {
+            now = Date()
+            do { try await Task.sleep(for: .seconds(60)) }
+            catch { return }
         }
     }
 
@@ -70,6 +103,7 @@ struct WalletHomeView: View {
             amount(balanceResult, font: .largeTitle.weight(.semibold))
                 .accessibilityLabel("Total balance")
                 .accessibilityValue(balanceAccessibilityValue)
+                .accessibilityIdentifier("overviewBalance")
         }
         .padding(.horizontal, 4)
         .padding(.bottom, 4)
@@ -96,13 +130,14 @@ struct WalletHomeView: View {
 
     private var periodMenu: some View {
         Menu {
-            Picker("Period", selection: $allTime) {
-                Text("This month").tag(false)
-                Text("All time").tag(true)
+            Picker("Period", selection: Binding(get: { period }, set: { storedPeriod = $0.rawValue })) {
+                ForEach(WalletInsights.Period.allCases) { item in
+                    Text(item.localizedName).tag(item)
+                }
             }
         } label: {
             HStack(spacing: 4) {
-                Text(LocalizedStringKey(allTime ? "All time" : "This month"))
+                Text(period.localizedName)
                 Image(systemName: "chevron.down").font(.caption2.weight(.semibold))
             }
             .font(.subheadline)
@@ -111,57 +146,129 @@ struct WalletHomeView: View {
             .contentShape(Rectangle())
         }
         .accessibilityLabel("Period")
-        .accessibilityValue(Text(LocalizedStringKey(allTime ? "All time" : "This month")))
+        .accessibilityValue(period.localizedName)
     }
 
-    private var summary: some View {
-        VStack(spacing: 8) {
-            let headerLayout = dynamicTypeSize.isAccessibilitySize
-                ? AnyLayout(VStackLayout(alignment: .leading, spacing: 0))
-                : AnyLayout(HStackLayout(spacing: 12))
-            headerLayout {
-                Text("Summary").font(.headline).accessibilityAddTraits(.isHeader)
-                if !dynamicTypeSize.isAccessibilitySize { Spacer(minLength: 8) }
-                periodMenu
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 4)
-
-            VStack(spacing: 0) {
-                metric("Income", result: total(for: .income))
-                Divider().padding(.leading, 16)
-                metric("Expense", result: total(for: .expense))
-                Divider().padding(.leading, 16)
-                metric("Expense average", result: averageResult, detail: "Per day with spending")
-                    .accessibilityHint("Average expense per day with spending in the selected period.")
-            }
-            .background(surface, in: RoundedRectangle(cornerRadius: 16))
-        }
-    }
-
-    private func metric(_ title: LocalizedStringKey, result: Result<Int64, Error>,
-                        detail: LocalizedStringKey? = nil) -> some View {
+    private var periodHeader: some View {
         let layout = dynamicTypeSize.isAccessibilitySize
-            ? AnyLayout(VStackLayout(alignment: .leading, spacing: 6))
-            : AnyLayout(HStackLayout(alignment: .firstTextBaseline, spacing: 16))
+            ? AnyLayout(VStackLayout(alignment: .leading, spacing: 4))
+            : AnyLayout(HStackLayout(alignment: .firstTextBaseline, spacing: 8))
         return layout {
-            VStack(alignment: .leading, spacing: 3) {
-                Text(title).font(.subheadline)
-                if let detail {
-                    Text(detail).font(.caption).foregroundStyle(.secondary)
+            Text("Cash flow").font(.headline).accessibilityAddTraits(.isHeader)
+            if !dynamicTypeSize.isAccessibilitySize { Spacer(minLength: 8) }
+            periodMenu
+        }
+        .padding(.horizontal, 4)
+    }
+
+    private func summary(_ snapshot: WalletInsights.Snapshot) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            let layout = dynamicTypeSize.isAccessibilitySize
+                ? AnyLayout(VStackLayout(alignment: .leading, spacing: 12))
+                : AnyLayout(HStackLayout(alignment: .top, spacing: 12))
+            layout {
+                metric("Income", value: snapshot.incomeMinor, symbol: "arrow.down.left", color: "colorGreen")
+                metric("Expense", value: snapshot.expenseMinor, symbol: "arrow.up.right", color: "colorBlue")
+            }
+            if snapshot.expenseActiveDays > 0 {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("Expense average").font(.caption).foregroundStyle(.secondary)
+                    Text("\(Money.format(snapshot.expenseAverageMinor, currencyCode: currency)) · \(String(localized: "Per day with spending"))")
+                        .font(.subheadline).monospacedDigit()
                         .fixedSize(horizontal: false, vertical: true)
                 }
+                .padding(.horizontal, 4)
+                .accessibilityElement(children: .combine)
+                .accessibilityHint("Average expense per day with spending in the selected period.")
+            }
+        }
+    }
+
+    private func metric(_ title: LocalizedStringKey, value: Int64, symbol: String, color: String) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 8) {
+                Image(systemName: symbol)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(WalletTheme.categoryColor(color))
+                    .accessibilityHidden(true)
+                Text(title).font(.subheadline).foregroundStyle(.secondary)
+            }
+            Text(Money.format(value, currencyCode: currency))
+                .font(.title3.weight(.semibold)).monospacedDigit()
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .walletSurface()
+        .accessibilityElement(children: .combine)
+    }
+
+    private var upcomingSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Upcoming payments").font(.headline)
+                Spacer(minLength: 8)
+                Button("All", action: showPayments)
+                    .frame(minWidth: 44, minHeight: 44)
+            }
+            .accessibilityAddTraits(.isHeader)
+            if upcomingPayments.isEmpty {
+                Button(action: showPayments) {
+                    Label("Plan subscriptions and other regular expenses.", systemImage: "calendar.badge.clock")
+                        .font(.subheadline)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.vertical, 4)
+                }
+            } else {
+                ForEach(upcomingPayments) { payment in
+                    NavigationLink {
+                        RecurringPaymentDetailView(payment: payment)
+                    } label: {
+                        upcomingRow(payment)
+                    }
+                    .buttonStyle(.plain)
+                    if payment.id != upcomingPayments.last?.id { Divider().padding(.leading, 44) }
+                }
+                Text("Expenses are recorded only when you mark a payment as paid.")
+                    .font(.caption).foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .walletSurface()
+        .accessibilityIdentifier("upcomingPayments")
+    }
+
+    private func upcomingRow(_ payment: WalletRecurringPayment) -> some View {
+        HStack(alignment: .top, spacing: 12) {
+            CategoryBadge(category: payment.category).accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: 4) {
+                Text(payment.name).font(.subheadline.weight(.medium))
+                Text(Money.format(payment.amountMinor, currencyCode: payment.currencyCode))
+                    .font(.subheadline.weight(.semibold)).monospacedDigit()
+                HStack(spacing: 6) {
+                    if payment.isOverdue(asOf: now) {
+                        Text("Overdue").foregroundStyle(.orange)
+                    }
+                    Text(paymentDate(payment)).foregroundStyle(.secondary)
+                }.font(.caption)
             }
             .fixedSize(horizontal: false, vertical: true)
-            if !dynamicTypeSize.isAccessibilitySize { Spacer(minLength: 0) }
-            amount(result, font: .subheadline.weight(.semibold))
-                .multilineTextAlignment(dynamicTypeSize.isAccessibilitySize ? .leading : .trailing)
-                .layoutPriority(1)
+            Spacer(minLength: 0)
+            Image(systemName: "chevron.forward").font(.caption.weight(.semibold))
+                .foregroundStyle(.tertiary).accessibilityHidden(true)
         }
-        .frame(maxWidth: .infinity, minHeight: 28, alignment: .leading)
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
+        .frame(minHeight: 44)
+        .contentShape(Rectangle())
         .accessibilityElement(children: .combine)
+    }
+
+    private func paymentDate(_ payment: WalletRecurringPayment) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = .current
+        formatter.calendar = payment.calendar
+        formatter.timeZone = payment.timeZone
+        formatter.dateStyle = .medium
+        return formatter.string(from: payment.nextDueDate)
     }
 
     @ViewBuilder
@@ -188,63 +295,41 @@ struct WalletHomeView: View {
         Result { try Money.sum(currencyTransactions.map { $0.kind == .income ? $0.amountMinor : -$0.amountMinor }) }
     }
 
-    private var averageResult: Result<Int64, Error> {
-        Result {
-            let days = Set(expenses.map { Calendar.current.startOfDay(for: $0.date) }).count
-            return try Money.averagePerDay(expenses.map(\.amountMinor), activeDays: days)
-        }
-    }
-
-    private func total(for kind: TransactionKind) -> Result<Int64, Error> {
-        Result { try Money.sum(periodTransactions.filter { $0.kind == kind }.map(\.amountMinor)) }
-    }
-
-    private var categoryTotals: Result<[HomeCategoryTotal], Error> {
-        Result {
-            let grouped = Dictionary(grouping: periodTransactions.filter { $0.kind == selectedKind }) { $0.category?.id }
-            return try grouped.map { key, items in
-                HomeCategoryTotal(id: key, category: items.first?.category,
-                                  amount: try Money.sum(items.map(\.amountMinor)))
-            }.sorted {
-                $0.amount == $1.amount ? $0.name.localizedStandardCompare($1.name) == .orderedAscending : $0.amount > $1.amount
-            }
-        }
-    }
-
     @ViewBuilder
-    private var categorySummary: some View {
-        switch categoryTotals {
-        case .failure:
-            Label("Total is too large to display", systemImage: "exclamationmark.triangle")
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .walletSurface()
-        case .success(let totals):
-            if totals.isEmpty {
-                ContentUnavailableView {
-                    Label(LocalizedStringKey(selectedKind == .expense ? "No expenses for this period" : "No income for this period"),
-                          systemImage: selectedKind == .expense ? "arrow.up.right" : "arrow.down.left")
-                } actions: {
-                    Button("Add transaction", systemImage: "plus") { showingEditor = true }
-                        .buttonStyle(.bordered)
-                }
-                .frame(maxWidth: .infinity)
-                .background(surface, in: RoundedRectangle(cornerRadius: 16))
-            } else {
-                LazyVStack(spacing: 0) {
-                    ForEach(totals) { item in
-                        NavigationLink {
-                            TransactionListView(categoryID: item.id, categoryName: item.name,
-                                                onlyUncategorized: item.id == nil, currencyCode: currency)
-                        } label: {
-                            categoryRow(item)
-                        }
-                        .buttonStyle(.plain)
-                        .accessibilityHint("View category transactions")
-                        if item.id != totals.last?.id { Divider().padding(.leading, 58) }
-                    }
-                }
-                .background(surface, in: RoundedRectangle(cornerRadius: 16))
+    private func categorySummary(_ snapshot: WalletInsights.Snapshot) -> some View {
+        let categories = transactions.reduce(into: [UUID: WalletCategory]()) { result, transaction in
+            if let category = transaction.category { result[category.id] = category }
+        }
+        let totals = snapshot.categories(for: selectedKind).map { value in
+            let id: UUID?
+            if case .category(let categoryID) = value.id { id = categoryID } else { id = nil }
+            return HomeCategoryTotal(id: id, category: id.flatMap { categories[$0] }, amount: value.amountMinor)
+        }
+        if totals.isEmpty {
+            ContentUnavailableView {
+                Label(LocalizedStringKey(selectedKind == .expense ? "No expenses for this period" : "No income for this period"),
+                      systemImage: selectedKind == .expense ? "arrow.up.right" : "arrow.down.left")
+            } actions: {
+                Button("Add transaction", systemImage: "plus") { showingEditor = true }
+                    .buttonStyle(.bordered)
             }
+            .frame(maxWidth: .infinity)
+            .background(surface, in: RoundedRectangle(cornerRadius: 16))
+        } else {
+            LazyVStack(spacing: 0) {
+                ForEach(totals) { item in
+                    NavigationLink {
+                        TransactionListView(categoryID: item.id, categoryName: item.name,
+                                            onlyUncategorized: item.id == nil, currencyCode: currency)
+                    } label: {
+                        categoryRow(item)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityHint("View category transactions")
+                    if item.id != totals.last?.id { Divider().padding(.leading, 58) }
+                }
+            }
+            .background(surface, in: RoundedRectangle(cornerRadius: 16))
         }
     }
 

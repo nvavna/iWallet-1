@@ -47,6 +47,7 @@ final class WalletBackupTests: XCTestCase {
 
     func testDecodesOriginalVersionOneExportWithWholeSecondISO8601Dates() throws {
         var backup = fixture()
+        backup.formatVersion = 1
         backup.createdAt = Date(timeIntervalSince1970: 1_700_000_000)
         backup.transactions = backup.transactions.map { record in
             var record = record
@@ -59,7 +60,7 @@ final class WalletBackupTests: XCTestCase {
     }
 
     func testRejectsNewerVersionBeforeReadingRecords() {
-        XCTAssertThrowsError(try WalletBackup.decode(data: Data("{\"formatVersion\":2}".utf8))) {
+        XCTAssertThrowsError(try WalletBackup.decode(data: Data("{\"formatVersion\":3}".utf8))) {
             XCTAssertEqual($0 as? WalletBackupError, .unsupportedVersion)
         }
     }
@@ -289,7 +290,7 @@ final class WalletBackupTests: XCTestCase {
 
     @MainActor
     private func diskContainer(at url: URL, allowsSave: Bool = true) throws -> ModelContainer {
-        let schema = Schema([WalletCategory.self, WalletTransaction.self, WalletMigrationReceipt.self])
+        let schema = Schema([WalletCategory.self, WalletTransaction.self, WalletMigrationReceipt.self, WalletRecurringPayment.self])
         let configuration = ModelConfiguration("Test", schema: schema, url: url, allowsSave: allowsSave, cloudKitDatabase: .none)
         let container = try ModelContainer(for: schema, configurations: [configuration])
         container.mainContext.autosaveEnabled = false
