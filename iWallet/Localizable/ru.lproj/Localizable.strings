@@ -279,3 +279,9 @@
 "Total balance" = "Общий баланс";
 "Summary" = "Сводка";
 "Per day with spending" = "За день с тратами";
+
+// Native forms and draft protection
+"Details" = "Подробности";
+"Discard changes?" = "Отменить изменения?";
+"Discard changes" = "Не сохранять";
+"Keep editing" = "Продолжить редактирование";

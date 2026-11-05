@@ -19,11 +19,14 @@ struct WalletMigrationView: View {
                     VStack(alignment: .leading, spacing: 12) {
                         Image(systemName: "wallet.bifold.fill")
                             .font(.largeTitle).foregroundStyle(WalletTheme.accent)
+                            .symbolRenderingMode(.hierarchical)
+                            .accessibilityHidden(true)
                         Text("Welcome back to iWallet").font(.title2.bold())
                         Text("Bring your previous history into your updated wallet. The original file will be kept safely on this device.")
                             .foregroundStyle(.secondary)
                     }
                     .padding(.vertical, 12)
+                    .listRowBackground(Color.clear)
                 }
                 if sourceURLs.count != 1 {
                     Section {
@@ -48,9 +51,16 @@ struct WalletMigrationView: View {
                             ShareLink(items: [preview.snapshotURL, preview.reportURL]) {
                                 Label("Save a copy of previous data", systemImage: "square.and.arrow.up")
                             }
+                        }
+                        Section {
                             Button(action: { Task { await finishImport(preview) } }) {
                                 Label("Transfer my history", systemImage: "checkmark.shield")
+                                    .frame(maxWidth: .infinity)
                             }
+                            .buttonStyle(.borderedProminent)
+                            .controlSize(.large)
+                            .listRowBackground(Color.clear)
+                            .listRowInsets(EdgeInsets())
                             .disabled(isWorking || (!preview.amountAdjustments.isEmpty && !acceptsRounding))
                             .accessibilityIdentifier("transferLegacyHistory")
                         }
@@ -58,7 +68,12 @@ struct WalletMigrationView: View {
                         Section {
                             Button { Task { await prepareImport() } } label: {
                                 Label("Review my previous history", systemImage: "doc.text.magnifyingglass")
+                                    .frame(maxWidth: .infinity)
                             }
+                            .buttonStyle(.borderedProminent)
+                            .controlSize(.large)
+                            .listRowBackground(Color.clear)
+                            .listRowInsets(EdgeInsets())
                             .disabled(currencyCode.isEmpty || isWorking)
                             .accessibilityIdentifier("reviewLegacyHistory")
                         }
@@ -75,6 +90,9 @@ struct WalletMigrationView: View {
                 }
             }
             .navigationTitle("Your history")
+            .listStyle(.insetGrouped)
+            .scrollContentBackground(.hidden)
+            .background(WalletTheme.background)
             .onAppear {
                 guard currencyCode.isEmpty else { return }
                 let candidates = LegacyWalletMigration.currencyCandidates(for: UserDefaults.standard.string(forKey: "currencySymbol"))
@@ -98,11 +116,8 @@ struct WalletMigrationView: View {
                     .accessibilityIdentifier("migrationTransactionCount")
                     .accessibilityValue(String(preview.backup.transactions.count))
                 LabeledContent("Currency", value: currencyCode)
-                if let income = try? Money.sum(preview.backup.transactions.filter { $0.kind == TransactionKind.income.rawValue }.map(\.amountMinor)),
-                   let expense = try? Money.sum(preview.backup.transactions.filter { $0.kind == TransactionKind.expense.rawValue }.map(\.amountMinor)) {
-                    LabeledContent("Income", value: Money.format(income, currencyCode: currencyCode))
-                    LabeledContent("Expense", value: Money.format(expense, currencyCode: currencyCode))
-                }
+                transferTotal("Income", kind: .income, preview: preview)
+                transferTotal("Expense", kind: .expense, preview: preview)
             }
             if !preview.amountAdjustments.isEmpty {
                 Section {
@@ -115,6 +130,22 @@ struct WalletMigrationView: View {
                         .font(.footnote).foregroundStyle(.secondary)
                     Toggle("I have reviewed the rounding changes", isOn: $acceptsRounding)
                 } header: { Text("Review amounts") }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func transferTotal(_ title: LocalizedStringKey, kind: TransactionKind,
+                               preview: LegacyWalletMigration.Preview) -> some View {
+        let result = Result {
+            try Money.sum(preview.backup.transactions.filter { $0.kind == kind.rawValue }.map(\.amountMinor))
+        }
+        switch result {
+        case .success(let value):
+            LabeledContent(title, value: Money.format(value, currencyCode: currencyCode))
+        case .failure:
+            LabeledContent(title) {
+                Text("Total is too large to display")
             }
         }
     }

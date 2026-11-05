@@ -8,9 +8,7 @@ struct WalletHomeView: View {
     @State private var selectedCurrency = ""
     @State private var selectedKind: TransactionKind = .expense
     @State private var showingEditor = false
-    @State private var showingSettings = false
     @State private var allTime = true
-    var showTransactions: () -> Void
 
     private var currency: String { selectedCurrency.isEmpty ? preferredCurrency : selectedCurrency }
     private var currencies: [String] { Set(transactions.map(\.currencyCode) + [preferredCurrency]).sorted() }
@@ -37,34 +35,16 @@ struct WalletHomeView: View {
                         .accessibilityIdentifier("homeTransactionType")
                         categorySummary
                     }
-                    Button(action: showTransactions) {
-                        HStack(spacing: 12) {
-                            Label("Transactions", systemImage: "clock")
-                            Spacer(minLength: 8)
-                            Image(systemName: "chevron.forward")
-                                .font(.footnote.weight(.semibold))
-                                .foregroundStyle(.tertiary)
-                        }
-                        .padding(.horizontal, 16)
-                        .frame(minHeight: 52)
-                        .background(surface, in: RoundedRectangle(cornerRadius: 16))
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityIdentifier("showTransactions")
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 12)
                 .padding(.bottom, 24)
             }
             .accessibilityIdentifier("walletHome")
-            .background(Color(uiColor: .systemGroupedBackground))
-            .foregroundStyle(.primary)
+            .background(WalletTheme.background)
             .navigationTitle("iWallet")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button("Settings", systemImage: "gearshape") { showingSettings = true }
-                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("New transaction", systemImage: "plus") { showingEditor = true }
                 }
@@ -72,11 +52,10 @@ struct WalletHomeView: View {
             .sheet(isPresented: $showingEditor) {
                 TransactionEditorView(initialKind: selectedKind, initialCurrencyCode: currency)
             }
-            .sheet(isPresented: $showingSettings) { WalletSettingsView() }
         }
     }
 
-    private var surface: Color { Color(uiColor: .secondarySystemGroupedBackground) }
+    private var surface: Color { WalletTheme.surface }
 
     private var balanceHeader: some View {
         VStack(alignment: .leading, spacing: 4) {
@@ -107,7 +86,7 @@ struct WalletHomeView: View {
                 Image(systemName: "chevron.down").font(.caption2.weight(.semibold))
             }
             .font(.subheadline)
-            .foregroundStyle(.secondary)
+            .foregroundStyle(WalletTheme.accent)
             .frame(minWidth: 44, minHeight: 44)
             .contentShape(Rectangle())
         }
@@ -127,7 +106,7 @@ struct WalletHomeView: View {
                 Image(systemName: "chevron.down").font(.caption2.weight(.semibold))
             }
             .font(.subheadline)
-            .foregroundStyle(.secondary)
+            .foregroundStyle(WalletTheme.accent)
             .frame(minHeight: 44)
             .contentShape(Rectangle())
         }
@@ -241,15 +220,14 @@ struct WalletHomeView: View {
                 .walletSurface()
         case .success(let totals):
             if totals.isEmpty {
-                VStack(spacing: 12) {
-                    Image("icon").resizable().scaledToFit().frame(width: 32, height: 32)
-                        .accessibilityHidden(true)
-                    Text("iWallet").font(.headline)
-                    Text(LocalizedStringKey(selectedKind == .expense ? "No expenses for this period" : "No income for this period"))
-                        .foregroundStyle(.secondary).multilineTextAlignment(.center)
+                ContentUnavailableView {
+                    Label(LocalizedStringKey(selectedKind == .expense ? "No expenses for this period" : "No income for this period"),
+                          systemImage: selectedKind == .expense ? "arrow.up.right" : "arrow.down.left")
+                } actions: {
+                    Button("Add transaction", systemImage: "plus") { showingEditor = true }
+                        .buttonStyle(.bordered)
                 }
                 .frame(maxWidth: .infinity)
-                .padding(24)
                 .background(surface, in: RoundedRectangle(cornerRadius: 16))
             } else {
                 LazyVStack(spacing: 0) {
@@ -297,6 +275,7 @@ struct WalletHomeView: View {
         .padding(.vertical, 12)
         .padding(.horizontal, 16)
         .frame(minHeight: 52)
+        .foregroundStyle(.primary)
         .contentShape(Rectangle())
         .accessibilityElement(children: .combine)
     }

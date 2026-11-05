@@ -71,11 +71,15 @@ private struct WalletBootstrapView: View {
 }
 
 private struct WalletRootView: View {
-    @State private var showingTransactions = false
-
     var body: some View {
-        WalletHomeView(showTransactions: { showingTransactions = true })
-            .sheet(isPresented: $showingTransactions) { TransactionListView() }
+        TabView {
+            WalletHomeView()
+                .tabItem { Label("Overview", systemImage: "chart.pie") }
+            TransactionListView(isPresentedModally: false)
+                .tabItem { Label("Transactions", systemImage: "list.bullet.rectangle") }
+            WalletSettingsView(isPresentedModally: false)
+                .tabItem { Label("Settings", systemImage: "gearshape") }
+        }
     }
 }
 

@@ -279,3 +279,9 @@
 "Total balance" = "Total balance";
 "Summary" = "Summary";
 "Per day with spending" = "Per day with spending";
+
+// Native forms and draft protection
+"Details" = "Details";
+"Discard changes?" = "Discard changes?";
+"Discard changes" = "Discard changes";
+"Keep editing" = "Keep editing";

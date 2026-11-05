@@ -16,6 +16,7 @@ struct TransactionListView: View {
     var categoryName: String? = nil
     var onlyUncategorized = false
     var currencyCode: String? = nil
+    var isPresentedModally = true
 
     private var isCategoryHistory: Bool { categoryID != nil || onlyUncategorized }
     private var initialCategory: WalletCategory? { categories.first { $0.id == categoryID } }
@@ -59,8 +60,17 @@ struct TransactionListView: View {
                     }
                 }
                 .pickerStyle(.segmented)
+                .accessibilityIdentifier("transactionFilter")
                 .listRowInsets(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0))
                 .listRowBackground(Color.clear)
+            } footer: {
+                if isCategoryHistory {
+                    HStack {
+                        Text("All time")
+                        Spacer()
+                        if let currencyCode { Text(currencyCode) }
+                    }
+                }
             }
 
             if filteredTransactions.isEmpty {
@@ -103,6 +113,14 @@ struct TransactionListView: View {
                                 pendingDeletion = transaction
                             }
                         }
+                        .contextMenu {
+                            Button("Delete transaction", systemImage: "trash", role: .destructive) {
+                                pendingDeletion = transaction
+                            }
+                        }
+                        .accessibilityAction(named: Text("Delete transaction")) {
+                            pendingDeletion = transaction
+                        }
                         .accessibilityHint("Edit transaction")
                     }
                 } header: {
@@ -115,10 +133,12 @@ struct TransactionListView: View {
         .scrollContentBackground(.hidden)
         .background(WalletTheme.background)
         .navigationTitle(categoryName ?? String(localized: "Transactions"))
-        .navigationBarTitleDisplayMode(.inline)
-        .searchable(text: $searchText, prompt: "Search transactions")
+        .navigationBarTitleDisplayMode(isPresentedModally || isCategoryHistory ? .inline : .large)
+        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always),
+                    prompt: "Search transactions")
+        .scrollDismissesKeyboard(.interactively)
         .toolbar {
-            if !isCategoryHistory {
+            if isPresentedModally && !isCategoryHistory {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Done") { dismiss() }
                 }
@@ -165,6 +185,7 @@ struct TransactionListView: View {
 }
 
 struct TransactionEditorView: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @AppStorage("preferredCurrencyCode") private var preferredCurrencyCode = Locale.current.currency?.identifier ?? "USD"
@@ -181,6 +202,8 @@ struct TransactionEditorView: View {
     @State private var showsCategoryEditor = false
     @State private var amountError: String?
     @State private var saveError: String?
+    @State private var initialDraft: DraftSnapshot?
+    @State private var showsDiscardConfirmation = false
 
     let transaction: WalletTransaction?
     let initialCategory: WalletCategory?
@@ -205,6 +228,16 @@ struct TransactionEditorView: View {
         availableCategories.first { $0.id == selectedCategoryID }
     }
 
+    private var draftSnapshot: DraftSnapshot {
+        DraftSnapshot(amountText: amountText, currencyCode: currencyCode, date: date,
+                      note: note, kind: kind, categoryID: selectedCategoryID)
+    }
+
+    private var hasUnsavedChanges: Bool {
+        guard let initialDraft else { return false }
+        return draftSnapshot != initialDraft
+    }
+
     var body: some View {
         NavigationStack {
             Form {
@@ -215,42 +248,69 @@ struct TransactionEditorView: View {
                     }
                     .pickerStyle(.segmented)
                     .accessibilityIdentifier("transactionType")
+                    .listRowInsets(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0))
+                    .listRowBackground(Color.clear)
+                }
 
-                    HStack(alignment: .firstTextBaseline, spacing: 12) {
+                Section {
+                    let amountLayout = dynamicTypeSize.isAccessibilitySize
+                        ? AnyLayout(VStackLayout(alignment: .leading, spacing: 8))
+                        : AnyLayout(HStackLayout(alignment: .firstTextBaseline, spacing: 12))
+                    amountLayout {
                         TextField("0", text: $amountText)
-                            .font(.largeTitle.weight(.semibold))
+                            .font(.largeTitle.weight(.medium))
                             .monospacedDigit()
                             .keyboardType(.decimalPad)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
                             .focused($focusedField, equals: .amount)
                             .accessibilityLabel("Amount")
                             .accessibilityIdentifier("transactionAmount")
                         Text(currencyCode)
-                            .font(.headline)
+                            .font(.subheadline.weight(.medium))
                             .foregroundStyle(.secondary)
                     }
-                    .padding(.vertical, 12)
+                    .padding(.vertical, 8)
+                    .alignmentGuide(.listRowSeparatorLeading) { _ in 0 }
 
                     if let amountError {
                         Label(amountError, systemImage: "exclamationmark.circle")
-                            .font(.callout)
+                            .font(.footnote)
                             .foregroundStyle(.red)
+                            .fixedSize(horizontal: false, vertical: true)
                             .accessibilityIdentifier("transactionAmountError")
                     }
+
+                    Picker(selection: $currencyCode) {
+                        ForEach(WalletCurrency.allCases) { currency in
+                            Text(currency.displayName).tag(currency.rawValue)
+                        }
+                        if WalletCurrency(rawValue: currencyCode) == nil {
+                            Text(currencyCode).tag(currencyCode)
+                        }
+                    } label: {
+                        Label("Currency", systemImage: "globe")
+                    }
+                    .accessibilityIdentifier("transactionCurrency")
                 } header: {
                     Text("Amount")
+                } footer: {
+                    Text("Changing the currency keeps the entered amount. No conversion is performed.")
                 }
 
                 Section {
-                    Picker("Category", selection: $selectedCategoryID) {
+                    Picker(selection: $selectedCategoryID) {
                         Text("Choose a category").tag(UUID?.none)
                         ForEach(availableCategories) { category in
-                            Label(category.name, systemImage: category.icon)
+                            Label(category.name, systemImage: WalletTheme.categorySymbol(category.icon))
                                 .tag(Optional(category.id))
                         }
+                    } label: {
+                        Label("Category", systemImage: "square.grid.2x2")
                     }
                     .accessibilityIdentifier("transactionCategory")
 
-                    Button("New category", systemImage: "plus.circle") {
+                    Button("New category", systemImage: "plus") {
                         focusedField = nil
                         showsCategoryEditor = true
                     }
@@ -262,28 +322,21 @@ struct TransactionEditorView: View {
                     }
                 }
 
-                Section {
-                    DatePicker("Date", selection: $date, displayedComponents: .date)
-                    TextField("Note (optional)", text: $note, axis: .vertical)
-                        .focused($focusedField, equals: .note)
-                        .lineLimit(2...5)
-                        .textInputAutocapitalization(.sentences)
-                        .accessibilityLabel("Note")
-                        .accessibilityIdentifier("transactionNote")
-                }
-
-                Section {
-                    Picker("Currency", selection: $currencyCode) {
-                        ForEach(WalletCurrency.allCases) { currency in
-                            Text(currency.displayName).tag(currency.rawValue)
-                        }
-                        if WalletCurrency(rawValue: currencyCode) == nil {
-                            Text(currencyCode).tag(currencyCode)
-                        }
+                Section("Details") {
+                    DatePicker(selection: $date, displayedComponents: .date) {
+                        Label("Date", systemImage: "calendar")
                     }
-                    .accessibilityIdentifier("transactionCurrency")
-                } footer: {
-                    Text("Changing the currency keeps the entered amount. No conversion is performed.")
+                    HStack(spacing: 12) {
+                        Image(systemName: "text.alignleft")
+                            .foregroundStyle(.secondary)
+                            .accessibilityHidden(true)
+                        TextField("Note (optional)", text: $note, axis: .vertical)
+                            .focused($focusedField, equals: .note)
+                            .lineLimit(1...5)
+                            .textInputAutocapitalization(.sentences)
+                            .accessibilityLabel("Note")
+                            .accessibilityIdentifier("transactionNote")
+                    }
                 }
             }
             .scrollContentBackground(.hidden)
@@ -293,10 +346,12 @@ struct TransactionEditorView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                    Button("Cancel", systemImage: "xmark", role: .cancel, action: cancel)
+                        .labelStyle(.iconOnly)
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save", action: save)
+                    Button("Save", systemImage: "checkmark", action: save)
+                        .labelStyle(.iconOnly)
                         .accessibilityIdentifier("saveTransaction")
                         .fontWeight(.semibold)
                         .disabled(amountText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || selectedCategory == nil)
@@ -312,11 +367,16 @@ struct TransactionEditorView: View {
             }
             .onChange(of: amountText) { _, _ in amountError = nil }
             .onChange(of: currencyCode) { _, _ in amountError = nil }
-            .sheet(isPresented: $showsCategoryEditor) {
-                CategoryEditorView(kind: kind) { category in
+            .navigationDestination(isPresented: $showsCategoryEditor) {
+                CategoryEditorView(kind: kind, isPresentedModally: false) { category in
                     kind = category.kind
                     selectedCategoryID = category.id
                 }
+            }
+            .confirmationDialog("Discard changes?", isPresented: $showsDiscardConfirmation,
+                                titleVisibility: .visible) {
+                Button("Discard changes", role: .destructive) { dismiss() }
+                Button("Keep editing", role: .cancel) { }
             }
             .alert("Unable to save transaction", isPresented: Binding(
                 get: { saveError != nil },
@@ -327,6 +387,7 @@ struct TransactionEditorView: View {
                 Text(saveError ?? "")
             }
         }
+        .interactiveDismissDisabled(hasUnsavedChanges || showsCategoryEditor)
     }
 
     private func loadDraft() {
@@ -346,6 +407,16 @@ struct TransactionEditorView: View {
                 kind = initialCategory.kind
                 selectedCategoryID = initialCategory.id
             }
+        }
+        initialDraft = draftSnapshot
+    }
+
+    private func cancel() {
+        focusedField = nil
+        if hasUnsavedChanges {
+            showsDiscardConfirmation = true
+        } else {
+            dismiss()
         }
     }
 
@@ -376,6 +447,14 @@ struct TransactionEditorView: View {
         }
     }
 
+    private struct DraftSnapshot: Equatable {
+        let amountText: String
+        let currencyCode: String
+        let date: Date
+        let note: String
+        let kind: TransactionKind
+        let categoryID: UUID?
+    }
 }
 
 struct TransactionRow: View {
@@ -383,50 +462,63 @@ struct TransactionRow: View {
     let transaction: WalletTransaction
 
     var body: some View {
-        HStack(spacing: 12) {
-            RoundedRectangle(cornerRadius: 2)
-                .fill(WalletTheme.categoryColor(transaction.category?.color ?? "colorBlue"))
-                .frame(width: 4)
+        HStack(alignment: .top, spacing: 12) {
+            CategoryBadge(category: transaction.category)
                 .accessibilityHidden(true)
-            VStack(alignment: .leading, spacing: 8) {
-                let layout = dynamicTypeSize.isAccessibilitySize
-                    ? AnyLayout(VStackLayout(alignment: .leading, spacing: 8))
-                    : AnyLayout(HStackLayout(alignment: .firstTextBaseline, spacing: 12))
-                layout {
-                    amount
-                    if !dynamicTypeSize.isAccessibilitySize { Spacer(minLength: 4) }
-                    HStack(spacing: 6) {
-                        Text(transaction.category?.name ?? String(localized: "Uncategorized"))
-                            .font(.caption.weight(.medium))
-                            .foregroundStyle(.primary)
-                            .multilineTextAlignment(dynamicTypeSize.isAccessibilitySize ? .leading : .trailing)
-                        CategoryBadge(category: transaction.category, size: 24)
-                            .accessibilityHidden(true)
+            if dynamicTypeSize.isAccessibilitySize {
+                verticalContent
+            } else {
+                ViewThatFits(in: .horizontal) {
+                    HStack(alignment: .top, spacing: 12) {
+                        details.frame(minWidth: 100)
+                        amount(singleLine: true)
                     }
+                    verticalContent
                 }
-                if !transaction.note.isEmpty {
-                    Text(transaction.note)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                Text(transaction.currencyCode)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
             }
         }
         .fixedSize(horizontal: false, vertical: true)
-        .padding(.vertical, 5)
+        .padding(.vertical, 6)
         .accessibilityElement(children: .combine)
     }
 
-    private var amount: some View {
-        Text((transaction.kind == .expense ? "−" : "+") + Money.format(transaction.amountMinor, currencyCode: transaction.currencyCode))
-            .font(.title3.weight(.semibold))
-            .monospacedDigit()
-            .foregroundStyle(.primary)
-            .fixedSize(horizontal: false, vertical: true)
-            .layoutPriority(1)
+    private var details: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(transaction.category?.name ?? String(localized: "Uncategorized"))
+                .font(.body.weight(.medium))
+                .foregroundStyle(.primary)
+                .lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 2)
+            if !transaction.note.isEmpty {
+                Text(transaction.note)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 2)
+            }
+        }
+        .fixedSize(horizontal: false, vertical: true)
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var verticalContent: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            details
+            amount(singleLine: false)
+        }
+    }
+
+    private func amount(singleLine: Bool) -> some View {
+        VStack(alignment: singleLine ? .trailing : .leading, spacing: 3) {
+            Text((transaction.kind == .expense ? "−" : "+") + Money.format(transaction.amountMinor, currencyCode: transaction.currencyCode))
+                .font(.body.weight(.semibold))
+                .monospacedDigit()
+                .foregroundStyle(.primary)
+                .fixedSize(horizontal: singleLine, vertical: true)
+            Text(transaction.currencyCode)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .multilineTextAlignment(singleLine ? .trailing : .leading)
+        .layoutPriority(1)
     }
 }
 

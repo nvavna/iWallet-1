@@ -46,6 +46,7 @@ final class WalletSmokeTests: XCTestCase {
         amount.tap()
         amount.typeText("12.34")
         if app.buttons["Done"].firstMatch.isHittable { app.buttons["Done"].firstMatch.tap() }
+        chooseTransactionUSD()
         reveal(app.buttons["transactionCategory"])
         app.buttons["transactionCategory"].tap()
         app.buttons[categoryName].firstMatch.tap()
@@ -55,9 +56,6 @@ final class WalletSmokeTests: XCTestCase {
         noteField.typeText(note)
         app.buttons["Done"].firstMatch.tap()
         XCTAssertTrue(app.keyboards.firstMatch.waitForNonExistence(timeout: 3), "Done must dismiss the note keyboard.")
-        reveal(app.buttons["transactionCurrency"])
-        app.buttons["transactionCurrency"].tap()
-        app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "USD")).firstMatch.tap()
         attachScreenshot("Expense form with a decimal amount")
         app.buttons["saveTransaction"].tap()
 
@@ -118,6 +116,75 @@ final class WalletSmokeTests: XCTestCase {
         attachScreenshot("History after archiving and relaunch")
     }
 
+    func testTransactionDraftCancelKeepsInputUntilExplicitDiscard() throws {
+        XCTAssertTrue(home.waitForExistence(timeout: 15), "Use a dedicated simulator without a pending legacy import.")
+        let suffix = String(UUID().uuidString.prefix(8))
+        let categoryName = "AAA Draft \(suffix)"
+        let note = "Unsaved draft \(suffix)"
+
+        openCategories()
+        app.navigationBars["Categories"].buttons["Add category"].tap()
+        let name = app.textFields["categoryName"]
+        XCTAssertTrue(name.waitForExistence(timeout: 5))
+        name.tap()
+        name.typeText(categoryName)
+        app.buttons["saveCategory"].tap()
+        XCTAssertTrue(categoryElement(containing: categoryName).waitForExistence(timeout: 5))
+
+        goHome()
+        app.buttons["New transaction"].tap()
+        let amount = app.textFields["transactionAmount"]
+        XCTAssertTrue(amount.waitForExistence(timeout: 5))
+        amount.tap()
+        amount.typeText("19.75")
+        app.buttons["Done"].firstMatch.tap()
+        chooseTransactionUSD()
+        reveal(app.buttons["transactionCategory"])
+        app.buttons["transactionCategory"].tap()
+        app.buttons[categoryName].firstMatch.tap()
+        let noteField = app.descendants(matching: .any).matching(identifier: "transactionNote").firstMatch
+        reveal(noteField)
+        noteField.tap()
+        noteField.typeText(note)
+        app.buttons["Done"].firstMatch.tap()
+        XCTAssertTrue(app.buttons["saveTransaction"].isEnabled, "This must be a valid, unsaved transaction draft.")
+
+        // A category editor is pushed within the transaction sheet. Canceling
+        // that clean child editor must return to the unchanged parent draft.
+        revealAbove(app.buttons["New category"])
+        app.buttons["New category"].tap()
+        XCTAssertTrue(name.waitForExistence(timeout: 5))
+        app.navigationBars["New category"].buttons["Cancel"].tap()
+        XCTAssertTrue(name.waitForNonExistence(timeout: 5))
+        assertDraft(amount: amount, noteField: noteField, note: note)
+
+        app.navigationBars["New transaction"].buttons["Cancel"].tap()
+        XCTAssertTrue(app.staticTexts["Discard changes?"].waitForExistence(timeout: 5))
+        keepEditingDraft()
+        assertDraft(amount: amount, noteField: noteField, note: note)
+        attachScreenshot("Transaction draft preserved after keeping changes")
+
+        app.navigationBars["New transaction"].buttons["Cancel"].tap()
+        XCTAssertTrue(app.staticTexts["Discard changes?"].waitForExistence(timeout: 5))
+        app.buttons["Discard changes"].tap()
+        XCTAssertTrue(amount.waitForNonExistence(timeout: 5))
+        XCTAssertTrue(home.waitForExistence(timeout: 5))
+
+        // Relaunch checks that dismissal did not persist the valid draft.
+        app.terminate()
+        app.launch()
+        XCTAssertTrue(home.waitForExistence(timeout: 10))
+        openHistory()
+        findTransaction(note)
+        let emptyState = app.staticTexts.matching(NSPredicate(
+            format: "label IN %@", ["No matching transactions", "Your story starts here"] as NSArray
+        )).firstMatch
+        XCTAssertTrue(emptyState.waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons.matching(NSPredicate(format: "label CONTAINS %@", note)).firstMatch.exists,
+                       "Explicitly discarding a draft must not save a transaction.")
+        attachScreenshot("Discarded draft absent after relaunch")
+    }
+
     /// The host supplies the synthetic old-engine fixture in Documents/default.realm
     /// before launch. A normal clean-install run intentionally skips this method.
     func testLegacyMigrationReviewAndTransfer() throws {
@@ -158,60 +225,57 @@ final class WalletSmokeTests: XCTestCase {
     private var home: XCUIElement { app.scrollViews["walletHome"] }
 
     private func goHome() {
-        let search = app.searchFields.firstMatch
-        let historyDone = app.navigationBars["Transactions"].buttons["Done"]
-        if search.exists && search.isHittable && !(historyDone.exists && historyDone.isHittable) {
-            let cancelSearch = app.buttons["Cancel"].firstMatch
-            if cancelSearch.exists && cancelSearch.isHittable {
-                cancelSearch.tap()
-            } else {
-                // iOS 27's active bottom search hides the navigation bar. The
-                // observed close control is a separate button to the right of
-                // the search field, unlike Clear text inside that field.
-                let field = search.frame
-                let closeSearch = app.buttons.allElementsBoundByIndex.first { button in
-                    button.isHittable && button.frame.minX >= field.maxX
-                        && abs(button.frame.midY - field.midY) < field.height / 2
-                }
-                guard let closeSearch else {
-                    XCTFail("The active history search must expose its close control.")
-                    return
-                }
-                closeSearch.tap()
-            }
-            XCTAssertTrue(historyDone.waitForExistence(timeout: 5), "Closing search must restore the history's Done button.")
-        }
-        // Categories is presented over Settings; history may be presented over
-        // either Home or Settings. Dismiss the top sheet before its presenter.
-        for title in ["Categories", "Transactions", "Settings"] {
-            let navigation = app.navigationBars[title]
-            let done = navigation.buttons["Done"]
-            if done.exists && done.isHittable {
-                done.tap()
-                XCTAssertTrue(navigation.waitForNonExistence(timeout: 5))
-            }
-        }
+        selectTab("Overview")
         XCTAssertTrue(home.waitForExistence(timeout: 5))
-        XCTAssertTrue(app.buttons["Settings"].isHittable, "The home toolbar must be visible after dismissing its sheets.")
         scrollHomeToTop()
     }
 
     private func openCategories() {
-        goHome()
-        let settings = app.buttons["Settings"]
-        XCTAssertTrue(settings.waitForExistence(timeout: 5))
-        settings.tap()
+        selectTab("Settings")
+        // Each tab retains its navigation path when another tab is selected.
+        if app.navigationBars["Categories"].exists { return }
         XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 5))
         app.buttons["settingsCategories"].tap()
         XCTAssertTrue(app.navigationBars["Categories"].waitForExistence(timeout: 5))
     }
 
     private func openHistory() {
-        goHome()
-        let history = app.buttons["showTransactions"]
-        reveal(history)
-        history.tap()
+        selectTab("Transactions")
         XCTAssertTrue(app.navigationBars["Transactions"].waitForExistence(timeout: 5))
+    }
+
+    private func selectTab(_ title: String) {
+        dismissActiveHistorySearch()
+        let tab = app.tabBars.buttons[title]
+        XCTAssertTrue(tab.waitForExistence(timeout: 5) && tab.isHittable)
+        tab.tap()
+        XCTAssertTrue(tab.isSelected)
+    }
+
+    private func dismissActiveHistorySearch() {
+        let search = app.searchFields.firstMatch
+        guard search.exists && search.isHittable else { return }
+        for label in ["close", "Cancel"] {
+            let close = app.buttons[label].firstMatch
+            if close.exists && close.isHittable {
+                close.tap()
+                return
+            }
+        }
+        // Older accessibility trees expose the active bottom-search close
+        // control by position. It is outside, and to the right of, the field.
+        if !app.tabBars.buttons["Overview"].isHittable {
+            let field = search.frame
+            let close = app.buttons.allElementsBoundByIndex.first { button in
+                button.isHittable && button.frame.minX >= field.maxX
+                    && abs(button.frame.midY - field.midY) < field.height / 2
+            }
+            guard let close else {
+                XCTFail("The active history search must expose its close control.")
+                return
+            }
+            close.tap()
+        }
     }
 
     private func scrollHomeToTop() {
@@ -242,6 +306,38 @@ final class WalletSmokeTests: XCTestCase {
         XCTAssertTrue(element.exists && element.isHittable, "Expected control was not reachable: \(element)")
     }
 
+    private func revealAbove(_ element: XCUIElement) {
+        for _ in 0..<7 {
+            if element.exists && element.isHittable { return }
+            app.swipeDown()
+        }
+        XCTAssertTrue(element.exists && element.isHittable, "Expected control above was not reachable: \(element)")
+    }
+
+    private func assertDraft(amount: XCUIElement, noteField: XCUIElement, note: String) {
+        revealAbove(amount)
+        XCTAssertEqual(amount.value as? String, "19.75")
+        reveal(noteField)
+        XCTAssertEqual(noteField.value as? String, note)
+        XCTAssertTrue(app.buttons["saveTransaction"].isEnabled)
+    }
+
+    private func keepEditingDraft() {
+        let keepEditing = app.buttons["Keep editing"]
+        if keepEditing.exists && keepEditing.isHittable {
+            keepEditing.tap()
+        } else {
+            // iOS 27's native popover omits the cancel-role action. The recorded
+            // failure exposes PopoverDismissRegion around it; this observed
+            // point is below the toolbar, above Type, and outside the popover.
+            let dismissRegion = app.otherElements["PopoverDismissRegion"]
+            XCTAssertTrue(dismissRegion.waitForExistence(timeout: 5))
+            dismissRegion.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.18)).tap()
+        }
+        XCTAssertTrue(app.staticTexts["Discard changes?"].waitForNonExistence(timeout: 5))
+        XCTAssertTrue(app.textFields["transactionAmount"].exists, "Keeping changes must leave the editor open.")
+    }
+
     private func findTransaction(_ note: String) {
         let search = app.searchFields.firstMatch
         if !search.exists { app.swipeDown() }
@@ -261,6 +357,12 @@ final class WalletSmokeTests: XCTestCase {
         app.buttons["USD"].firstMatch.tap()
     }
 
+    private func chooseTransactionUSD() {
+        reveal(app.buttons["transactionCurrency"])
+        app.buttons["transactionCurrency"].tap()
+        app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "USD")).firstMatch.tap()
+    }
+
     private func replaceText(in element: XCUIElement, with text: String) {
         element.tap()
         let oldValue = element.value as? String ?? ""
@@ -275,15 +377,23 @@ final class WalletSmokeTests: XCTestCase {
     }
 }
 
-/// Opt-in App Store captures on newly created simulators only. This workflow
-/// enters synthetic records through the same forms used by customers.
+/// Opt-in App Store captures seed newly created simulators through normal forms.
+/// The separate visual QA method reuses a seeded simulator without adding data.
 final class WalletAppStoreScreenshotTests: XCTestCase {
-    func testCaptureRussian() throws { try capture(language: "ru") }
-    func testCaptureEnglish() throws { try capture(language: "en") }
+    func testCaptureRussian() throws { try capture(language: "ru", seedWallet: true, attachmentPrefix: "AppStore") }
+    func testCaptureEnglish() throws { try capture(language: "en", seedWallet: true, attachmentPrefix: "AppStore") }
+    func testRefreshRussian() throws { try capture(language: "ru", seedWallet: false, attachmentPrefix: "AppStore") }
+    func testRefreshEnglish() throws { try capture(language: "en", seedWallet: false, attachmentPrefix: "AppStore") }
 
-    private func capture(language: String) throws {
+    /// The host configures dark appearance or Dynamic Type on an already seeded
+    /// dedicated simulator. This opt-in pass does not add or edit wallet records.
+    func testCaptureRussianVisualQA() throws {
+        try capture(language: "ru", seedWallet: false, attachmentPrefix: "QA")
+    }
+
+    private func capture(language: String, seedWallet: Bool, attachmentPrefix: String) throws {
         guard ProcessInfo.processInfo.environment["IWALLET_CAPTURE_APP_STORE"] == "1" else {
-            throw XCTSkip("Opt-in screenshots: use Scripts/capture-app-store-screenshots.py on fresh simulators.")
+            throw XCTSkip("Opt-in screenshots: use Scripts/capture-app-store-screenshots.py on fresh simulators, or explicitly enable visual QA on a seeded dedicated simulator.")
         }
         continueAfterFailure = false
         let russian = language == "ru"
@@ -291,20 +401,25 @@ final class WalletAppStoreScreenshotTests: XCTestCase {
         app.launchArguments = ["-AppleLanguages", "(\(language))", "-AppleLocale", russian ? "ru_RU" : "en_US"]
         app.launch()
         defer { app.terminate() }
+        let overview = russian ? "Обзор" : "Overview"
         let transactions = russian ? "Операции" : "Transactions"
-        let categories = russian ? "Категории" : "Categories"
-        let settings = russian ? "Настройки" : "Settings"
         let add = russian ? "Новая операция" : "New transaction"
         let done = russian ? "Готово" : "Done"
+        let currencyCode = russian ? "RUB" : "USD"
         let home = app.scrollViews["walletHome"]
         XCTAssertTrue(home.waitForExistence(timeout: 15))
 
-        // Refuse a populated wallet: this workflow must never modify personal data.
-        openHistory(app, title: transactions)
-        XCTAssertTrue(app.buttons[russian ? "Добавить операцию" : "Add transaction"].exists)
-        XCTAssertTrue(app.staticTexts[russian ? "Пока нет операций" : "Your story starts here"].exists,
-                      "Create a fresh dedicated simulator before capturing screenshots.")
-        app.navigationBars[transactions].buttons[done].tap()
+        selectTab(app, title: transactions)
+        XCTAssertTrue(app.navigationBars[transactions].waitForExistence(timeout: 5))
+        let emptyWallet = app.staticTexts[russian ? "Пока нет операций" : "Your story starts here"]
+        if seedWallet {
+            // Refuse a populated wallet: seeding must never modify personal data.
+            XCTAssertTrue(app.buttons[russian ? "Добавить операцию" : "Add transaction"].exists)
+            XCTAssertTrue(emptyWallet.exists, "Create a fresh dedicated simulator before capturing screenshots.")
+        } else {
+            XCTAssertFalse(emptyWallet.exists, "Read-only capture requires the already seeded dedicated screenshot simulator.")
+        }
+        selectTab(app, title: overview)
         XCTAssertTrue(home.waitForExistence(timeout: 5))
 
         let rows: [(Bool, String, String, String)] = russian ? [
@@ -324,52 +439,120 @@ final class WalletAppStoreScreenshotTests: XCTestCase {
             (false, "Eating out", "38.90", "Dinner with friends"),
             (false, "Entertainment", "25.90", "Movie night")
         ]
-        for (income, category, amount, note) in rows {
-            app.buttons[add].tap()
-            let amountField = app.textFields["transactionAmount"]
-            XCTAssertTrue(amountField.waitForExistence(timeout: 5))
-            if income { app.segmentedControls["transactionType"].buttons[russian ? "Доход" : "Income"].tap() }
-            amountField.tap()
-            amountField.typeText(amount)
-            app.buttons[done].firstMatch.tap()
-            app.buttons["transactionCategory"].tap()
-            app.buttons[category].firstMatch.tap()
-            let noteField = app.textFields["transactionNote"]
-            noteField.tap()
-            noteField.typeText(note)
-            app.buttons[done].firstMatch.tap()
-            app.buttons["saveTransaction"].tap()
-            XCTAssertTrue(home.waitForExistence(timeout: 5))
+        if seedWallet {
+            for (income, category, amount, note) in rows {
+                app.buttons[add].tap()
+                let amountField = app.textFields["transactionAmount"]
+                XCTAssertTrue(amountField.waitForExistence(timeout: 5))
+                if income { app.segmentedControls["transactionType"].buttons[russian ? "Доход" : "Income"].tap() }
+                amountField.tap()
+                amountField.typeText(amount)
+                app.buttons[done].firstMatch.tap()
+                reveal(app.buttons["transactionCurrency"], in: app)
+                app.buttons["transactionCurrency"].tap()
+                app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", currencyCode)).firstMatch.tap()
+                reveal(app.buttons["transactionCategory"], in: app)
+                app.buttons["transactionCategory"].tap()
+                app.buttons[category].firstMatch.tap()
+                let noteField = app.descendants(matching: .any).matching(identifier: "transactionNote").firstMatch
+                reveal(noteField, in: app)
+                noteField.tap()
+                noteField.typeText(note)
+                app.buttons[done].firstMatch.tap()
+                app.buttons["saveTransaction"].tap()
+                XCTAssertTrue(amountField.waitForNonExistence(timeout: 5))
+                XCTAssertTrue(home.waitForExistence(timeout: 5))
+            }
         }
 
-        // Relaunch to capture the normal resting overview, with no keyboard/menu.
+        // All modes capture the same six resting screens. Refresh and QA change
+        // no fields, and both new editors are canceled without creating records.
         app.terminate()
         app.launch()
         XCTAssertTrue(home.waitForExistence(timeout: 10))
-        screenshot(app, name: "AppStore-\(language)-01-overview")
-        openHistory(app, title: transactions)
-        screenshot(app, name: "AppStore-\(language)-02-transactions")
-        app.navigationBars[transactions].buttons[done].tap()
+        captureScreens(app, language: language, prefix: "\(attachmentPrefix)-\(language)")
+    }
+
+    private func captureScreens(_ app: XCUIApplication, language: String, prefix: String) {
+        let russian = language == "ru"
+        let overview = russian ? "Обзор" : "Overview"
+        let transactions = russian ? "Операции" : "Transactions"
+        let categories = russian ? "Категории" : "Categories"
+        let settings = russian ? "Настройки" : "Settings"
+        let newTransaction = russian ? "Новая операция" : "New transaction"
+        let newCategory = russian ? "Новая категория" : "New category"
+        let cancel = russian ? "Отмена" : "Cancel"
+        let home = app.scrollViews["walletHome"]
+
+        selectTab(app, title: overview)
         XCTAssertTrue(home.waitForExistence(timeout: 5))
-        app.buttons[settings].tap()
+        screenshot(app, name: "\(prefix)-01-overview")
+
+        selectTab(app, title: transactions)
+        XCTAssertTrue(app.navigationBars[transactions].waitForExistence(timeout: 5))
+        screenshot(app, name: "\(prefix)-02-transactions")
+
+        openCategories(app, settings: settings, categories: categories)
+        screenshot(app, name: "\(prefix)-03-categories")
+
+        selectTab(app, title: overview)
+        app.buttons[newTransaction].tap()
+        let amount = app.textFields["transactionAmount"]
+        XCTAssertTrue(amount.waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["saveTransaction"].isEnabled)
+        screenshot(app, name: "\(prefix)-04-new-transaction")
+        app.navigationBars[newTransaction].buttons[cancel].tap()
+        XCTAssertTrue(amount.waitForNonExistence(timeout: 5))
+
+        openCategories(app, settings: settings, categories: categories)
+        app.navigationBars[categories].buttons[russian ? "Добавить категорию" : "Add category"].tap()
+        let categoryName = app.textFields["categoryName"]
+        XCTAssertTrue(categoryName.waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["saveCategory"].isEnabled)
+        screenshot(app, name: "\(prefix)-05-new-category")
+        app.navigationBars[newCategory].buttons[cancel].tap()
+        XCTAssertTrue(categoryName.waitForNonExistence(timeout: 5))
+
+        XCTAssertTrue(app.navigationBars[categories].waitForExistence(timeout: 5))
+        app.navigationBars[categories].buttons.element(boundBy: 0).tap()
+        XCTAssertTrue(app.navigationBars[settings].waitForExistence(timeout: 5))
+        screenshot(app, name: "\(prefix)-06-settings")
+    }
+
+    private func selectTab(_ app: XCUIApplication, title: String) {
+        let tab = app.tabBars.buttons[title]
+        XCTAssertTrue(tab.waitForExistence(timeout: 5) && tab.isHittable)
+        tab.tap()
+        XCTAssertTrue(tab.isSelected)
+    }
+
+    private func openCategories(_ app: XCUIApplication, settings: String, categories: String) {
+        selectTab(app, title: settings)
+        if app.navigationBars[categories].exists { return }
         XCTAssertTrue(app.navigationBars[settings].waitForExistence(timeout: 5))
         app.buttons["settingsCategories"].tap()
         XCTAssertTrue(app.navigationBars[categories].waitForExistence(timeout: 5))
-        screenshot(app, name: "AppStore-\(language)-03-categories")
     }
 
-    private func openHistory(_ app: XCUIApplication, title: String) {
-        let history = app.buttons["showTransactions"]
+    private func reveal(_ element: XCUIElement, in app: XCUIApplication) {
         for _ in 0..<7 {
-            if history.exists && history.isHittable { break }
-            app.scrollViews["walletHome"].swipeUp()
+            if element.exists && element.isHittable { return }
+            app.swipeUp()
         }
-        XCTAssertTrue(history.exists && history.isHittable)
-        history.tap()
-        XCTAssertTrue(app.navigationBars[title].waitForExistence(timeout: 5))
+        XCTAssertTrue(element.exists && element.isHittable, "Expected control was not reachable: \(element)")
     }
 
     private func screenshot(_ app: XCUIApplication, name: String) {
+        captureAttachment(app, name: name)
+        if name.hasPrefix("QA-"), ProcessInfo.processInfo.environment["IWALLET_QA_SCROLL"] == "1" {
+            for page in 1...2 {
+                app.swipeUp()
+                captureAttachment(app, name: "\(name)-lower-\(page)")
+            }
+        }
+    }
+
+    private func captureAttachment(_ app: XCUIApplication, name: String) {
         let attachment = XCTAttachment(screenshot: app.screenshot())
         attachment.name = name
         attachment.lifetime = .keepAlways

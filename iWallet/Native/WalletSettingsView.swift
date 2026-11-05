@@ -15,19 +15,16 @@ struct WalletSettingsView: View {
     @State private var errorMessage: String?
     @State private var importSummary: WalletBackup.ImportSummary?
     @State private var importResult: Result<WalletBackup.ImportSummary, Error>?
-    @State private var showingHistory = false
-    @State private var showingCategories = false
+    var isPresentedModally = true
 
     var body: some View {
         NavigationStack {
             Form {
                 Section {
-                    Button { showingHistory = true } label: {
-                        Label("Transactions", systemImage: "clock.circle")
-                    }
-                    .accessibilityIdentifier("settingsTransactions")
-                    Button { showingCategories = true } label: {
-                        Label("Categories", systemImage: "list.bullet.circle")
+                    NavigationLink {
+                        CategoryListView(isPushed: true)
+                    } label: {
+                        Label("Categories", systemImage: "square.grid.2x2")
                     }
                     .accessibilityIdentifier("settingsCategories")
                 }
@@ -73,14 +70,15 @@ struct WalletSettingsView: View {
                 }
             }
             .navigationTitle("Settings")
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarTitleDisplayMode(isPresentedModally ? .inline : .large)
+            .symbolRenderingMode(.hierarchical)
             .scrollContentBackground(.hidden)
             .background(WalletTheme.background)
             .toolbar {
-                ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } }
+                if isPresentedModally {
+                    ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } }
+                }
             }
-            .sheet(isPresented: $showingHistory) { TransactionListView() }
-            .sheet(isPresented: $showingCategories) { CategoryListView() }
             .fileExporter(isPresented: $showingExporter, document: export, contentType: .json,
                           defaultFilename: "iWallet-backup-\(Date.now.formatted(.iso8601.year().month().day().dateSeparator(.dash)))") { result in
                 if case .failure(let error) = result { errorMessage = error.localizedDescription }
@@ -101,11 +99,19 @@ struct WalletSettingsView: View {
                         }
                         Section {
                             Text("Existing records will not be overwritten. If a matching record has changed, nothing will be imported.")
-                            Button("Import backup") { restore(preview.backup) }
-                                .fontWeight(.semibold)
+                        }
+                        Section {
+                            Button { restore(preview.backup) } label: {
+                                Text("Import backup").frame(maxWidth: .infinity)
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .controlSize(.large)
+                            .listRowBackground(Color.clear)
+                            .listRowInsets(EdgeInsets())
                         }
                     }
                     .navigationTitle("Review backup")
+                    .navigationBarTitleDisplayMode(.inline)
                     .toolbar {
                         ToolbarItem(placement: .cancellationAction) { Button("Cancel") { pendingImport = nil } }
                     }
@@ -116,7 +122,7 @@ struct WalletSettingsView: View {
                 if importSummary != nil {
                     Button("Done") {
                         importSummary = nil
-                        dismiss()
+                        if isPresentedModally { dismiss() }
                         didRestore()
                     }
                 } else {
@@ -138,21 +144,29 @@ struct WalletSettingsView: View {
         List {
             Section {
                 Label("Stored on your device", systemImage: "iphone")
+                    .font(.headline)
                 Text("Your categories, amounts and notes are saved locally. iWallet does not send them to a server.")
+                    .foregroundStyle(.secondary)
             }
             Section {
                 Label("No tracking", systemImage: "eye.slash")
+                    .font(.headline)
                 Text("This version contains no advertising or analytics services and does not require an account.")
+                    .foregroundStyle(.secondary)
             }
             Section {
                 Label("You control your exports", systemImage: "square.and.arrow.up")
+                    .font(.headline)
                 Text("An exported file contains your financial history. Only share it with people and apps you trust.")
+                    .foregroundStyle(.secondary)
             }
             Section {
                 Link("Privacy policy", destination: URL(string: "https://github.com/nvavna/iWallet-1/blob/restoration/foundation/docs/PRIVACY.md")!)
             }
         }
         .navigationTitle("Privacy")
+        .navigationBarTitleDisplayMode(.inline)
+        .listStyle(.insetGrouped)
     }
 
     private var version: String {
