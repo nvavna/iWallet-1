@@ -66,6 +66,26 @@ final class WalletTransaction {
     }
 }
 
+@Model
+final class WalletMigrationReceipt {
+    @Attribute(.unique) var id: String
+    var sourceDigest: String
+    var currencyCode: String
+    var completedAt: Date
+    var transactionCount: Int
+    var categoryCount: Int
+
+    init(id: String = "realm-v1", sourceDigest: String, currencyCode: String,
+         completedAt: Date = Date(), transactionCount: Int, categoryCount: Int) {
+        self.id = id
+        self.sourceDigest = sourceDigest
+        self.currencyCode = currencyCode
+        self.completedAt = completedAt
+        self.transactionCount = transactionCount
+        self.categoryCount = categoryCount
+    }
+}
+
 enum WalletCurrency: String, CaseIterable, Identifiable {
     case usd = "USD", eur = "EUR", jpy = "JPY", gbp = "GBP"
     case aud = "AUD", cad = "CAD", chf = "CHF", cny = "CNY", rub = "RUB"

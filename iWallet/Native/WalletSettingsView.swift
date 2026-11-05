@@ -4,12 +4,17 @@ import UniformTypeIdentifiers
 
 struct WalletSettingsView: View {
     @Environment(\.dismiss) private var dismiss
-    @Query private var categories: [WalletCategory]
-    @Query private var transactions: [WalletTransaction]
+    @Environment(\.modelContext) private var context
+    @Environment(\.walletDidRestore) private var didRestore
     @AppStorage("preferredCurrencyCode") private var currency = WalletDefaults.currencyCode
     @State private var export: WalletExportDocument?
     @State private var showingExporter = false
-    @State private var exportError: String?
+    @State private var showingImporter = false
+    @State private var pendingImport: ImportPreview?
+    @State private var isReading = false
+    @State private var errorMessage: String?
+    @State private var importSummary: WalletBackup.ImportSummary?
+    @State private var importResult: Result<WalletBackup.ImportSummary, Error>?
 
     var body: some View {
         NavigationStack {
@@ -23,28 +28,35 @@ struct WalletSettingsView: View {
                 } footer: {
                     Text("Used for new transactions. Existing amounts keep their original currency; no conversion is performed.")
                 }
-
                 Section {
-                    Button(action: prepareExport) {
-                        Label("Export all data", systemImage: "square.and.arrow.up")
+                    Button(action: prepareExport) { Label("Export all data", systemImage: "square.and.arrow.up") }
+                    Button { showingImporter = true } label: { Label("Import a backup", systemImage: "square.and.arrow.down") }
+                        .disabled(isReading)
+                    if isReading { ProgressView("Reading your backup") }
+                    NavigationLink { privacyView } label: { Label("Privacy", systemImage: "hand.raised") }
+                } header: { Text("Your data") } footer: {
+                    Text("Keep a JSON backup somewhere safe. Import adds missing records, skips identical records and stops if existing data conflicts.")
+                }
+                Section {
+                    Link(destination: URL(string: "mailto:idevnva@icloud.com")!) {
+                        Label("Contact support", systemImage: "envelope")
                     }
                     NavigationLink {
-                        privacyView
+                        ScrollView {
+                            Text(Self.thirdPartyNotices)
+                                .font(.footnote)
+                                .textSelection(.enabled)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding()
+                        }
+                        .navigationTitle("Licenses")
+                        .navigationBarTitleDisplayMode(.inline)
                     } label: {
-                        Label("Privacy", systemImage: "hand.raised")
+                        Label("Licenses", systemImage: "doc.text")
                     }
-                } header: {
-                    Text("Your data")
-                } footer: {
-                    Text("Export saves your categories and transactions as a JSON file. Keep it somewhere safe. Importing this file will be available in a future update.")
-                }
-
-                Section {
                     LabeledContent("Version", value: version)
                     LabeledContent("Storage", value: String(localized: "On this device"))
-                } header: {
-                    Text("About iWallet")
-                } footer: {
+                } header: { Text("About iWallet") } footer: {
                     Text("A clear view of your everyday finances.")
                 }
             }
@@ -52,12 +64,56 @@ struct WalletSettingsView: View {
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } }
             }
-            .fileExporter(isPresented: $showingExporter, document: export, contentType: .json, defaultFilename: "iWallet-export-\(Date.now.formatted(.iso8601.year().month().day().dateSeparator(.dash)))") { result in
-                if case .failure(let error) = result { exportError = error.localizedDescription }
+            .fileExporter(isPresented: $showingExporter, document: export, contentType: .json,
+                          defaultFilename: "iWallet-backup-\(Date.now.formatted(.iso8601.year().month().day().dateSeparator(.dash)))") { result in
+                if case .failure(let error) = result { errorMessage = error.localizedDescription }
             }
-            .alert("Unable to export data", isPresented: Binding(get: { exportError != nil }, set: { if !$0 { exportError = nil } })) {
-                Button("OK", role: .cancel) { exportError = nil }
-            } message: { Text(exportError ?? "") }
+            .fileImporter(isPresented: $showingImporter, allowedContentTypes: [.json]) { result in
+                switch result {
+                case .success(let url): Task { await readBackup(url) }
+                case .failure(let error): errorMessage = error.localizedDescription
+                }
+            }
+            .sheet(item: $pendingImport, onDismiss: presentImportResult) { preview in
+                NavigationStack {
+                    Form {
+                        Section("Backup contents") {
+                            LabeledContent("Categories", value: String(preview.backup.categories.count))
+                            LabeledContent("Transactions", value: String(preview.backup.transactions.count))
+                            LabeledContent("Created", value: preview.backup.createdAt.formatted(date: .abbreviated, time: .shortened))
+                        }
+                        Section {
+                            Text("Existing records will not be overwritten. If a matching record has changed, nothing will be imported.")
+                            Button("Import backup") { restore(preview.backup) }
+                                .fontWeight(.semibold)
+                        }
+                    }
+                    .navigationTitle("Review backup")
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) { Button("Cancel") { pendingImport = nil } }
+                    }
+                }
+            }
+            .alert(importSummary == nil ? String(localized: "Unable to complete the operation") : String(localized: "Backup imported"),
+                   isPresented: Binding(get: { errorMessage != nil || importSummary != nil }, set: { _ in })) {
+                if importSummary != nil {
+                    Button("Done") {
+                        importSummary = nil
+                        dismiss()
+                        didRestore()
+                    }
+                } else {
+                    Button("OK", role: .cancel) { errorMessage = nil }
+                }
+            } message: {
+                if let summary = importSummary {
+                    Text(String(format: NSLocalizedString("Added %d categories and %d transactions. Skipped %d identical records.", comment: "Import result"),
+                                summary.insertedCategories, summary.insertedTransactions,
+                                summary.skippedCategories + summary.skippedTransactions))
+                } else {
+                    Text(errorMessage ?? "")
+                }
+            }
         }
     }
 
@@ -75,6 +131,9 @@ struct WalletSettingsView: View {
                 Label("You control your exports", systemImage: "square.and.arrow.up")
                 Text("An exported file contains your financial history. Only share it with people and apps you trust.")
             }
+            Section {
+                Link("Privacy policy", destination: URL(string: "https://github.com/nvavna/iWallet-1/blob/restoration/foundation/docs/PRIVACY.md")!)
+            }
         }
         .navigationTitle("Privacy")
     }
@@ -85,65 +144,78 @@ struct WalletSettingsView: View {
         return "\(version) (\(build))"
     }
 
+    private static var thirdPartyNotices: String {
+        guard let url = Bundle.main.url(forResource: "ThirdPartyNotices", withExtension: "txt"),
+              let text = try? String(contentsOf: url, encoding: .utf8) else {
+            return String(localized: "License information is unavailable.")
+        }
+        return text
+    }
+
     private func prepareExport() {
         do {
-            export = try WalletExportDocument(categories: categories, transactions: transactions)
+            export = WalletExportDocument(data: try WalletBackup.snapshot(context: context).encodedData())
             showingExporter = true
+        } catch { errorMessage = error.localizedDescription }
+    }
+
+    @MainActor
+    private func readBackup(_ url: URL) async {
+        isReading = true
+        defer { isReading = false }
+        do {
+            let backup = try await Task.detached(priority: .userInitiated) {
+                let scoped = url.startAccessingSecurityScopedResource()
+                defer { if scoped { url.stopAccessingSecurityScopedResource() } }
+                let file = try FileHandle(forReadingFrom: url)
+                defer { try? file.close() }
+                var data = Data()
+                while let chunk = try file.read(upToCount: 1_024 * 1_024), !chunk.isEmpty {
+                    guard data.count + chunk.count <= WalletBackup.maximumFileSize else { throw WalletBackupError.fileTooLarge }
+                    data.append(chunk)
+                }
+                return try WalletBackup.decode(data: data)
+            }.value
+            pendingImport = ImportPreview(backup: backup)
+        } catch { errorMessage = error.localizedDescription }
+    }
+
+    private func restore(_ backup: WalletBackup) {
+        do {
+            let summary = try backup.restore(into: context)
+            importResult = .success(summary)
+            pendingImport = nil
         } catch {
-            exportError = error.localizedDescription
+            importResult = .failure(error)
+            pendingImport = nil
         }
     }
+
+    private func presentImportResult() {
+        guard let result = importResult else { return }
+        importResult = nil
+        switch result {
+        case .success(let summary): importSummary = summary
+        case .failure(let error): errorMessage = error.localizedDescription
+        }
+    }
+}
+
+private struct ImportPreview: Identifiable {
+    let id = UUID()
+    let backup: WalletBackup
 }
 
 private struct WalletExportDocument: FileDocument {
     static var readableContentTypes: [UTType] { [.json] }
     var data: Data
 
-    init(categories: [WalletCategory], transactions: [WalletTransaction]) throws {
-        let payload = WalletExport(
-            formatVersion: 1,
-            createdAt: Date(),
-            categories: categories.map { .init(id: $0.id, name: $0.name, icon: $0.icon, color: $0.color, kind: $0.kindRaw, isArchived: $0.isArchived) },
-            transactions: transactions.map { .init(id: $0.id, amountMinor: $0.amountMinor, currencyCode: $0.currencyCode, date: $0.date, note: $0.note, kind: $0.kindRaw, categoryID: $0.category?.id) }
-        )
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-        encoder.dateEncodingStrategy = .iso8601
-        data = try encoder.encode(payload)
-    }
-
+    init(data: Data) { self.data = data }
     init(configuration: ReadConfiguration) throws {
         guard let contents = configuration.file.regularFileContents else { throw CocoaError(.fileReadCorruptFile) }
         data = contents
     }
-
     func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
         FileWrapper(regularFileWithContents: data)
-    }
-}
-
-private struct WalletExport: Encodable {
-    let formatVersion: Int
-    let createdAt: Date
-    let categories: [CategoryRecord]
-    let transactions: [TransactionRecord]
-
-    struct CategoryRecord: Encodable {
-        let id: UUID
-        let name: String
-        let icon: String
-        let color: String
-        let kind: String
-        let isArchived: Bool
-    }
-
-    struct TransactionRecord: Encodable {
-        let id: UUID
-        let amountMinor: Int64
-        let currencyCode: String
-        let date: Date
-        let note: String
-        let kind: String
-        let categoryID: UUID?
     }
 }

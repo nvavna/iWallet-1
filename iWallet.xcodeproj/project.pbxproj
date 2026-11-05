@@ -5,13 +5,34 @@
 	"objectVersion" = "56";
 	"archiveVersion" = "1";
 	"objects" = {
-		"08558B9329D35EB90047F959" = {
-			"path" = "Localizable";
+		"AF971BEAA298D7E0FAD93111" = {
+			"isa" = "PBXFileReference";
+			"path" = "ThirdPartyNotices.txt";
+			"sourceTree" = "<group>";
+			"lastKnownFileType" = "text";
+		};
+		"AF971BEAA298D7E0FAD93112" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "AF971BEAA298D7E0FAD93111";
+		};
+		"08558B8329D35EA40047F959" = {
 			"isa" = "PBXGroup";
+			"name" = "Products";
 			"children" = (
-				"0880C66F29E8682B00E088DB",
+				"08558B8229D35EA40047F959",
+				"97ACF7CD98A31E8F09656AB1",
 			);
 			"sourceTree" = "<group>";
+		};
+		"8F17B4E5C6AD68888EF0707D" = {
+			"path" = "Money.swift";
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"sourceTree" = "<group>";
+		};
+		"EB0A68126862C8B1B4539BF4" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "36AC28A23AA8626CD1D80F9F";
 		};
 		"08558B7D29D35EA40047F959" = {
 			"isa" = "XCConfigurationList";
@@ -22,12 +43,51 @@
 				"08558B8F29D35EA40047F959",
 			);
 		};
+		"08558B8D29D35EA40047F959" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "08558B8C29D35EA40047F959";
+		};
+		"08558B8029D35EA40047F959" = {
+			"isa" = "PBXResourcesBuildPhase";
+			"buildActionMask" = "2147483647";
+			"files" = (
+				"AF971BEAA298D7E0FAD93112",
+				"08558B8D29D35EA40047F959",
+				"0880C66D29E8682B00E088DB",
+				"08558B8A29D35EA40047F959",
+				"F7FBDE0A99C5F0676529844F",
+			);
+			"runOnlyForDeploymentPostprocessing" = "0";
+		};
+		"08558B9329D35EB90047F959" = {
+			"path" = "Localizable";
+			"isa" = "PBXGroup";
+			"children" = (
+				"0880C66F29E8682B00E088DB",
+			);
+			"sourceTree" = "<group>";
+		};
+		"08558B9029D35EA40047F959" = {
+			"isa" = "XCConfigurationList";
+			"defaultConfigurationIsVisible" = "0";
+			"defaultConfigurationName" = "Release";
+			"buildConfigurations" = (
+				"08558B9129D35EA40047F959",
+				"08558B9229D35EA40047F959",
+			);
+		};
+		"0880C66D29E8682B00E088DB" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "0880C66F29E8682B00E088DB";
+		};
 		"08558B7A29D35EA40047F959" = {
 			"buildConfigurationList" = "08558B7D29D35EA40047F959";
 			"packageReferences" = (
+				"7A14E58B776DF7E2F20607D4",
 			);
 			"targets" = (
 				"08558B8129D35EA40047F959",
+				"3D254CED7279E24296B705D3",
 			);
 			"developmentRegion" = "en";
 			"knownRegions" = (
@@ -47,108 +107,112 @@
 					"08558B8129D35EA40047F959" = {
 						"CreatedOnToolsVersion" = "14.2";
 					};
+					"3D254CED7279E24296B705D3" = {
+						"CreatedOnToolsVersion" = "27.2";
+						"TestTargetID" = "08558B8129D35EA40047F959";
+					};
 				};
 			};
 			"hasScannedForEncodings" = "0";
 			"projectRoot" = "";
 			"mainGroup" = "08558B7929D35EA40047F959";
 		};
-		"08558B9229D35EA40047F959" = {
-			"isa" = "XCBuildConfiguration";
-			"buildSettings" = {
-				"INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad" = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				"MARKETING_VERSION" = "2.0.0";
-				"DEVELOPMENT_TEAM" = "4243BL8MP3";
-				"SUPPORTED_PLATFORMS" = "iphoneos iphonesimulator";
-				"PRODUCT_BUNDLE_IDENTIFIER" = "com.idevnva.iwallet";
-				"INFOPLIST_KEY_LSApplicationCategoryType" = "public.app-category.finance";
-				"ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME" = "AccentColor";
-				"CURRENT_PROJECT_VERSION" = "1";
-				"DEVELOPMENT_ASSET_PATHS" = "\"iWallet/Preview Content\"";
-				"SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD" = "NO";
-				"INFOPLIST_KEY_UILaunchScreen_Generation" = "YES";
-				"SUPPORTS_MACCATALYST" = "NO";
-				"TARGETED_DEVICE_FAMILY" = "1";
-				"CODE_SIGN_STYLE" = "Automatic";
-				"ASSETCATALOG_COMPILER_APPICON_NAME" = "AppIcon";
-				"LD_RUNPATH_SEARCH_PATHS" = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				"SWIFT_VERSION" = "5.0";
-				"PRODUCT_NAME" = "$(TARGET_NAME)";
-				"IPHONEOS_DEPLOYMENT_TARGET" = "17.0";
-				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents" = "YES";
-				"INFOPLIST_KEY_UISupportedInterfaceOrientations" = "UIInterfaceOrientationPortrait";
-				"ENABLE_PREVIEWS" = "YES";
-				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation" = "YES";
-				"SWIFT_EMIT_LOC_STRINGS" = "YES";
-				"GENERATE_INFOPLIST_FILE" = "YES";
-				"SWIFT_STRICT_CONCURRENCY" = "targeted";
+		"7A14E58B776DF7E2F20607D4" = {
+			"isa" = "XCRemoteSwiftPackageReference";
+			"repositoryURL" = "https://github.com/realm/realm-swift.git";
+			"requirement" = {
+				"kind" = "exactVersion";
+				"version" = "20.0.6";
 			};
-			"name" = "Release";
 		};
-		"08558B8929D35EA40047F959" = {
-			"path" = "Assets.xcassets";
+		"08558B8A29D35EA40047F959" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "08558B8929D35EA40047F959";
+		};
+		"78B6AF9EC8FC009D3EA1BDB4" = {
+			"path" = "WalletStore.swift";
 			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "folder.assetcatalog";
+			"lastKnownFileType" = "sourcecode.swift";
 			"sourceTree" = "<group>";
 		};
-		"08558B9129D35EA40047F959" = {
-			"isa" = "XCBuildConfiguration";
-			"buildSettings" = {
-				"INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad" = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				"MARKETING_VERSION" = "2.0.0";
-				"DEVELOPMENT_TEAM" = "4243BL8MP3";
-				"SUPPORTED_PLATFORMS" = "iphoneos iphonesimulator";
-				"PRODUCT_BUNDLE_IDENTIFIER" = "com.idevnva.iwallet";
-				"INFOPLIST_KEY_LSApplicationCategoryType" = "public.app-category.finance";
-				"ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME" = "AccentColor";
-				"CURRENT_PROJECT_VERSION" = "1";
-				"DEVELOPMENT_ASSET_PATHS" = "\"iWallet/Preview Content\"";
-				"SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD" = "NO";
-				"INFOPLIST_KEY_UILaunchScreen_Generation" = "YES";
-				"SUPPORTS_MACCATALYST" = "NO";
-				"TARGETED_DEVICE_FAMILY" = "1";
-				"CODE_SIGN_STYLE" = "Automatic";
-				"ASSETCATALOG_COMPILER_APPICON_NAME" = "AppIcon";
-				"LD_RUNPATH_SEARCH_PATHS" = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				"SWIFT_VERSION" = "5.0";
-				"PRODUCT_NAME" = "$(TARGET_NAME)";
-				"IPHONEOS_DEPLOYMENT_TARGET" = "17.0";
-				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents" = "YES";
-				"INFOPLIST_KEY_UISupportedInterfaceOrientations" = "UIInterfaceOrientationPortrait";
-				"ENABLE_PREVIEWS" = "YES";
-				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation" = "YES";
-				"SWIFT_EMIT_LOC_STRINGS" = "YES";
-				"GENERATE_INFOPLIST_FILE" = "YES";
-				"SWIFT_STRICT_CONCURRENCY" = "targeted";
-			};
-			"name" = "Debug";
+		"0738910A1D346CCAE3F48A2E" = {
+			"path" = "WalletSettingsView.swift";
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"sourceTree" = "<group>";
 		};
-		"08558B9029D35EA40047F959" = {
-			"isa" = "XCConfigurationList";
-			"defaultConfigurationIsVisible" = "0";
-			"defaultConfigurationName" = "Release";
-			"buildConfigurations" = (
-				"08558B9129D35EA40047F959",
-				"08558B9229D35EA40047F959",
+		"0880C67129E86A6500E088DB" = {
+			"path" = "ru.lproj/Localizable.strings";
+			"isa" = "PBXFileReference";
+			"name" = "ru";
+			"lastKnownFileType" = "text.plist.strings";
+			"sourceTree" = "<group>";
+		};
+		"5296095B1EEE05DC8BF1606A" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "823B7724940DF522A80AA396";
+		};
+		"36AC28A23AA8626CD1D80F9F" = {
+			"path" = "WalletMigrationView.swift";
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"sourceTree" = "<group>";
+		};
+		"09E6A109A579BEB461182CF0" = {
+			"path" = "WalletModels.swift";
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"sourceTree" = "<group>";
+		};
+		"8B07E6D169A4CEF8E025FD39" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "E2D34980A71C66F03B0C8C32";
+		};
+		"08558B8429D35EA40047F959" = {
+			"path" = "iWallet";
+			"isa" = "PBXGroup";
+			"children" = (
+				"4FC6E7F740ABB8AF896EBEDE",
+				"08558B9329D35EB90047F959",
+				"08558B8929D35EA40047F959",
+				"08558B8B29D35EA40047F959",
 			);
+			"sourceTree" = "<group>";
+		};
+		"801E0B9116DED73A5A33BE2B" = {
+			"isa" = "PBXBuildFile";
+			"productRef" = "D50BADA9A2EDF2B8754D1126";
+		};
+		"08558B7E29D35EA40047F959" = {
+			"isa" = "PBXSourcesBuildPhase";
+			"buildActionMask" = "2147483647";
+			"files" = (
+				"5296095B1EEE05DC8BF1606A",
+				"8B07E6D169A4CEF8E025FD39",
+				"FB4F0C84EE771E6AFE5B7BCD",
+				"67A020F4B66AB8076F796525",
+				"BE0EAFF410464FB69EC69358",
+				"18060AA2CA98B0E5AADA69A6",
+				"79EA2A2687E21FD8AA20A5AE",
+				"8451BC931DBCDB0C19C58226",
+				"F5DDD49B38B3D5311C4C528D",
+				"6A413F83309C4A6FC61A1C38",
+				"291F450090CAA126980AAA0B",
+				"EB0A68126862C8B1B4539BF4",
+			);
+			"runOnlyForDeploymentPostprocessing" = "0";
 		};
 		"08558B8E29D35EA40047F959" = {
 			"isa" = "XCBuildConfiguration";
 			"buildSettings" = {
-				"CLANG_WARN_DOCUMENTATION_COMMENTS" = "YES";
 				"CLANG_WARN_UNGUARDED_AVAILABILITY" = "YES_AGGRESSIVE";
-				"CLANG_WARN_DIRECT_OBJC_ISA_USAGE" = "YES_ERROR";
-				"CLANG_ENABLE_OBJC_ARC" = "YES";
 				"CLANG_WARN_SUSPICIOUS_MOVE" = "YES";
-				"CLANG_WARN__DUPLICATE_METHOD_MATCH" = "YES";
+				"CLANG_ENABLE_OBJC_ARC" = "YES";
+				"CLANG_WARN_DIRECT_OBJC_ISA_USAGE" = "YES_ERROR";
 				"CLANG_ENABLE_OBJC_WEAK" = "YES";
+				"CLANG_WARN__DUPLICATE_METHOD_MATCH" = "YES";
 				"GCC_WARN_UNDECLARED_SELECTOR" = "YES";
+				"CLANG_WARN_DOCUMENTATION_COMMENTS" = "YES";
 				"CLANG_WARN_INFINITE_RECURSION" = "YES";
 				"IPHONEOS_DEPLOYMENT_TARGET" = "17.0";
 				"CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION" = "YES_AGGRESSIVE";
@@ -160,21 +224,21 @@
 				"ENABLE_STRICT_OBJC_MSGSEND" = "YES";
 				"CLANG_ANALYZER_NONNULL" = "YES";
 				"CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING" = "YES";
-				"CLANG_WARN_STRICT_PROTOTYPES" = "YES";
-				"CLANG_WARN_ENUM_CONVERSION" = "YES";
-				"CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER" = "YES";
 				"GCC_PREPROCESSOR_DEFINITIONS" = (
 					"DEBUG=1",
 					"$(inherited)",
 				);
+				"CLANG_WARN_ENUM_CONVERSION" = "YES";
+				"CLANG_WARN_STRICT_PROTOTYPES" = "YES";
 				"GCC_WARN_64_TO_32_BIT_CONVERSION" = "YES";
-				"CLANG_WARN_EMPTY_BODY" = "YES";
+				"CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER" = "YES";
 				"GCC_WARN_UNINITIALIZED_AUTOS" = "YES_AGGRESSIVE";
+				"CLANG_WARN_EMPTY_BODY" = "YES";
 				"GCC_WARN_ABOUT_RETURN_TYPE" = "YES_ERROR";
 				"CLANG_WARN_COMMA" = "YES";
 				"GCC_DYNAMIC_NO_PIC" = "NO";
-				"GCC_C_LANGUAGE_STANDARD" = "gnu11";
 				"GCC_WARN_UNUSED_VARIABLE" = "YES";
+				"GCC_C_LANGUAGE_STANDARD" = "gnu11";
 				"CLANG_WARN_RANGE_LOOP_ANALYSIS" = "YES";
 				"CLANG_ENABLE_MODULES" = "YES";
 				"CLANG_WARN_INT_CONVERSION" = "YES";
@@ -193,27 +257,166 @@
 				"MTL_FAST_MATH" = "YES";
 				"GCC_WARN_UNUSED_FUNCTION" = "YES";
 				"SWIFT_ACTIVE_COMPILATION_CONDITIONS" = "DEBUG";
-				"CLANG_WARN_OBJC_LITERAL_CONVERSION" = "YES";
 				"DEBUG_INFORMATION_FORMAT" = "dwarf";
+				"CLANG_WARN_OBJC_LITERAL_CONVERSION" = "YES";
 				"CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF" = "YES";
 			};
 			"name" = "Debug";
 		};
+		"B967055F24F229B2A68C4037" = {
+			"path" = "LegacyWalletMigration.swift";
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"sourceTree" = "<group>";
+		};
+		"08558B8129D35EA40047F959" = {
+			"productType" = "com.apple.product-type.application";
+			"productReference" = "08558B8229D35EA40047F959";
+			"buildConfigurationList" = "08558B9029D35EA40047F959";
+			"packageProductDependencies" = (
+				"D50BADA9A2EDF2B8754D1126",
+			);
+			"productName" = "iWallet";
+			"isa" = "PBXNativeTarget";
+			"buildPhases" = (
+				"08558B7E29D35EA40047F959",
+				"08558B7F29D35EA40047F959",
+				"08558B8029D35EA40047F959",
+				"2341461B6152D557EA0ECB9D",
+			);
+			"dependencies" = (
+			);
+			"name" = "iWallet";
+			"buildRules" = (
+			);
+		};
+		"0880C66E29E8682B00E088DB" = {
+			"path" = "en.lproj/Localizable.strings";
+			"isa" = "PBXFileReference";
+			"name" = "en";
+			"lastKnownFileType" = "text.plist.strings";
+			"sourceTree" = "<group>";
+		};
+		"08558B9129D35EA40047F959" = {
+			"isa" = "XCBuildConfiguration";
+			"buildSettings" = {
+				"INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad" = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				"MARKETING_VERSION" = "2.0.0";
+				"DEVELOPMENT_TEAM" = "4243BL8MP3";
+				"CURRENT_PROJECT_VERSION" = "1";
+				"SUPPORTED_PLATFORMS" = "iphoneos iphonesimulator";
+				"INFOPLIST_KEY_LSApplicationCategoryType" = "public.app-category.finance";
+				"INFOPLIST_KEY_ITSAppUsesNonExemptEncryption" = "NO";
+				"ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME" = "AccentColor";
+				"PRODUCT_BUNDLE_IDENTIFIER" = "com.idevnva.iwallet";
+				"DEVELOPMENT_ASSET_PATHS" = "\"iWallet/Preview Content\"";
+				"SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD" = "NO";
+				"INFOPLIST_KEY_UILaunchScreen_Generation" = "YES";
+				"SUPPORTS_MACCATALYST" = "NO";
+				"TARGETED_DEVICE_FAMILY" = "1";
+				"CODE_SIGN_STYLE" = "Automatic";
+				"ASSETCATALOG_COMPILER_APPICON_NAME" = "AppIcon";
+				"LD_RUNPATH_SEARCH_PATHS" = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				"SWIFT_VERSION" = "5.0";
+				"PRODUCT_NAME" = "$(TARGET_NAME)";
+				"IPHONEOS_DEPLOYMENT_TARGET" = "17.0";
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents" = "YES";
+				"INFOPLIST_KEY_UISupportedInterfaceOrientations" = "UIInterfaceOrientationPortrait";
+				"ENABLE_PREVIEWS" = "YES";
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation" = "YES";
+				"SWIFT_STRICT_CONCURRENCY" = "targeted";
+				"SWIFT_EMIT_LOC_STRINGS" = "YES";
+				"GENERATE_INFOPLIST_FILE" = "YES";
+			};
+			"name" = "Debug";
+		};
+		"08558B8B29D35EA40047F959" = {
+			"path" = "Preview Content";
+			"isa" = "PBXGroup";
+			"children" = (
+				"08558B8C29D35EA40047F959",
+			);
+			"sourceTree" = "<group>";
+		};
+		"18060AA2CA98B0E5AADA69A6" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "78B6AF9EC8FC009D3EA1BDB4";
+		};
+		"F9ABA3EDF77EEF47332395BA" = {
+			"path" = "PrivacyInfo.xcprivacy";
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "text.xml";
+			"sourceTree" = "<group>";
+		};
+		"FB4F0C84EE771E6AFE5B7BCD" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "A22CA908252CF79DF26B3CB1";
+		};
+		"4FC6E7F740ABB8AF896EBEDE" = {
+			"path" = "Native";
+			"isa" = "PBXGroup";
+			"children" = (
+				"AF971BEAA298D7E0FAD93111",
+				"823B7724940DF522A80AA396",
+				"E2D34980A71C66F03B0C8C32",
+				"A22CA908252CF79DF26B3CB1",
+				"0738910A1D346CCAE3F48A2E",
+				"09E6A109A579BEB461182CF0",
+				"78B6AF9EC8FC009D3EA1BDB4",
+				"8F17B4E5C6AD68888EF0707D",
+				"09BA5BA22825AAD47E90F4C0",
+				"209B15A602FA5154E5EDD04F",
+				"F9ABA3EDF77EEF47332395BA",
+				"B368F4375FBCFD2E9BDD896E",
+				"B967055F24F229B2A68C4037",
+				"36AC28A23AA8626CD1D80F9F",
+			);
+			"sourceTree" = "<group>";
+		};
+		"8451BC931DBCDB0C19C58226" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "09BA5BA22825AAD47E90F4C0";
+		};
+		"F7FBDE0A99C5F0676529844F" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "F9ABA3EDF77EEF47332395BA";
+		};
+		"67A020F4B66AB8076F796525" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "0738910A1D346CCAE3F48A2E";
+		};
+		"A22CA908252CF79DF26B3CB1" = {
+			"path" = "WalletHomeView.swift";
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"sourceTree" = "<group>";
+		};
+		"08558B7F29D35EA40047F959" = {
+			"isa" = "PBXFrameworksBuildPhase";
+			"buildActionMask" = "2147483647";
+			"files" = (
+				"801E0B9116DED73A5A33BE2B",
+			);
+			"runOnlyForDeploymentPostprocessing" = "0";
+		};
 		"08558B8F29D35EA40047F959" = {
 			"isa" = "XCBuildConfiguration";
 			"buildSettings" = {
-				"CLANG_WARN_DOCUMENTATION_COMMENTS" = "YES";
 				"CLANG_WARN_UNGUARDED_AVAILABILITY" = "YES_AGGRESSIVE";
-				"CLANG_WARN_DIRECT_OBJC_ISA_USAGE" = "YES_ERROR";
+				"IPHONEOS_DEPLOYMENT_TARGET" = "17.0";
 				"CLANG_ENABLE_OBJC_ARC" = "YES";
+				"CLANG_WARN_DIRECT_OBJC_ISA_USAGE" = "YES_ERROR";
 				"CLANG_WARN_SUSPICIOUS_MOVE" = "YES";
 				"CLANG_WARN__DUPLICATE_METHOD_MATCH" = "YES";
 				"CLANG_ENABLE_OBJC_WEAK" = "YES";
-				"ENABLE_NS_ASSERTIONS" = "NO";
-				"CLANG_WARN_INFINITE_RECURSION" = "YES";
-				"GCC_WARN_UNDECLARED_SELECTOR" = "YES";
-				"IPHONEOS_DEPLOYMENT_TARGET" = "17.0";
 				"SWIFT_COMPILATION_MODE" = "wholemodule";
+				"CLANG_WARN_INFINITE_RECURSION" = "YES";
+				"ENABLE_NS_ASSERTIONS" = "NO";
+				"CLANG_WARN_DOCUMENTATION_COMMENTS" = "YES";
+				"GCC_WARN_UNDECLARED_SELECTOR" = "YES";
 				"CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION" = "YES_AGGRESSIVE";
 				"SDKROOT" = "iphoneos";
 				"CLANG_CXX_LANGUAGE_STANDARD" = "gnu++20";
@@ -224,14 +427,14 @@
 				"CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING" = "YES";
 				"CLANG_WARN_STRICT_PROTOTYPES" = "YES";
 				"CLANG_WARN_ENUM_CONVERSION" = "YES";
-				"CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER" = "YES";
 				"GCC_WARN_64_TO_32_BIT_CONVERSION" = "YES";
-				"CLANG_WARN_EMPTY_BODY" = "YES";
+				"CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER" = "YES";
 				"GCC_WARN_UNINITIALIZED_AUTOS" = "YES_AGGRESSIVE";
+				"CLANG_WARN_EMPTY_BODY" = "YES";
 				"GCC_WARN_ABOUT_RETURN_TYPE" = "YES_ERROR";
 				"CLANG_WARN_COMMA" = "YES";
-				"GCC_C_LANGUAGE_STANDARD" = "gnu11";
 				"GCC_WARN_UNUSED_VARIABLE" = "YES";
+				"GCC_C_LANGUAGE_STANDARD" = "gnu11";
 				"CLANG_WARN_RANGE_LOOP_ANALYSIS" = "YES";
 				"CLANG_ENABLE_MODULES" = "YES";
 				"CLANG_WARN_INT_CONVERSION" = "YES";
@@ -254,33 +457,60 @@
 			};
 			"name" = "Release";
 		};
-		"08558B8429D35EA40047F959" = {
-			"path" = "iWallet";
-			"isa" = "PBXGroup";
-			"children" = (
-				"4FC6E7F740ABB8AF896EBEDE",
-				"08558B9329D35EB90047F959",
-				"08558B8929D35EA40047F959",
-				"08558B8B29D35EA40047F959",
-			);
-			"sourceTree" = "<group>";
-		};
-		"08558B8D29D35EA40047F959" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "08558B8C29D35EA40047F959";
-		};
-		"0880C66E29E8682B00E088DB" = {
-			"path" = "en.lproj/Localizable.strings";
+		"08558B8229D35EA40047F959" = {
+			"path" = "iWallet.app";
 			"isa" = "PBXFileReference";
-			"name" = "en";
-			"lastKnownFileType" = "text.plist.strings";
+			"includeInIndex" = "0";
+			"explicitFileType" = "wrapper.application";
+			"sourceTree" = "BUILT_PRODUCTS_DIR";
+		};
+		"B368F4375FBCFD2E9BDD896E" = {
+			"path" = "WalletBackup.swift";
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
 			"sourceTree" = "<group>";
 		};
-		"08558B8C29D35EA40047F959" = {
-			"path" = "Preview Assets.xcassets";
+		"823B7724940DF522A80AA396" = {
+			"path" = "iWalletApp.swift";
 			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "folder.assetcatalog";
+			"lastKnownFileType" = "sourcecode.swift";
 			"sourceTree" = "<group>";
+		};
+		"08558B9229D35EA40047F959" = {
+			"isa" = "XCBuildConfiguration";
+			"buildSettings" = {
+				"INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad" = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				"MARKETING_VERSION" = "2.0.0";
+				"DEVELOPMENT_TEAM" = "4243BL8MP3";
+				"CURRENT_PROJECT_VERSION" = "1";
+				"SUPPORTED_PLATFORMS" = "iphoneos iphonesimulator";
+				"INFOPLIST_KEY_LSApplicationCategoryType" = "public.app-category.finance";
+				"INFOPLIST_KEY_ITSAppUsesNonExemptEncryption" = "NO";
+				"ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME" = "AccentColor";
+				"PRODUCT_BUNDLE_IDENTIFIER" = "com.idevnva.iwallet";
+				"DEVELOPMENT_ASSET_PATHS" = "\"iWallet/Preview Content\"";
+				"SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD" = "NO";
+				"INFOPLIST_KEY_UILaunchScreen_Generation" = "YES";
+				"SUPPORTS_MACCATALYST" = "NO";
+				"TARGETED_DEVICE_FAMILY" = "1";
+				"CODE_SIGN_STYLE" = "Automatic";
+				"ASSETCATALOG_COMPILER_APPICON_NAME" = "AppIcon";
+				"LD_RUNPATH_SEARCH_PATHS" = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				"SWIFT_VERSION" = "5.0";
+				"PRODUCT_NAME" = "$(TARGET_NAME)";
+				"IPHONEOS_DEPLOYMENT_TARGET" = "17.0";
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents" = "YES";
+				"INFOPLIST_KEY_UISupportedInterfaceOrientations" = "UIInterfaceOrientationPortrait";
+				"ENABLE_PREVIEWS" = "YES";
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation" = "YES";
+				"SWIFT_STRICT_CONCURRENCY" = "targeted";
+				"SWIFT_EMIT_LOC_STRINGS" = "YES";
+				"GENERATE_INFOPLIST_FILE" = "YES";
+			};
+			"name" = "Release";
 		};
 		"0880C66F29E8682B00E088DB" = {
 			"isa" = "PBXVariantGroup";
@@ -291,36 +521,9 @@
 			);
 			"sourceTree" = "<group>";
 		};
-		"08558B8329D35EA40047F959" = {
-			"isa" = "PBXGroup";
-			"name" = "Products";
-			"children" = (
-				"08558B8229D35EA40047F959",
-			);
-			"sourceTree" = "<group>";
-		};
-		"08558B8229D35EA40047F959" = {
-			"path" = "iWallet.app";
-			"isa" = "PBXFileReference";
-			"includeInIndex" = "0";
-			"explicitFileType" = "wrapper.application";
-			"sourceTree" = "BUILT_PRODUCTS_DIR";
-		};
-		"08558B8A29D35EA40047F959" = {
+		"BE0EAFF410464FB69EC69358" = {
 			"isa" = "PBXBuildFile";
-			"fileRef" = "08558B8929D35EA40047F959";
-		};
-		"0880C66D29E8682B00E088DB" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "0880C66F29E8682B00E088DB";
-		};
-		"08558B8B29D35EA40047F959" = {
-			"path" = "Preview Content";
-			"isa" = "PBXGroup";
-			"children" = (
-				"08558B8C29D35EA40047F959",
-			);
-			"sourceTree" = "<group>";
+			"fileRef" = "09E6A109A579BEB461182CF0";
 		};
 		"08558B7929D35EA40047F959" = {
 			"isa" = "PBXGroup";
@@ -328,184 +531,212 @@
 			"children" = (
 				"08558B8429D35EA40047F959",
 				"08558B8329D35EA40047F959",
+				"370804DAC7F7E3F4AA4BA8D5",
 			);
-		};
-		"08558B8129D35EA40047F959" = {
-			"buildConfigurationList" = "08558B9029D35EA40047F959";
-			"productReference" = "08558B8229D35EA40047F959";
-			"productType" = "com.apple.product-type.application";
-			"packageProductDependencies" = (
-			);
-			"productName" = "iWallet";
-			"isa" = "PBXNativeTarget";
-			"buildPhases" = (
-				"08558B7E29D35EA40047F959",
-				"08558B7F29D35EA40047F959",
-				"08558B8029D35EA40047F959",
-			);
-			"dependencies" = (
-			);
-			"name" = "iWallet";
-			"buildRules" = (
-			);
-		};
-		"08558B8029D35EA40047F959" = {
-			"isa" = "PBXResourcesBuildPhase";
-			"buildActionMask" = "2147483647";
-			"files" = (
-				"08558B8D29D35EA40047F959",
-				"0880C66D29E8682B00E088DB",
-				"08558B8A29D35EA40047F959",
-				"F7FBDE0A99C5F0676529844F",
-			);
-			"runOnlyForDeploymentPostprocessing" = "0";
-		};
-		"0880C67129E86A6500E088DB" = {
-			"path" = "ru.lproj/Localizable.strings";
-			"isa" = "PBXFileReference";
-			"name" = "ru";
-			"lastKnownFileType" = "text.plist.strings";
-			"sourceTree" = "<group>";
-		};
-		"08558B7F29D35EA40047F959" = {
-			"isa" = "PBXFrameworksBuildPhase";
-			"buildActionMask" = "2147483647";
-			"files" = (
-			);
-			"runOnlyForDeploymentPostprocessing" = "0";
-		};
-		"08558B7E29D35EA40047F959" = {
-			"isa" = "PBXSourcesBuildPhase";
-			"buildActionMask" = "2147483647";
-			"files" = (
-				"5296095B1EEE05DC8BF1606A",
-				"8B07E6D169A4CEF8E025FD39",
-				"FB4F0C84EE771E6AFE5B7BCD",
-				"67A020F4B66AB8076F796525",
-				"BE0EAFF410464FB69EC69358",
-				"18060AA2CA98B0E5AADA69A6",
-				"79EA2A2687E21FD8AA20A5AE",
-				"8451BC931DBCDB0C19C58226",
-				"F5DDD49B38B3D5311C4C528D",
-			);
-			"runOnlyForDeploymentPostprocessing" = "0";
-		};
-		"823B7724940DF522A80AA396" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"path" = "iWalletApp.swift";
-			"sourceTree" = "<group>";
-		};
-		"5296095B1EEE05DC8BF1606A" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "823B7724940DF522A80AA396";
 		};
 		"E2D34980A71C66F03B0C8C32" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
 			"path" = "WalletTheme.swift";
-			"sourceTree" = "<group>";
-		};
-		"8B07E6D169A4CEF8E025FD39" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "E2D34980A71C66F03B0C8C32";
-		};
-		"A22CA908252CF79DF26B3CB1" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
-			"path" = "WalletHomeView.swift";
 			"sourceTree" = "<group>";
 		};
-		"FB4F0C84EE771E6AFE5B7BCD" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "A22CA908252CF79DF26B3CB1";
-		};
-		"0738910A1D346CCAE3F48A2E" = {
+		"08558B8C29D35EA40047F959" = {
+			"path" = "Preview Assets.xcassets";
 			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"path" = "WalletSettingsView.swift";
+			"lastKnownFileType" = "folder.assetcatalog";
 			"sourceTree" = "<group>";
 		};
-		"67A020F4B66AB8076F796525" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "0738910A1D346CCAE3F48A2E";
-		};
-		"09E6A109A579BEB461182CF0" = {
+		"08558B8929D35EA40047F959" = {
+			"path" = "Assets.xcassets";
 			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"path" = "WalletModels.swift";
+			"lastKnownFileType" = "folder.assetcatalog";
 			"sourceTree" = "<group>";
 		};
-		"BE0EAFF410464FB69EC69358" = {
+		"291F450090CAA126980AAA0B" = {
 			"isa" = "PBXBuildFile";
-			"fileRef" = "09E6A109A579BEB461182CF0";
+			"fileRef" = "B967055F24F229B2A68C4037";
 		};
-		"78B6AF9EC8FC009D3EA1BDB4" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"path" = "WalletStore.swift";
-			"sourceTree" = "<group>";
-		};
-		"18060AA2CA98B0E5AADA69A6" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "78B6AF9EC8FC009D3EA1BDB4";
-		};
-		"8F17B4E5C6AD68888EF0707D" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"path" = "Money.swift";
-			"sourceTree" = "<group>";
+		"D50BADA9A2EDF2B8754D1126" = {
+			"isa" = "XCSwiftPackageProductDependency";
+			"package" = "7A14E58B776DF7E2F20607D4";
+			"productName" = "RealmSwift";
 		};
 		"79EA2A2687E21FD8AA20A5AE" = {
 			"isa" = "PBXBuildFile";
 			"fileRef" = "8F17B4E5C6AD68888EF0707D";
 		};
 		"09BA5BA22825AAD47E90F4C0" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
 			"path" = "TransactionViews.swift";
-			"sourceTree" = "<group>";
-		};
-		"8451BC931DBCDB0C19C58226" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "09BA5BA22825AAD47E90F4C0";
-		};
-		"209B15A602FA5154E5EDD04F" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
-			"path" = "CategoryViews.swift";
 			"sourceTree" = "<group>";
 		};
 		"F5DDD49B38B3D5311C4C528D" = {
 			"isa" = "PBXBuildFile";
 			"fileRef" = "209B15A602FA5154E5EDD04F";
 		};
-		"F9ABA3EDF77EEF47332395BA" = {
+		"209B15A602FA5154E5EDD04F" = {
+			"path" = "CategoryViews.swift";
 			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text.xml";
-			"path" = "PrivacyInfo.xcprivacy";
+			"lastKnownFileType" = "sourcecode.swift";
 			"sourceTree" = "<group>";
 		};
-		"F7FBDE0A99C5F0676529844F" = {
+		"6A413F83309C4A6FC61A1C38" = {
 			"isa" = "PBXBuildFile";
-			"fileRef" = "F9ABA3EDF77EEF47332395BA";
+			"fileRef" = "B368F4375FBCFD2E9BDD896E";
 		};
-		"4FC6E7F740ABB8AF896EBEDE" = {
+		"55A5B20B458BE3C0FBC78CF8" = {
+			"isa" = "PBXFileReference";
+			"path" = "WalletSmokeTests.swift";
+			"lastKnownFileType" = "sourcecode.swift";
+			"sourceTree" = "<group>";
+		};
+		"BE591E13CE1EC367B71EFE4B" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "55A5B20B458BE3C0FBC78CF8";
+		};
+		"370804DAC7F7E3F4AA4BA8D5" = {
 			"isa" = "PBXGroup";
-			"path" = "Native";
+			"path" = "Tests/WalletUITests";
 			"children" = (
-				"823B7724940DF522A80AA396",
-				"E2D34980A71C66F03B0C8C32",
-				"A22CA908252CF79DF26B3CB1",
-				"0738910A1D346CCAE3F48A2E",
-				"09E6A109A579BEB461182CF0",
-				"78B6AF9EC8FC009D3EA1BDB4",
-				"8F17B4E5C6AD68888EF0707D",
-				"09BA5BA22825AAD47E90F4C0",
-				"209B15A602FA5154E5EDD04F",
-				"F9ABA3EDF77EEF47332395BA",
+				"55A5B20B458BE3C0FBC78CF8",
 			);
 			"sourceTree" = "<group>";
+		};
+		"97ACF7CD98A31E8F09656AB1" = {
+			"isa" = "PBXFileReference";
+			"path" = "iWalletUITests.xctest";
+			"explicitFileType" = "wrapper.cfbundle";
+			"includeInIndex" = "0";
+			"sourceTree" = "BUILT_PRODUCTS_DIR";
+		};
+		"E41DF6D4007A920F55579849" = {
+			"isa" = "PBXSourcesBuildPhase";
+			"buildActionMask" = "2147483647";
+			"files" = (
+				"BE591E13CE1EC367B71EFE4B",
+			);
+			"runOnlyForDeploymentPostprocessing" = "0";
+		};
+		"0AA16879672C608743485404" = {
+			"isa" = "PBXFrameworksBuildPhase";
+			"buildActionMask" = "2147483647";
+			"files" = (
+			);
+			"runOnlyForDeploymentPostprocessing" = "0";
+		};
+		"ACA91CF52197B55258C5234B" = {
+			"isa" = "PBXResourcesBuildPhase";
+			"buildActionMask" = "2147483647";
+			"files" = (
+			);
+			"runOnlyForDeploymentPostprocessing" = "0";
+		};
+		"7181C3C24DDA4618BE6484F8" = {
+			"isa" = "XCBuildConfiguration";
+			"name" = "Debug";
+			"buildSettings" = {
+				"PRODUCT_BUNDLE_IDENTIFIER" = "com.idevnva.iwallet.uitests";
+				"PRODUCT_NAME" = "$(TARGET_NAME)";
+				"SWIFT_VERSION" = "5.0";
+				"GENERATE_INFOPLIST_FILE" = "YES";
+				"IPHONEOS_DEPLOYMENT_TARGET" = "17.0";
+				"TARGETED_DEVICE_FAMILY" = "1";
+				"CODE_SIGN_STYLE" = "Automatic";
+				"DEVELOPMENT_TEAM" = "4243BL8MP3";
+				"TEST_TARGET_NAME" = "iWallet";
+				"SWIFT_STRICT_CONCURRENCY" = "targeted";
+				"ENABLE_TESTING_SEARCH_PATHS" = "YES";
+				"SWIFT_EMIT_LOC_STRINGS" = "NO";
+				"LD_RUNPATH_SEARCH_PATHS" = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+			};
+		};
+		"6A0E1643480ED8F1B3DE1CAB" = {
+			"isa" = "XCBuildConfiguration";
+			"name" = "Release";
+			"buildSettings" = {
+				"PRODUCT_BUNDLE_IDENTIFIER" = "com.idevnva.iwallet.uitests";
+				"PRODUCT_NAME" = "$(TARGET_NAME)";
+				"SWIFT_VERSION" = "5.0";
+				"GENERATE_INFOPLIST_FILE" = "YES";
+				"IPHONEOS_DEPLOYMENT_TARGET" = "17.0";
+				"TARGETED_DEVICE_FAMILY" = "1";
+				"CODE_SIGN_STYLE" = "Automatic";
+				"DEVELOPMENT_TEAM" = "4243BL8MP3";
+				"TEST_TARGET_NAME" = "iWallet";
+				"SWIFT_STRICT_CONCURRENCY" = "targeted";
+				"ENABLE_TESTING_SEARCH_PATHS" = "YES";
+				"SWIFT_EMIT_LOC_STRINGS" = "NO";
+				"LD_RUNPATH_SEARCH_PATHS" = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+			};
+		};
+		"05AC4B73E95840D0642F0A8B" = {
+			"isa" = "XCConfigurationList";
+			"buildConfigurations" = (
+				"7181C3C24DDA4618BE6484F8",
+				"6A0E1643480ED8F1B3DE1CAB",
+			);
+			"defaultConfigurationIsVisible" = "0";
+			"defaultConfigurationName" = "Release";
+		};
+		"6AD16FAE9D85586F7CD53A25" = {
+			"isa" = "PBXContainerItemProxy";
+			"containerPortal" = "08558B7A29D35EA40047F959";
+			"proxyType" = "1";
+			"remoteGlobalIDString" = "08558B8129D35EA40047F959";
+			"remoteInfo" = "iWallet";
+		};
+		"AEF0A13F70C6CDC83FEEB3AB" = {
+			"isa" = "PBXTargetDependency";
+			"target" = "08558B8129D35EA40047F959";
+			"targetProxy" = "6AD16FAE9D85586F7CD53A25";
+		};
+		"3D254CED7279E24296B705D3" = {
+			"isa" = "PBXNativeTarget";
+			"name" = "iWalletUITests";
+			"productName" = "iWalletUITests";
+			"productReference" = "97ACF7CD98A31E8F09656AB1";
+			"productType" = "com.apple.product-type.bundle.ui-testing";
+			"buildConfigurationList" = "05AC4B73E95840D0642F0A8B";
+			"buildPhases" = (
+				"E41DF6D4007A920F55579849",
+				"0AA16879672C608743485404",
+				"ACA91CF52197B55258C5234B",
+			);
+			"buildRules" = (
+			);
+			"dependencies" = (
+				"AEF0A13F70C6CDC83FEEB3AB",
+			);
+		};
+		"36C428FE8DAB121DC1E7B6F4" = {
+			"isa" = "PBXBuildFile";
+			"productRef" = "D50BADA9A2EDF2B8754D1126";
+			"settings" = {
+				"ATTRIBUTES" = (
+					"CodeSignOnCopy",
+					"RemoveHeadersOnCopy",
+				);
+			};
+		};
+		"2341461B6152D557EA0ECB9D" = {
+			"isa" = "PBXCopyFilesBuildPhase";
+			"buildActionMask" = "2147483647";
+			"dstPath" = "";
+			"dstSubfolderSpec" = "10";
+			"files" = (
+				"36C428FE8DAB121DC1E7B6F4",
+			);
+			"name" = "Embed Frameworks";
+			"runOnlyForDeploymentPostprocessing" = "0";
 		};
 	};
 	"rootObject" = "08558B7A29D35EA40047F959";

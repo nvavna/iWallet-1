@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftData
 
 struct WalletHomeView: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Query(sort: \WalletTransaction.date, order: .reverse) private var transactions: [WalletTransaction]
     @AppStorage("preferredCurrencyCode") private var preferredCurrency = WalletDefaults.currencyCode
     @State private var selectedCurrency = ""
@@ -83,10 +84,13 @@ struct WalletHomeView: View {
 
     private var balanceCard: some View {
         VStack(alignment: .leading, spacing: 18) {
-            HStack {
+            let headerLayout = dynamicTypeSize.isAccessibilitySize
+                ? AnyLayout(VStackLayout(alignment: .leading, spacing: 12))
+                : AnyLayout(HStackLayout())
+            headerLayout {
                 Label("Balance", systemImage: "wallet.bifold")
                     .font(.headline)
-                Spacer()
+                if !dynamicTypeSize.isAccessibilitySize { Spacer() }
                 Text(currency).font(.caption.weight(.semibold))
                     .padding(.horizontal, 10).padding(.vertical, 6)
                     .background(.white.opacity(0.14), in: Capsule())

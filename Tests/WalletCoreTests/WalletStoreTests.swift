@@ -64,6 +64,88 @@ final class WalletStoreTests: XCTestCase {
     }
 
     @MainActor
+    func testDatesOutsideBackupRangeAreRejectedBeforeChangingRecords() async throws {
+        let container = try WalletStore.makeContainer(inMemory: true)
+        let context = container.mainContext
+        let category = try WalletStore.saveCategory(context: context, name: "Food", icon: "cart", color: "colorPurple", kind: .expense)
+        let originalDate = Date(timeIntervalSince1970: 1_700_000_000)
+        try WalletStore.saveTransaction(context: context, amountMinor: 100, currencyCode: "USD", date: originalDate,
+                                        note: "Saved", kind: .expense, category: category)
+        let transaction = try XCTUnwrap(context.fetch(FetchDescriptor<WalletTransaction>()).first)
+        for interval in [-62_135_596_801.0, 253_402_300_800.0, .infinity, -.infinity, .nan] {
+            let date = Date(timeIntervalSince1970: interval)
+            XCTAssertThrowsError(try WalletStore.saveTransaction(context: context, amountMinor: 200,
+                                                                  currencyCode: "USD", date: date, note: "New",
+                                                                  kind: .expense, category: category)) {
+                XCTAssertEqual($0 as? WalletStoreError, .invalidDate)
+            }
+            XCTAssertThrowsError(try WalletStore.saveTransaction(context: context, transaction: transaction,
+                                                                  amountMinor: 200, currencyCode: "USD", date: date,
+                                                                  note: "Edited", kind: .expense, category: category)) {
+                XCTAssertEqual($0 as? WalletStoreError, .invalidDate)
+            }
+            XCTAssertEqual(transaction.date, originalDate)
+            XCTAssertEqual(transaction.amountMinor, 100)
+            XCTAssertEqual(transaction.note, "Saved")
+            XCTAssertFalse(context.hasChanges)
+        }
+        XCTAssertEqual(try context.fetchCount(FetchDescriptor<WalletTransaction>()), 1)
+        XCTAssertNoThrow(try WalletBackup.snapshot(context: context).encodedData())
+    }
+
+    @MainActor
+    func testSupportedBoundaryDatesCanBeSavedAndBackedUp() async throws {
+        let container = try WalletStore.makeContainer(inMemory: true)
+        let context = container.mainContext
+        let category = try WalletStore.saveCategory(context: context, name: "Food", icon: "cart", color: "colorPurple", kind: .expense)
+        for interval in [-62_135_596_800.0, 253_402_300_799.0] {
+            try WalletStore.saveTransaction(context: context, amountMinor: 100, currencyCode: "USD",
+                                            date: Date(timeIntervalSince1970: interval), note: "Boundary",
+                                            kind: .expense, category: category)
+        }
+        let backup = try WalletBackup.snapshot(context: context)
+        XCTAssertEqual(try WalletBackup.decode(data: backup.encodedData()), backup)
+    }
+
+    @MainActor
+    func testMigrationPreferencesRecoverAfterCommitAndPreserveLaterManualChoice() async throws {
+        let suite = "iWallet-tests.migrationPreferences.\(UUID().uuidString)"
+        let preferences = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { preferences.removePersistentDomain(forName: suite) }
+        preferences.set("RUB", forKey: "preferredCurrencyCode")
+        let receipt = WalletMigrationReceipt(sourceDigest: String(repeating: "a", count: 64),
+                                              currencyCode: "USD", transactionCount: 1, categoryCount: 1)
+
+        // The receipt survived the import commit, but its post-commit preferences did not.
+        WalletStore.applyMigrationPreferences(receipt: receipt, preferences: preferences)
+        XCTAssertEqual(preferences.string(forKey: "preferredCurrencyCode"), "USD")
+        preferences.set("EUR", forKey: "preferredCurrencyCode")
+        WalletStore.applyMigrationPreferences(receipt: receipt, preferences: preferences)
+        XCTAssertEqual(preferences.string(forKey: "preferredCurrencyCode"), "EUR")
+
+        // A different source receipt is not mistaken for the one already applied.
+        let anotherReceipt = WalletMigrationReceipt(sourceDigest: String(repeating: "b", count: 64),
+                                                     currencyCode: "JPY", transactionCount: 1, categoryCount: 1)
+        WalletStore.applyMigrationPreferences(receipt: anotherReceipt, preferences: preferences)
+        XCTAssertEqual(preferences.string(forKey: "preferredCurrencyCode"), "JPY")
+    }
+
+    @MainActor
+    func testMigrationPreferencesReplayAfterCurrencyWasSetButMarkerWasNot() async throws {
+        let suite = "iWallet-tests.migrationPreferences.\(UUID().uuidString)"
+        let preferences = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { preferences.removePersistentDomain(forName: suite) }
+        let receipt = WalletMigrationReceipt(sourceDigest: String(repeating: "a", count: 64),
+                                              currencyCode: "USD", transactionCount: 1, categoryCount: 1)
+        preferences.set(receipt.currencyCode, forKey: "preferredCurrencyCode")
+        WalletStore.applyMigrationPreferences(receipt: receipt, preferences: preferences)
+        XCTAssertEqual(preferences.string(forKey: "preferredCurrencyCode"), "USD")
+        preferences.set("GBP", forKey: "preferredCurrencyCode")
+        WalletStore.applyMigrationPreferences(receipt: receipt, preferences: preferences)
+        XCTAssertEqual(preferences.string(forKey: "preferredCurrencyCode"), "GBP")
+    }
+
+    @MainActor
     func testCategoryMismatchAndUnsupportedCurrencyAreRejected() async throws {
         let container = try WalletStore.makeContainer(inMemory: true)
         let context = container.mainContext

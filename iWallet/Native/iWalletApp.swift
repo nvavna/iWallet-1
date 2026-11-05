@@ -15,23 +15,21 @@ private struct WalletBootstrapView: View {
     @State private var container: ModelContainer?
     @State private var failure: String?
     @State private var legacyFiles: [URL] = []
+    @State private var revision = 0
 
     var body: some View {
         Group {
-            if !legacyFiles.isEmpty {
-                ContentUnavailableView {
-                    Label("Your previous wallet is safe", systemImage: "externaldrive.badge.checkmark")
-                } description: {
-                    Text("We found data from the previous version. This preview cannot import it yet. Your original wallet has not been changed. Please keep a backup until the transfer is ready.")
-                } actions: {
-                    ShareLink(items: legacyFiles) {
-                        Label("Save a copy of previous data", systemImage: "square.and.arrow.up")
+            if let container {
+                if !legacyFiles.isEmpty {
+                    WalletMigrationView(sourceURLs: legacyFiles, container: container) {
+                        openWallet()
                     }
+                } else {
+                    WalletTabView()
+                        .id(revision)
+                        .modelContainer(container)
+                        .environment(\.walletDidRestore, { revision += 1 })
                 }
-                .padding()
-            } else if let container {
-                WalletTabView()
-                    .modelContainer(container)
             } else if let failure {
                 ContentUnavailableView {
                     Label("Unable to open your wallet", systemImage: "externaldrive.badge.exclamationmark")
@@ -56,13 +54,17 @@ private struct WalletBootstrapView: View {
         if WalletCurrency(rawValue: preferences.string(forKey: "preferredCurrencyCode") ?? "") == nil {
             preferences.set(WalletDefaults.currencyCode, forKey: "preferredCurrencyCode")
         }
-        legacyFiles = WalletStore.legacyStoreURLs()
-        guard legacyFiles.isEmpty else { return }
         do {
             let store = try WalletStore.makeContainer()
-            try WalletStore.seedIfNeeded(context: store.mainContext)
+            let receipts = try store.mainContext.fetch(FetchDescriptor<WalletMigrationReceipt>())
+            if let receipt = receipts.first(where: { $0.id == "realm-v1" }) {
+                WalletStore.applyMigrationPreferences(receipt: receipt, preferences: preferences)
+            }
+            legacyFiles = receipts.contains(where: { $0.id == "realm-v1" }) ? [] : WalletStore.legacyStoreURLs()
+            if legacyFiles.isEmpty { try WalletStore.seedIfNeeded(context: store.mainContext) }
             container = store
         } catch {
+            container = nil
             failure = error.localizedDescription
         }
     }
@@ -83,5 +85,16 @@ private struct WalletTabView: View {
                 .tabItem { Label("Categories", systemImage: "square.stack.3d.up") }
                 .tag(2)
         }
+    }
+}
+
+private struct WalletDidRestoreKey: EnvironmentKey {
+    static let defaultValue: () -> Void = {}
+}
+
+extension EnvironmentValues {
+    var walletDidRestore: () -> Void {
+        get { self[WalletDidRestoreKey.self] }
+        set { self[WalletDidRestoreKey.self] = newValue }
     }
 }

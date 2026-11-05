@@ -210,3 +210,61 @@
 "Your finances stay on your device" = "Your finances stay on your device";
 "Your previous wallet is safe" = "Your previous wallet is safe";
 "Your story starts here" = "Your story starts here";
+
+/* Backup import and legacy wallet transfer. */
+
+"A record in this backup conflicts with data already on this device. Nothing was imported." = "A record in this backup conflicts with data already on this device. Nothing was imported.";
+"A transaction and its category have different types." = "A transaction and its category have different types.";
+"A transaction refers to a category missing from the backup." = "A transaction refers to a category missing from the backup.";
+"Added %d categories and %d transactions. Skipped %d identical records." = "Added %d categories and %d transactions. Skipped %d identical records.";
+"Amounts requiring rounding" = "Amounts requiring rounding";
+"Backup contents" = "Backup contents";
+"Backup imported" = "Backup imported";
+"Bring your previous history into your updated wallet. The original file will be kept safely on this device." = "Bring your previous history into your updated wallet. The original file will be kept safely on this device.";
+"Choose a currency" = "Choose a currency";
+"Choose the original wallet's currency before importing. Currency symbols alone may be ambiguous." = "Choose the original wallet's currency before importing. Currency symbols alone may be ambiguous.";
+"Created" = "Created";
+"Existing records will not be overwritten. If a matching record has changed, nothing will be imported." = "Existing records will not be overwritten. If a matching record has changed, nothing will be imported.";
+"Finish or cancel your current changes before importing a backup." = "Finish or cancel your current changes before importing a backup.";
+"I have reviewed the rounding changes" = "I have reviewed the rounding changes";
+"Import a backup" = "Import a backup";
+"Import backup" = "Import backup";
+"Keep a JSON backup somewhere safe. Import adds missing records, skips identical records and stops if existing data conflicts." = "Keep a JSON backup somewhere safe. Import adds missing records, skips identical records and stops if existing data conflicts.";
+"More than one previous wallet was found" = "More than one previous wallet was found";
+"Original wallet currency" = "Original wallet currency";
+"Preparing your wallet" = "Preparing your wallet";
+"Reading your backup" = "Reading your backup";
+"Ready to transfer" = "Ready to transfer";
+"Review amounts" = "Review amounts";
+"Review backup" = "Review backup";
+"Review my previous history" = "Review my previous history";
+"Save copies of these files before continuing. They need to be reviewed separately to avoid mixing histories." = "Save copies of these files before continuing. They need to be reviewed separately to avoid mixing histories.";
+"Some old amounts need rounding to the currency's smallest unit. Review the changes before transferring." = "Some old amounts need rounding to the currency's smallest unit. Review the changes before transferring.";
+"Some previous amounts cannot be safely converted. Import stopped without changing your data." = "Some previous amounts cannot be safely converted. Import stopped without changing your data.";
+"Some previous wallet records need review before they can be imported. The original file has not been changed." = "Some previous wallet records need review before they can be imported. The original file has not been changed.";
+"Some transactions have missing or conflicting categories. Import stopped without changing your data." = "Some transactions have missing or conflicting categories. Import stopped without changing your data.";
+"The backup contains an invalid category or transaction." = "The backup contains an invalid category or transaction.";
+"The backup contains duplicate record identifiers." = "The backup contains duplicate record identifiers.";
+"The backup exceeds the 100,000 record limit." = "The backup exceeds the 100,000 record limit.";
+"The backup exceeds the 50 MB file limit." = "The backup exceeds the 50 MB file limit.";
+"The previous app did not record a currency for each transaction. Confirm which currency your old amounts represent. No conversion will be performed." = "The previous app did not record a currency for each transaction. Confirm which currency your old amounts represent. No conversion will be performed.";
+"The previous wallet changed while it was being copied. Close other copies of iWallet and try again." = "The previous wallet changed while it was being copied. Close other copies of iWallet and try again.";
+"The previous wallet could not be read. The original file has not been changed." = "The previous wallet could not be read. The original file has not been changed.";
+"The previous wallet file is unavailable. Your data has not been changed." = "The previous wallet file is unavailable. Your data has not been changed.";
+"The previous wallet has an unexpected structure. The original file has not been changed." = "The previous wallet has an unexpected structure. The original file has not been changed.";
+"The saved report contains every rounding change and the original values." = "The saved report contains every rounding change and the original values.";
+"This backup requires a different version of iWallet." = "This backup requires a different version of iWallet.";
+"This file is not a valid iWallet backup." = "This file is not a valid iWallet backup.";
+"This previous wallet version is not supported yet. Keep the original file for a future import." = "This previous wallet version is not supported yet. Keep the original file for a future import.";
+"Transfer my history" = "Transfer my history";
+"Unable to complete the operation" = "Unable to complete the operation";
+"Welcome back to iWallet" = "Welcome back to iWallet";
+"Your history" = "Your history";
+
+/* Date and retained snapshot validation. */
+"Contact support" = "Contact support";
+"Licenses" = "Licenses";
+"License information is unavailable." = "License information is unavailable.";
+"Privacy policy" = "Privacy policy";
+"Choose a date between years 1 and 9999." = "Choose a date between years 1 and 9999.";
+"The saved copy of your previous wallet failed verification. It has not been overwritten." = "The saved copy of your previous wallet failed verification. It has not been overwritten.";

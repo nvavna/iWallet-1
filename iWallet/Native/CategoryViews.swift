@@ -148,6 +148,7 @@ struct CategoryEditorView: View {
 
                 Section {
                     TextField("Category name", text: $name)
+                        .accessibilityIdentifier("categoryName")
                         .textInputAutocapitalization(.sentences)
                         .submitLabel(.done)
                     Picker("Category type", selection: $kind) {
@@ -225,6 +226,7 @@ struct CategoryEditorView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save", action: save)
+                        .accessibilityIdentifier("saveCategory")
                         .fontWeight(.semibold)
                         .disabled(name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 }

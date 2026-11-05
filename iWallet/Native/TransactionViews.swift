@@ -140,7 +140,8 @@ struct TransactionEditorView: View {
     @Environment(\.dismiss) private var dismiss
     @AppStorage("preferredCurrencyCode") private var preferredCurrencyCode = Locale.current.currency?.identifier ?? "USD"
     @Query(sort: \WalletCategory.name) private var categories: [WalletCategory]
-    @FocusState private var amountIsFocused: Bool
+    private enum Field: Hashable { case amount, note }
+    @FocusState private var focusedField: Field?
     @State private var amountText = ""
     @State private var currencyCode = "USD"
     @State private var date = Date()
@@ -185,8 +186,9 @@ struct TransactionEditorView: View {
                             .font(.largeTitle.weight(.semibold))
                             .monospacedDigit()
                             .keyboardType(.decimalPad)
-                            .focused($amountIsFocused)
+                            .focused($focusedField, equals: .amount)
                             .accessibilityLabel("Amount")
+                            .accessibilityIdentifier("transactionAmount")
                         Text(currencyCode)
                             .font(.headline)
                             .foregroundStyle(.secondary)
@@ -211,9 +213,10 @@ struct TransactionEditorView: View {
                                 .tag(Optional(category.id))
                         }
                     }
+                    .accessibilityIdentifier("transactionCategory")
 
                     Button("New category", systemImage: "plus.circle") {
-                        amountIsFocused = false
+                        focusedField = nil
                         showsCategoryEditor = true
                     }
                 } footer: {
@@ -227,9 +230,11 @@ struct TransactionEditorView: View {
                 Section {
                     DatePicker("Date", selection: $date, displayedComponents: .date)
                     TextField("Note (optional)", text: $note, axis: .vertical)
+                        .focused($focusedField, equals: .note)
                         .lineLimit(2...5)
                         .textInputAutocapitalization(.sentences)
                         .accessibilityLabel("Note")
+                        .accessibilityIdentifier("transactionNote")
                 }
 
                 Section {
@@ -241,6 +246,7 @@ struct TransactionEditorView: View {
                             Text(currencyCode).tag(currencyCode)
                         }
                     }
+                    .accessibilityIdentifier("transactionCurrency")
                 } footer: {
                     Text("Changing the currency keeps the entered amount. No conversion is performed.")
                 }
@@ -256,12 +262,13 @@ struct TransactionEditorView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save", action: save)
+                        .accessibilityIdentifier("saveTransaction")
                         .fontWeight(.semibold)
                         .disabled(amountText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || selectedCategory == nil)
                 }
                 ToolbarItemGroup(placement: .keyboard) {
                     Spacer()
-                    Button("Done") { amountIsFocused = false }
+                    Button("Done") { focusedField = nil }
                 }
             }
             .onAppear(perform: loadDraft)
@@ -312,7 +319,7 @@ struct TransactionEditorView: View {
             amountMinor = try Money.parse(amountText, currencyCode: currencyCode)
         } catch {
             amountError = error.localizedDescription
-            amountIsFocused = true
+            focusedField = .amount
             return
         }
         guard let selectedCategory else { return }

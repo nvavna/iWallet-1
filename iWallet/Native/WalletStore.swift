@@ -7,6 +7,7 @@ enum WalletStoreError: LocalizedError, Equatable {
     case categoryKindMismatch
     case missingTransaction
     case emptyCategoryName
+    case invalidDate
 
     var errorDescription: String? {
         switch self {
@@ -20,14 +21,25 @@ enum WalletStoreError: LocalizedError, Equatable {
             return NSLocalizedString("This transaction is no longer available.", comment: "Storage error")
         case .emptyCategoryName:
             return NSLocalizedString("Enter a category name.", comment: "Storage error")
+        case .invalidDate:
+            return NSLocalizedString("Choose a date between years 1 and 9999.", comment: "Storage error")
         }
+    }
+}
+
+/// Shared by normal saves and JSON backup validation so every saved date can be exported.
+enum WalletDateRange {
+    static func contains(_ date: Date) -> Bool {
+        let interval = date.timeIntervalSince1970
+        // ISO calendar years 0001 ... 9999. The bounds also reject NaN and infinity.
+        return interval.isFinite && interval >= -62_135_596_800 && interval < 253_402_300_800
     }
 }
 
 @MainActor
 enum WalletStore {
     static func makeContainer(inMemory: Bool = false) throws -> ModelContainer {
-        let schema = Schema([WalletCategory.self, WalletTransaction.self])
+        let schema = Schema([WalletCategory.self, WalletTransaction.self, WalletMigrationReceipt.self])
         let configuration: ModelConfiguration
         if inMemory {
             configuration = ModelConfiguration("iWalletNative", schema: schema,
@@ -87,6 +99,7 @@ enum WalletStore {
         guard amountMinor > 0 else { throw MoneyError.nonPositiveAmount }
         guard amountMinor <= Money.maximumAmountMinor else { throw MoneyError.amountTooLarge }
         guard WalletCurrency(rawValue: currencyCode) != nil else { throw MoneyError.unsupportedCurrency }
+        guard WalletDateRange.contains(date) else { throw WalletStoreError.invalidDate }
         guard category.modelContext === context, !category.isDeleted else { throw WalletStoreError.invalidCategory }
         guard category.kind == kind else { throw WalletStoreError.categoryKindMismatch }
         if let transaction {
@@ -118,6 +131,17 @@ enum WalletStore {
     static func deleteTransaction(context: ModelContext, transaction: WalletTransaction) throws {
         guard transaction.modelContext === context, !transaction.isDeleted else { throw WalletStoreError.missingTransaction }
         try write(context: context) { context.delete(transaction) }
+    }
+
+    /// Replays the post-commit preference update if the app stopped after saving
+    /// the migration receipt. A matching marker preserves later manual choices.
+    static func applyMigrationPreferences(receipt: WalletMigrationReceipt, preferences: UserDefaults = .standard) {
+        let markerKey = "migrationPreferencesApplied.\(receipt.id)"
+        guard preferences.string(forKey: markerKey) != receipt.sourceDigest else { return }
+        preferences.set(receipt.currencyCode, forKey: "preferredCurrencyCode")
+        // Mark completion only after the currency has been applied. If execution
+        // stops before this write, replaying the same currency remains safe.
+        preferences.set(receipt.sourceDigest, forKey: markerKey)
     }
 
     /// Reports only existing legacy files. Nothing is opened, moved, or deleted.

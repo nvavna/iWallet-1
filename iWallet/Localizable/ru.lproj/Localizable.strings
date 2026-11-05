@@ -210,3 +210,61 @@
 "Your finances stay on your device" = "Ваши финансовые данные — на вашем устройстве";
 "Your previous wallet is safe" = "Прежние данные сохранены";
 "Your story starts here" = "Пока нет операций";
+
+/* Backup import and legacy wallet transfer. */
+
+"A record in this backup conflicts with data already on this device. Nothing was imported." = "Запись в копии отличается от записи на устройстве с тем же идентификатором. Ничего не импортировано.";
+"A transaction and its category have different types." = "Тип операции не совпадает с типом её категории.";
+"A transaction refers to a category missing from the backup." = "В копии отсутствует категория, указанная у одной из операций.";
+"Added %d categories and %d transactions. Skipped %d identical records." = "Категорий добавлено: %d. Операций добавлено: %d. Совпадений пропущено: %d.";
+"Amounts requiring rounding" = "Сумм для округления";
+"Backup contents" = "Содержимое копии";
+"Backup imported" = "Копия импортирована";
+"Bring your previous history into your updated wallet. The original file will be kept safely on this device." = "Перенесите свою историю в обновлённый кошелёк. Исходный файл останется на этом устройстве.";
+"Choose a currency" = "Выберите валюту";
+"Choose the original wallet's currency before importing. Currency symbols alone may be ambiguous." = "Перед переносом выберите валюту прежнего кошелька. Один символ может обозначать несколько валют.";
+"Created" = "Дата создания";
+"Existing records will not be overwritten. If a matching record has changed, nothing will be imported." = "Существующие записи не будут перезаписаны. Если данные записи с тем же идентификатором отличаются, импорт будет отменён целиком.";
+"Finish or cancel your current changes before importing a backup." = "Сохраните или отмените текущие изменения перед импортом копии.";
+"I have reviewed the rounding changes" = "Я проверил изменения сумм";
+"Import a backup" = "Импортировать копию";
+"Import backup" = "Импортировать копию";
+"Keep a JSON backup somewhere safe. Import adds missing records, skips identical records and stops if existing data conflicts." = "Храните копию JSON в надёжном месте. Импорт добавляет недостающие записи и пропускает совпадающие. При конфликте с существующими данными импорт отменяется.";
+"More than one previous wallet was found" = "Найдено несколько прежних кошельков";
+"Original wallet currency" = "Валюта прежнего кошелька";
+"Preparing your wallet" = "Готовим кошелёк";
+"Reading your backup" = "Читаем копию";
+"Ready to transfer" = "Готово к переносу";
+"Review amounts" = "Проверьте суммы";
+"Review backup" = "Проверка копии";
+"Review my previous history" = "Проверить прежнюю историю";
+"Save copies of these files before continuing. They need to be reviewed separately to avoid mixing histories." = "Сначала сохраните копии этих файлов. Их нужно проверить по отдельности, чтобы не смешать разные истории операций.";
+"Some old amounts need rounding to the currency's smallest unit. Review the changes before transferring." = "Часть прежних сумм нужно округлить до минимальной единицы выбранной валюты. Проверьте изменения перед переносом.";
+"Some previous amounts cannot be safely converted. Import stopped without changing your data." = "Некоторые прежние суммы не удалось корректно преобразовать. Перенос остановлен; ваши данные не изменены.";
+"Some previous wallet records need review before they can be imported. The original file has not been changed." = "Некоторые записи прежнего кошелька нужно проверить перед переносом. Исходный файл не изменён.";
+"Some transactions have missing or conflicting categories. Import stopped without changing your data." = "У некоторых операций категория отсутствует или указана неоднозначно. Перенос остановлен; ваши данные не изменены.";
+"The backup contains an invalid category or transaction." = "В копии есть некорректная категория или операция.";
+"The backup contains duplicate record identifiers." = "В копии есть записи с одинаковыми идентификаторами.";
+"The backup exceeds the 100,000 record limit." = "В копии больше 100 000 записей — это превышает допустимый предел.";
+"The backup exceeds the 50 MB file limit." = "Размер копии превышает допустимые 50 МБ.";
+"The previous app did not record a currency for each transaction. Confirm which currency your old amounts represent. No conversion will be performed." = "Прежнее приложение не сохраняло валюту каждой операции. Подтвердите валюту, в которой указаны ваши суммы. Пересчёта по курсу не будет.";
+"The previous wallet changed while it was being copied. Close other copies of iWallet and try again." = "Прежний кошелёк изменился во время копирования. Закройте другие запущенные экземпляры iWallet и попробуйте снова.";
+"The previous wallet could not be read. The original file has not been changed." = "Не удалось прочитать прежний кошелёк. Исходный файл не изменён.";
+"The previous wallet file is unavailable. Your data has not been changed." = "Файл прежнего кошелька недоступен. Ваши данные не изменены.";
+"The previous wallet has an unexpected structure. The original file has not been changed." = "Формат данных прежнего кошелька отличается от ожидаемого. Исходный файл не изменён.";
+"The saved report contains every rounding change and the original values." = "В сохранённом отчёте указаны все округления и исходные значения.";
+"This backup requires a different version of iWallet." = "Для этой копии нужна другая версия iWallet.";
+"This file is not a valid iWallet backup." = "Этот файл не является корректной резервной копией iWallet.";
+"This previous wallet version is not supported yet. Keep the original file for a future import." = "Перенос из этой версии прежнего кошелька пока не поддерживается. Сохраните исходный файл для переноса в будущем.";
+"Transfer my history" = "Перенести историю";
+"Unable to complete the operation" = "Не удалось выполнить действие";
+"Welcome back to iWallet" = "С возвращением в iWallet";
+"Your history" = "Ваша история";
+
+/* Date and retained snapshot validation. */
+"Contact support" = "Написать в поддержку";
+"Licenses" = "Лицензии";
+"License information is unavailable." = "Информация о лицензиях недоступна.";
+"Privacy policy" = "Политика конфиденциальности";
+"Choose a date between years 1 and 9999." = "Выберите дату в пределах от 1 до 9999 года.";
+"The saved copy of your previous wallet failed verification. It has not been overwritten." = "Сохранённая копия прежнего кошелька не прошла проверку целостности. Она не была перезаписана.";
