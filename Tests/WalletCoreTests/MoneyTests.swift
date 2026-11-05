@@ -64,6 +64,50 @@ final class MoneyTests: XCTestCase {
         XCTAssertThrowsError(try Money.sum([Int64.min, -1]))
     }
 
+    func testAverageUsesActiveDaysAndEmptyHistory() throws {
+        // Three expenses on two active days must not be averaged per transaction.
+        XCTAssertEqual(try Money.averagePerDay([100, 200, 600], activeDays: 2), 450)
+        XCTAssertEqual(try Money.averagePerDay([1_234], activeDays: 1), 1_234)
+        XCTAssertEqual(try Money.averagePerDay([], activeDays: 0), 0)
+        XCTAssertEqual(try Money.averagePerDay([], activeDays: 3), 0)
+        XCTAssertEqual(try Money.averagePerDay([0, 0], activeDays: 2), 0)
+    }
+
+    func testAverageRoundsHalfUpAtMinorUnit() throws {
+        XCTAssertEqual(try Money.averagePerDay([1], activeDays: 2), 1)
+        XCTAssertEqual(try Money.averagePerDay([2, 3], activeDays: 2), 3)
+        XCTAssertEqual(try Money.averagePerDay([4], activeDays: 3), 1)
+        XCTAssertEqual(try Money.averagePerDay([5], activeDays: 3), 2)
+        XCTAssertEqual(try Money.averagePerDay([1], activeDays: 3), 0)
+    }
+
+    func testAverageHandlesFullInt64RangeWithoutIntermediateOverflow() throws {
+        XCTAssertEqual(try Money.averagePerDay([Int64.max], activeDays: 1), Int64.max)
+        XCTAssertEqual(try Money.averagePerDay([Int64.max - 1, 1], activeDays: 2), 4_611_686_018_427_387_904)
+        let largestDivisor = Int64(Int.max)
+        XCTAssertEqual(try Money.averagePerDay([largestDivisor], activeDays: Int.max), 1)
+        XCTAssertEqual(try Money.averagePerDay([largestDivisor / 2], activeDays: Int.max), 0)
+        XCTAssertEqual(try Money.averagePerDay([largestDivisor / 2 + 1], activeDays: Int.max), 1)
+    }
+
+    func testAverageRejectsNegativeAmountsAndInvalidDayCounts() {
+        for (amounts, days): ([Int64], Int) in [
+            ([-1], 1), ([100, -1], 2), ([Int64.min], 1),
+            ([], -1), ([1], Int.min), ([1], 0), ([0], 0)
+        ] {
+            XCTAssertThrowsError(try Money.averagePerDay(amounts, activeDays: days)) {
+                XCTAssertEqual($0 as? MoneyError, .invalidAmount)
+            }
+        }
+    }
+
+    func testAveragePropagatesAggregationOverflow() {
+        // Even when the eventual average could fit, an overflowing total is rejected.
+        XCTAssertThrowsError(try Money.averagePerDay([Int64.max, 1], activeDays: Int.max)) {
+            XCTAssertEqual($0 as? MoneyError, .overflow)
+        }
+    }
+
     func testArabicAndPersianDigitsRoundTripExactly() throws {
         for identifier in ["ar_EG", "fa_IR"] {
             let locale = Locale(identifier: identifier)

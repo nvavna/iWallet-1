@@ -102,6 +102,27 @@ enum Money {
         }
     }
 
+    /// Averages one currency's expenses over days with expenses, rounding half up
+    /// to the nearest minor unit. The caller determines the active calendar days.
+    static func averagePerDay(_ amounts: [Int64], activeDays: Int) throws -> Int64 {
+        guard activeDays >= 0, amounts.allSatisfy({ $0 >= 0 }) else {
+            throw MoneyError.invalidAmount
+        }
+        if amounts.isEmpty { return 0 }
+        guard let divisor = Int64(exactly: activeDays), divisor > 0 else {
+            throw MoneyError.invalidAmount
+        }
+        let total = try sum(amounts)
+        let quotient = total / divisor
+        let remainder = total % divisor
+        // Comparing the remainder to its complement avoids overflowing either
+        // total + half the divisor or twice the remainder near Int64.max.
+        if remainder >= divisor - remainder {
+            return try sum([quotient, 1])
+        }
+        return quotient
+    }
+
     /// A balance for each ISO currency. No implicit currency conversion or mixed total.
     static func totalsByCurrency(_ transactions: [WalletTransaction], kind: TransactionKind? = nil) throws -> [String: Int64] {
         var totals: [String: Int64] = [:]

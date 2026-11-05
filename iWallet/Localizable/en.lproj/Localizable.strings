@@ -268,3 +268,9 @@
 "Privacy policy" = "Privacy policy";
 "Choose a date between years 1 and 9999." = "Choose a date between years 1 and 9999.";
 "The saved copy of your previous wallet failed verification. It has not been overwritten." = "The saved copy of your previous wallet failed verification. It has not been overwritten.";
+
+"Average expense per day with spending in the selected period." = "Average expense per day with spending in the selected period.";
+
+"No income for this period" = "No income for this period";
+
+"View category transactions" = "View category transactions";

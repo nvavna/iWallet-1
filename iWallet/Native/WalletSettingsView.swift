@@ -15,10 +15,22 @@ struct WalletSettingsView: View {
     @State private var errorMessage: String?
     @State private var importSummary: WalletBackup.ImportSummary?
     @State private var importResult: Result<WalletBackup.ImportSummary, Error>?
+    @State private var showingHistory = false
+    @State private var showingCategories = false
 
     var body: some View {
         NavigationStack {
             Form {
+                Section {
+                    Button { showingHistory = true } label: {
+                        Label("Transactions", systemImage: "clock.circle")
+                    }
+                    .accessibilityIdentifier("settingsTransactions")
+                    Button { showingCategories = true } label: {
+                        Label("Categories", systemImage: "list.bullet.circle")
+                    }
+                    .accessibilityIdentifier("settingsCategories")
+                }
                 Section {
                     Picker("Default currency", selection: $currency) {
                         ForEach(WalletCurrency.allCases) { item in
@@ -61,9 +73,14 @@ struct WalletSettingsView: View {
                 }
             }
             .navigationTitle("Settings")
+            .navigationBarTitleDisplayMode(.inline)
+            .scrollContentBackground(.hidden)
+            .background(WalletTheme.background)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } }
             }
+            .sheet(isPresented: $showingHistory) { TransactionListView() }
+            .sheet(isPresented: $showingCategories) { CategoryListView() }
             .fileExporter(isPresented: $showingExporter, document: export, contentType: .json,
                           defaultFilename: "iWallet-backup-\(Date.now.formatted(.iso8601.year().month().day().dateSeparator(.dash)))") { result in
                 if case .failure(let error) = result { errorMessage = error.localizedDescription }

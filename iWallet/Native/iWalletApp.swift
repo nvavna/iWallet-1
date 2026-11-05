@@ -25,7 +25,7 @@ private struct WalletBootstrapView: View {
                         openWallet()
                     }
                 } else {
-                    WalletTabView()
+                    WalletRootView()
                         .id(revision)
                         .modelContainer(container)
                         .environment(\.walletDidRestore, { revision += 1 })
@@ -70,21 +70,12 @@ private struct WalletBootstrapView: View {
     }
 }
 
-private struct WalletTabView: View {
-    @State private var selectedTab = 0
+private struct WalletRootView: View {
+    @State private var showingTransactions = false
 
     var body: some View {
-        TabView(selection: $selectedTab) {
-            WalletHomeView(showTransactions: { selectedTab = 1 })
-                .tabItem { Label("Overview", systemImage: "square.grid.2x2") }
-                .tag(0)
-            TransactionListView()
-                .tabItem { Label("Transactions", systemImage: "list.bullet.rectangle") }
-                .tag(1)
-            CategoryListView()
-                .tabItem { Label("Categories", systemImage: "square.stack.3d.up") }
-                .tag(2)
-        }
+        WalletHomeView(showTransactions: { showingTransactions = true })
+            .sheet(isPresented: $showingTransactions) { TransactionListView() }
     }
 }
 

@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftData
 
 struct CategoryListView: View {
+    @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \WalletCategory.name) private var categories: [WalletCategory]
     @State private var kind: TransactionKind = .expense
@@ -40,6 +41,10 @@ struct CategoryListView: View {
                     Section {
                         ForEach(activeCategories) { category in
                             HStack(spacing: 12) {
+                                RoundedRectangle(cornerRadius: 2)
+                                    .fill(WalletTheme.categoryColor(category.color))
+                                    .frame(width: 4)
+                                    .accessibilityHidden(true)
                                 CategoryBadge(category: category)
                                     .accessibilityHidden(true)
                                 Text(category.name)
@@ -47,6 +52,7 @@ struct CategoryListView: View {
                                     .fixedSize(horizontal: false, vertical: true)
                                 Spacer(minLength: 0)
                             }
+                            .fixedSize(horizontal: false, vertical: true)
                             .padding(.vertical, 4)
                             .listRowBackground(WalletTheme.surface)
                             .swipeActions(edge: .trailing, allowsFullSwipe: false) {
@@ -71,10 +77,15 @@ struct CategoryListView: View {
                 }
             }
             .listStyle(.insetGrouped)
+            .accessibilityIdentifier("walletCategoryList")
             .scrollContentBackground(.hidden)
             .background(WalletTheme.background)
             .navigationTitle("Categories")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Done") { dismiss() }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Add category", systemImage: "plus") { showsEditor = true }
                 }
@@ -137,8 +148,8 @@ struct CategoryEditorView: View {
                         Image(systemName: icon)
                             .font(.system(size: 32, weight: .medium))
                             .foregroundStyle(.black)
-                            .frame(width: 80, height: 80)
-                            .background(WalletTheme.categoryColor(color), in: RoundedRectangle(cornerRadius: 24))
+                            .frame(width: 64, height: 64)
+                            .background(WalletTheme.categoryColor(color), in: RoundedRectangle(cornerRadius: 14))
                             .accessibilityHidden(true)
                         Spacer()
                     }
@@ -261,14 +272,15 @@ struct CategoryEditorView: View {
 
 struct CategoryBadge: View {
     let category: WalletCategory?
+    var size: CGFloat = 32
 
     var body: some View {
         Image(systemName: category?.icon ?? "square.grid.2x2")
-            .font(.body.weight(.medium))
+            .font(size <= 24 ? .caption.weight(.medium) : .body.weight(.medium))
             .foregroundStyle(.black)
-            .frame(width: 44, height: 44)
+            .frame(width: size, height: size)
             .background(WalletTheme.categoryColor(category?.color ?? "colorGray"),
-                        in: RoundedRectangle(cornerRadius: 14))
+                        in: RoundedRectangle(cornerRadius: 8))
     }
 }
 

@@ -268,3 +268,9 @@
 "Privacy policy" = "Политика конфиденциальности";
 "Choose a date between years 1 and 9999." = "Выберите дату в пределах от 1 до 9999 года.";
 "The saved copy of your previous wallet failed verification. It has not been overwritten." = "Сохранённая копия прежнего кошелька не прошла проверку целостности. Она не была перезаписана.";
+
+"Average expense per day with spending in the selected period." = "Средний расход за дни с тратами в выбранном периоде.";
+
+"No income for this period" = "За этот период доходов нет";
+
+"View category transactions" = "Показать операции категории";
