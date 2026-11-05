@@ -189,3 +189,89 @@ final class WalletSmokeTests: XCTestCase {
         add(attachment)
     }
 }
+
+/// Opt-in App Store captures on newly created simulators only. This workflow
+/// enters synthetic records through the same forms used by customers.
+final class WalletAppStoreScreenshotTests: XCTestCase {
+    func testCaptureRussian() throws { try capture(language: "ru") }
+    func testCaptureEnglish() throws { try capture(language: "en") }
+
+    private func capture(language: String) throws {
+        guard ProcessInfo.processInfo.environment["IWALLET_CAPTURE_APP_STORE"] == "1" else {
+            throw XCTSkip("Opt-in screenshots: use Scripts/capture-app-store-screenshots.py on fresh simulators.")
+        }
+        continueAfterFailure = false
+        let russian = language == "ru"
+        let app = XCUIApplication()
+        app.launchArguments = ["-AppleLanguages", "(\(language))", "-AppleLocale", russian ? "ru_RU" : "en_US"]
+        app.launch()
+        defer { app.terminate() }
+        let overview = russian ? "Обзор" : "Overview"
+        let transactions = russian ? "Операции" : "Transactions"
+        let categories = russian ? "Категории" : "Categories"
+        let add = russian ? "Новая операция" : "New transaction"
+        let done = russian ? "Готово" : "Done"
+        XCTAssertTrue(app.tabBars.buttons[overview].waitForExistence(timeout: 15))
+
+        // Refuse a populated wallet: this workflow must never modify personal data.
+        app.tabBars.buttons[transactions].tap()
+        XCTAssertTrue(app.buttons[russian ? "Добавить операцию" : "Add transaction"].exists)
+        XCTAssertTrue(app.staticTexts[russian ? "Пока нет операций" : "Your story starts here"].exists,
+                      "Create a fresh dedicated simulator before capturing screenshots.")
+        app.tabBars.buttons[overview].tap()
+
+        let rows: [(Bool, String, String, String)] = russian ? [
+            (true, "Зарплата", "185000", "Зарплата за месяц"),
+            (true, "Подработка", "12000", "Дизайн-проект"),
+            (false, "Дом", "6890", "Коммунальные услуги"),
+            (false, "Продукты", "4286", "Продукты на неделю"),
+            (false, "Транспорт", "650", "Поездки по городу"),
+            (false, "Еда вне дома", "2450", "Ужин с друзьями"),
+            (false, "Развлечения", "1250", "Вечер в кино")
+        ] : [
+            (true, "Wage", "4800", "Monthly salary"),
+            (true, "Part time job", "350", "Design project"),
+            (false, "House", "148", "Monthly utilities"),
+            (false, "Food", "86.40", "Weekly groceries"),
+            (false, "Transport", "24.50", "Trips around town"),
+            (false, "Eating out", "38.90", "Dinner with friends"),
+            (false, "Entertainment", "25.90", "Movie night")
+        ]
+        for (income, category, amount, note) in rows {
+            app.buttons[add].tap()
+            let amountField = app.textFields["transactionAmount"]
+            XCTAssertTrue(amountField.waitForExistence(timeout: 5))
+            if income { app.segmentedControls.buttons[russian ? "Доход" : "Income"].tap() }
+            amountField.tap()
+            amountField.typeText(amount)
+            app.buttons[done].firstMatch.tap()
+            app.buttons["transactionCategory"].tap()
+            app.buttons[category].firstMatch.tap()
+            let noteField = app.textFields["transactionNote"]
+            noteField.tap()
+            noteField.typeText(note)
+            app.buttons[done].firstMatch.tap()
+            app.buttons["saveTransaction"].tap()
+            XCTAssertTrue(app.tabBars.buttons[overview].waitForExistence(timeout: 5))
+        }
+
+        // Relaunch to capture the normal resting overview, with no keyboard/menu.
+        app.terminate()
+        app.launch()
+        XCTAssertTrue(app.tabBars.buttons[overview].waitForExistence(timeout: 10))
+        screenshot(app, name: "AppStore-\(language)-01-overview")
+        app.tabBars.buttons[transactions].tap()
+        XCTAssertTrue(app.navigationBars[transactions].waitForExistence(timeout: 5))
+        screenshot(app, name: "AppStore-\(language)-02-transactions")
+        app.tabBars.buttons[categories].tap()
+        XCTAssertTrue(app.navigationBars[categories].waitForExistence(timeout: 5))
+        screenshot(app, name: "AppStore-\(language)-03-categories")
+    }
+
+    private func screenshot(_ app: XCUIApplication, name: String) {
+        let attachment = XCTAttachment(screenshot: app.screenshot())
+        attachment.name = name
+        attachment.lifetime = .keepAlways
+        add(attachment)
+    }
+}

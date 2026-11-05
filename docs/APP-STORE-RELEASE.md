@@ -97,12 +97,37 @@ Apple не считает сбором данные, обрабатываемы�
 - [x] Финальная сборка с ThirdPartyNotices и Dynamic Type fix; RealmSwift, четыре manifests и точный текст лицензий проверены в IPA.
 - [ ] Завершить сводный Privacy Report и проверить ссылки из установленной финальной сборки.
 - [ ] Проверить физический iPhone, минимальную iOS 17, полный сценарий VoiceOver и обновление установленной старой версии на устройстве.
-- [ ] Подготовить/проверить финальные магазинные скриншоты, выбрать обработанный Apple build и сверить review notes/контакты перед отправкой.
+- [x] Подготовлены и визуально проверены 6 реальных скриншотов RU/EN (1206×2622, RGB PNG); в черновик загружены по 3 снимка каждого языка для iPhone с Dynamic Island (средний дисплей). [Воспроизведение](APPSTORE-SCREENSHOTS.md).
+- [ ] Выбрать обработанный Apple build и сверить review notes/контакты перед отправкой.
 - [ ] Завершить вход пользователя в Xcode Accounts, устранить `missing Xcode-Username`, загрузить IPA и дождаться обработки Apple; затем отдельно отправить версию на review. Ручной выпуск остаётся отдельным действием после одобрения.
 
 Проверка симулятора не утверждает результат физического обновления или TestFlight. План миграции — [LEGACY-MIGRATION.md](LEGACY-MIGRATION.md); тексты карточки — [STORE-METADATA.md](STORE-METADATA.md).
 
 ## Сведения карточки и финальная сверка
+
+### Повторный экспорт и загрузка готового архива
+
+Команды выполняются из корня проекта. На компьютере установлены две версии Xcode; `DEVELOPER_DIR` ниже выбирает проверенную `/Applications/Xcode.app` только для этой команды. Перед загрузкой в её **Settings → Apple Accounts** должен быть выполнен вход в аккаунт команды `4243BL8MP3`.
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild -exportArchive \
+  -archivePath build/iWallet-2.0.0-signed.xcarchive \
+  -exportOptionsPlist Configuration/ExportOptions-AppStore.plist \
+  -exportPath build/AppStore -allowProvisioningUpdates
+```
+
+Следующая команда отправляет сборку в App Store Connect. Она не отправляет версию на App Review и не публикует приложение:
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild -exportArchive \
+  -archivePath build/iWallet-2.0.0-signed.xcarchive \
+  -exportOptionsPlist Configuration/UploadOptions-AppStore.plist \
+  -exportPath build/AppStoreUpload -allowProvisioningUpdates
+```
+
+После успешной загрузки дождаться обработки Apple и проверить появление `2.0.0 (1)` в TestFlight. Повторный экспорт сам по себе это не подтверждает. Пароли, app-specific passwords и API keys не добавляются в репозиторий.
+
+### Сохранённые поля
 
 | Поле | Значение подготовки |
 | --- | --- |
