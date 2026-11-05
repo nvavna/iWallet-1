@@ -2,7 +2,7 @@
 
 **Состояние на 5 ноября 2026 года: названия, subtitle, описания, promotional text, keywords и базовые What’s New сохранены в русском и английском черновиках 2.0.0; новая версия в магазине не опубликована.** Карточка приложения `6447585809` восстановлена. Подтверждены Bundle ID `com.idevnva.iwallet`, SKU `001` и прежняя версия `1.1.8`, build `1`. Основные тексты ниже подготовлены для 2.0.0; альтернативные названия и дополнительный абзац миграции остаются вариантами этого документа.
 
-В App Store Connect создан [черновик 2.0.0](https://appstoreconnect.apple.com/apps/6447585809/distribution/ios/version/inflight) со статусом «Подготовка к отправке». Выбран ручной выпуск; баннер о снятии прежнего приложения с продажи остаётся. Прошли 55 unit-тестов (39 WalletCore + 16 LegacyMigration) и 2 UI-теста. Signed archive 2.0.0(1), embedding RealmSwift, deep/strict codesign и экспорт App Store IPA проверены. Финальная пересборка включает уведомления о лицензиях и исправление крупного текста; её результат ещё требуется зафиксировать. **Загрузка сборки Apple и отправка на review пока не подтверждены.**
+В App Store Connect создан [черновик 2.0.0](https://appstoreconnect.apple.com/apps/6447585809/distribution/ios/version/inflight) со статусом «Подготовка к отправке». Выбран ручной выпуск; баннер о снятии прежнего приложения с продажи остаётся. Прошли 55 unit-тестов (39 WalletCore + 16 LegacyMigration) и 2 UI-теста. **Финальный signed archive 2.0.0(1) и App Store IPA с уведомлениями о лицензиях и исправлением крупного текста успешно собраны и проверены.** Извлечённое IPA-приложение подписано Apple Distribution командой `4243BL8MP3`, deep/strict codesign PASS; RealmSwift, четыре privacy manifest и полный текст лицензий на месте. Загрузка заблокирована входом Xcode Accounts (`missing Xcode-Username`), этот шаг передан пользователю. Обработанного Apple build пока нет; отправка на review не выполнена.
 
 Семь шагов возрастной анкеты пройдены по фактическим функциям и содержимому: рейтинг **4+** рассчитан и сохранён. Прежний **Data Not Collected** оставлен без изменений. Пользователь явно выбрал DSA non-trader, настройка сохранена; compliance показывает Active. Соглашение для бесплатных приложений Active с 1 ноября 2026 по 8 марта 2027. RU dark, EN light и RU large text прошли визуальную проверку; физический iPhone, iOS 17 и полная матрица VoiceOver ещё остаются в плане.
 
@@ -132,47 +132,25 @@ The optional migration paragraph below is separate from the confirmed saved base
 When updating, the app offers to transfer supported data from the previous version into its new local storage. Confirm the original currency and review any rounding changes before transferring your history.
 ```
 
-## App Review Notes — подготовка
+## App Review Notes — сохранённый текст
 
-Ниже — подготовленные сведения и сценарий для ревьюера; их сохранение в App Store Connect отдельно не подтверждено. При финальной отправке сопоставить текст с выбранным обработанным build. Login не требуется. Существующие review-контакты карточки сохранены; новые имя, телефон или demo account не создавались.
-
-```text
-iWallet is a manual personal expense and income tracker. It does not provide banking services, connect to bank accounts, or move money. No sign-in is required.
-
-Main flow on a clean install:
-1. Open Overview and choose New transaction.
-2. Enter an amount, choose a category, and save.
-3. Open Transactions to search, edit or delete a record.
-4. Open Categories to create or archive a category. Archiving retains its existing transactions.
-5. In Overview > Settings, choose Export all data to save a JSON file using the system file exporter.
-6. Choose Import a backup to select a compatible JSON file, review its contents, and confirm the import. Missing records are added and identical records are skipped. A conflicting record stops the import without replacing current data.
-
-New records are stored locally with SwiftData. The app has no account system, advertising, analytics service or developer-operated data server. It does not perform currency exchange; totals are separate for each currency. Exports are initiated by the user, who chooses the destination.
-
-JSON exports contain categories and transactions. They do not contain app preferences or the legacy migration receipt.
-```
-
-Описание Realm → SwiftData ниже содержит фактически выполненные проверки и их пределы. Физический upgrade test не объявляется пройденным; внутренние маркеры подготовки из текста удалены.
+Ниже точный текст, сохранённый в App Store Connect и повторно прочитанный после переключения на русский язык. Существующие review-контакты карточки сохранены; личные контактные данные в этот документ не включены. Подготовительные альтернативы удалены.
 
 ```text
+iWallet is a manual personal income and expense tracker. No sign-in is required. It does not connect to banks, provide banking services, move money, or perform currency exchange. Totals are separate for each currency.
+
+Clean-install review flow:
+1. Open Overview and choose New transaction. Enter an amount, category, date and optional note, then save.
+2. Open Transactions to search, edit or delete a record.
+3. Open Categories to create or archive a category. Archiving retains its existing transactions.
+4. In Overview > Settings, choose Export all data to save a JSON file using the system file exporter. Choose Import a backup to review and restore a compatible file. Missing records are added, identical records are skipped, and conflicts stop the import without replacing existing data.
+
+Data is stored locally with SwiftData. The app has no account system, advertising, analytics service or developer-operated data server. The user chooses where exported files are saved. JSON backups contain categories and transactions, but not app preferences.
+
 Upgrade migration:
-This transitional release includes Realm Swift 20.0.6, built from source with Swift Package Manager, only to read legacy local wallet data and transfer it to SwiftData. No Atlas Device Sync or cloud migration is used.
+This transitional release includes Realm Swift only to read legacy local wallet data (schema 15 from version 1.1.8). No Atlas Device Sync or cloud migration is used. When a supported previous wallet is detected, the Your history screen asks the user to confirm the original currency, review record counts and totals, and acknowledge any rounding changes before transferring the history. The original file and a snapshot are retained. Data and a migration receipt are saved together, so the transfer does not repeat after relaunch. Unsupported schemas or multiple old wallet files show an explanation instead of opening an empty wallet.
 
-The supported legacy schema is 15, used by the 1.1.8 source. An automated test successfully read a synthetic schema-15 database created with Realm 10.40.0 from 2023 and transferred its two categories and four transactions to SwiftData. The test checked identifiers, category links, dates, notes, currency, rounding, and unchanged source and snapshot bytes. No original user database was available; this is not a claim that every historical user database has been validated.
-
-When the app detects a previous wallet, it shows Your history. Confirm Original wallet currency, then choose Review my previous history. Review record counts and totals. If rounding is needed, inspect the changes and acknowledge them before choosing Transfer my history. You can save a copy of the original data and the migration report. After a successful transfer, the app opens the wallet.
-
-The original Realm file and a local snapshot are retained. Imported records and the migration receipt are committed together. On a subsequent launch the receipt prevents the transfer from being repeated, including after the user edits migrated records. If preparation or saving fails, the screen shows the error and does not replace the wallet with an empty one; the original data remains available. Unsupported schemas or multiple discovered old wallets require investigation instead of an automatic merge.
-
-Prepared version: 2.0.0, build 1. The 55 unit tests and two simulator UI tests passed, including the full migration review and confirmation flow. A physical-device upgrade test and the iOS 17 / full VoiceOver test matrix have not yet been completed.
-
-The legacy format stores amounts as Float and one global currency setting. Currency symbols can be ambiguous. Migration cannot reconstruct precision already lost in the legacy Float values or recover a per-transaction currency history that was never stored.
-```
-
-Русский вариант объяснения миграции для внутренней проверки:
-
-```text
-В переходной версии Realm Swift используется только для чтения старых локальных данных schema 15. Новые записи хранятся в SwiftData; перенос выполняется на устройстве после подтверждения валюты и проверки округления. Прошли автоматический тест синтетической базы Realm 10.40.0 из 2023 года и полный UI-сценарий переноса на симуляторе; исходные файлы сохранились неизменными. Всего прошли 55 unit-тестов и 2 UI-теста. Пользовательская база владельца не сохранилась. Физическое обновление, минимальная iOS 17 и полная проверка VoiceOver ещё не завершены. Нельзя обещать восстановление точности, уже утраченной в Float, или истории валют, которой нет в исходной базе.
+Prepared version: 2.0.0 (1), iOS 17 or later.
 ```
 
 ## Поля карточки и финальная сверка
@@ -182,7 +160,7 @@ The legacy format stores amounts as Float and one global currency setting. Curre
 | Support URL | [Поддержка iWallet](https://github.com/nvavna/iWallet-1/blob/restoration/foundation/docs/SUPPORT.md) — опубликовано в `ffb019b`, HTTP 200 без авторизации проверен |
 | Privacy Policy URL | [Политика iWallet](https://github.com/nvavna/iWallet-1/blob/restoration/foundation/docs/PRIVACY.md) — опубликовано в `ffb019b`, HTTP 200 без авторизации проверен |
 | Support email | `idevnva@icloud.com` — одобрен пользователем |
-| Marketing URL | Необязательное поле; новый адрес не подготовлен |
+| Marketing URL | Необязательное поле пусто; сохранение и пустое значение подтверждены для RU/EN. Прежний `https://idevnva.com/iwallet` недоступен: curl (6), DNS resolution failure, HTTP 000 |
 | Copyright | Сверить существующее значение карточки при финальном review; новый правообладатель не выдумывался |
 | App Review contact | Существующие контакты сохранены; владелец может проверить актуальность перед финальной отправкой |
 | Версия / build / выпуск | Черновик `2.0.0`, проверенный archive `2.0.0(1)`, ручной выпуск; после обработки Apple выбрать соответствующий build |

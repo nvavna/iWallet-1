@@ -2,7 +2,7 @@
 
 Проверено **5 ноября 2026 года**, включая фактическое содержимое `build/iWallet-2.0.0-signed.xcarchive`. В подписанном приложении `ITSAppUsesNonExemptEncryption` уже установлен в Boolean **`false`**. Эта повторная проверка была read-only: исходники, настройки сборки и ответы App Store Connect не менялись.
 
-После этой проверки App Store IPA export успешно завершён после входа пользователя в Xcode. Финальная пересборка архива и повторный экспорт с уведомлениями о лицензиях и исправлением Dynamic Type сейчас выполняются. Приведённые ниже хеши относятся к проверенному предыдущему артефакту; они не объявляются хешами ещё не завершённой пересборки. Загрузка сборки в Apple и финальная отправка на review пока не подтверждены.
+Финальные archive и App Store IPA export с уведомлениями о лицензиях и исправлением Dynamic Type завершены: `/tmp/iwallet-signed-archive-final.log` содержит `ARCHIVE SUCCEEDED`, `/tmp/iwallet-appstore-export-final.log` — `EXPORT SUCCEEDED`. Извлечённое `build/IPA-Verification/Payload/iWallet.app` проверено отдельно. Загрузка в Apple заблокирована входом Xcode Accounts (`missing Xcode-Username`); шаг входа передан пользователю. Обработанной Apple сборки и отправки версии на review пока нет.
 
 **Вывод:** установленное `ITSAppUsesNonExemptEncryption = false` технически соответствует проверенной Apple-конфигурации и классификации «криптография, предоставляемая Apple OS». Приложение использует системный CryptoKit; криптографические примитивы Realm реализуются системным CommonCrypto. Собственная поставляемая реализация AES/SHA/HMAC или OpenSSL в проверенных библиотеках не обнаружена. Повторная проверка executable и вложенного RealmSwift в подписанном архиве подтвердила тот же состав зависимостей и вызовов.
 
@@ -44,8 +44,10 @@ Realm содержит собственную логику страниц, IV, H
 | iOS Release product | `build/DerivedData/Build/Intermediates.noindex/ArchiveIntermediates/iWallet/IntermediateBuildFilesPath/UninstalledProducts/iphoneos/RealmSwift.framework/RealmSwift` |
 | Signed archive RealmSwift | `build/iWallet-2.0.0-signed.xcarchive/Products/Applications/iWallet.app/Frameworks/RealmSwift.framework/RealmSwift` |
 | Signed archive app | `build/iWallet-2.0.0-signed.xcarchive/Products/Applications/iWallet.app/iWallet` |
+| Final IPA RealmSwift | `build/IPA-Verification/Payload/iWallet.app/Frameworks/RealmSwift.framework/RealmSwift` |
+| Final IPA app | `build/IPA-Verification/Payload/iWallet.app/iWallet` |
 
-Во всех четырёх проверенных RealmSwift binaries `nm -m` показывает один набор внешних символов **`from libSystem`**:
+В проверенных RealmSwift binaries, включая framework из финального IPA, `nm -m` показывает один набор внешних символов **`from libSystem`**:
 
 ```text
 CCCryptorCreate, CCCryptorRelease, CCCryptorReset, CCCryptorUpdate
@@ -54,25 +56,37 @@ CCHmac, CC_SHA1, CC_SHA256, arc4random_buf
 
 В `otool -L` есть системные `Security.framework` и `libSystem.B.dylib`; библиотек OpenSSL/libcrypto/libssl нет. Поиск таблиц символов не обнаружил `EVP_*`, `OPENSSL*`, собственных `AES_*`, `SHA*`, `sha_init`, `sha_process` или `sha_done`. Это подтверждает проверенные условные ветки исходников, а не отдельное доказательство отсутствия любых возможных алгоритмов во всех будущих сборках.
 
-У iOS Debug `iWallet.debug.dylib`, Release executable и executable из подписанного архива присутствует зависимость `/System/Library/Frameworks/CryptoKit.framework/CryptoKit`; импорты `SHA256`/`SHA256Digest` разрешаются в CryptoKit.
+У iOS Debug `iWallet.debug.dylib`, Release executable, executable из подписанного архива и финального IPA присутствует зависимость `/System/Library/Frameworks/CryptoKit.framework/CryptoKit`; импорты `SHA256`/`SHA256Digest` разрешаются в CryptoKit.
 
-SHA-256 проверенных файлов, чтобы отличать эту проверку от последующих пересборок:
+SHA-256 ранних build products (историческая проверка):
 
 ```text
 macOS Debug:           76a241d2faadd2b665d40d753f93f18e4f315c2ff8a9f1a9988bb452523ae3d6
 iOS Simulator Debug:  7d4de43f14cbad887df3c76d383a002365c637e980dbfde377b7204ecbc961ea
 iOS Release product:  75408f31fa6414eddd5566ec64c6e373f8d6a328d3922111957acae5f4faf1c7
-Signed RealmSwift:    9adf853f68e8c40a4487215bd53c55ef135dfa3077502bff8e9fde9adc6e09b5
-Signed app:           63e064345032af8e3f408092d12b08775daf27f90318d0a63ac7d507bc45ca2d
 ```
+
+SHA-256 окончательных артефактов. Хеши executable/framework в archive и IPA различаются после переподписи для distribution:
+
+```text
+Final archive app:        8ed3443c3a30eec99fc2aa10f7acc6f9de755b5abe75143aee7e98ee240037d5
+Final archive RealmSwift: d7477b30386898537243ca75e06d6370f20ee07e1914973373678307915dfb23
+Final IPA app:            8474503dd24542bc2fed32e5bea8217bfdf870cf7d2d5b22f4cc4d6da0d6608a
+Final IPA RealmSwift:     92743c9c40d572a48752e6444dabaa44e581e32efbb425d49b05339188222a37
+ThirdPartyNotices.txt:    3d6729c9937fdecf61642a6e2ff1fd90de563584c49074f50707762dad602d4d
+build/AppStore/iWallet.ipa:
+eb0d853fd0df36298f9074193ce34a089ba2b2a063dc91b6b19b184c1aa608b0
+```
+
+Размер окончательного IPA — **11 505 090 байт**. Хеш встроенного ThirdPartyNotices совпадает с проверенным полным текстом лицензий.
 
 ## Подписанный архив и manifests
 
 В подписанном `Info.plist` проверены: Bundle ID `com.idevnva.iwallet`, версия `2.0.0`, build `1`, SDK `iphoneos27.2`, `ITSAppUsesNonExemptEncryption = false` типа Boolean. Вложенный `RealmSwift.framework/RealmSwift` присутствует и занимает **10 854 800 байт**.
 
-`codesign --verify --deep --strict` прошёл: подпись приложения на диске корректна и удовлетворяет Designated Requirement. Подпись проверенного архива — **Apple Development**, команда `4243BL8MP3`, сертификат `QV5HFTMMF5`. Последующий App Store IPA export завершился успешно; экспорт и загрузка в Apple — разные этапы, загрузка ещё не подтверждена.
+`codesign --verify --deep --strict` прошёл для подписанного архива и повторно для приложения, извлечённого из окончательного IPA. Archive использует **Apple Development**, команда `4243BL8MP3`, сертификат `QV5HFTMMF5`; извлечённое distribution-приложение использует **Apple Distribution**, команда `4243BL8MP3`. Экспорт успешно завершён, загрузка в Apple ещё заблокирована входом Xcode.
 
-Внутри `iWallet.app` прочитаны все четыре property-list manifest:
+Внутри подписанного `iWallet.app` прочитаны все четыре property-list manifest; их наличие повторно проверено в окончательном IPA:
 
 | Файл | Required Reason API |
 | --- | --- |
@@ -83,4 +97,4 @@ Signed app:           63e064345032af8e3f408092d12b08775daf27f90318d0a63ac7d507bc
 
 Во всех четырёх `NSPrivacyTracking = false`, `NSPrivacyTrackingDomains = []` и `NSPrivacyCollectedDataTypes = []`. Это проверка наличия и содержимого manifest в подписанном архиве; сводный Xcode Privacy Report этим не объявляется сформированным или проверенным.
 
-Повторная криптографическая проверка подписанного архива завершена, App Store IPA export выполнен. Последняя пересборка добавляет уведомления о лицензиях и исправление Dynamic Type; после неё нужно зафиксировать результат archive/export и состав окончательного артефакта. При изменении зависимостей или добавлении криптографического кода вывод нужно пересмотреть. Эта записка не подтверждает загрузку, обработку сборки Apple или отправку версии на review.
+Финальная пересборка и App Store IPA export завершены; подпись, ресурсы и криптографические зависимости окончательного IPA проверены. При изменении зависимостей или добавлении криптографического кода вывод нужно пересмотреть. Оставшийся блокер загрузки — Xcode Accounts / `missing Xcode-Username`; вход выполняется с участием пользователя. Обработка сборки Apple и отправка версии на review ещё не выполнены.
