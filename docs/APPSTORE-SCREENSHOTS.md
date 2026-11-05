@@ -1,5 +1,7 @@
 # Снимки для App Store
 
+> Набор ниже фиксирует build 2, сохранённый в App Store Connect. Для рабочего build 3 подготовлены превью компактного Home в `build/QA/home-compact-*.png`; новый магазинный набор следует получить отдельно после завершения следующего релизного артефакта.
+
 Проверено 5 ноября 2026 года: Apple требует снимки iPhone with Dynamic Island (medium display). Для iPhone 18 Pro подходит портретный размер **1206 × 2622**. PNG не должен содержать alpha channel. Источник: [Apple — Screenshot specifications](https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications/).
 
 Актуальный набор для **iWallet 2.0.0 (2)** находится в `build/AppStore-Screenshots-build2/{ru,en}/`. Все шесть кадров загружены в черновик App Store Connect; обработанные миниатюры визуально проверены для обоих языков. В каждом наборе сохранён порядок: обзор, история, категории.

@@ -274,3 +274,8 @@
 "No income for this period" = "За этот период доходов нет";
 
 "View category transactions" = "Показать операции категории";
+
+// Compact home overview
+"Total balance" = "Общий баланс";
+"Summary" = "Сводка";
+"Per day with spending" = "За день с тратами";

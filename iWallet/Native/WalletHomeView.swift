@@ -22,71 +22,52 @@ struct WalletHomeView: View {
         return currencyTransactions.filter { $0.date >= interval.start && $0.date < interval.end }
     }
     private var expenses: [WalletTransaction] { periodTransactions.filter { $0.kind == .expense } }
-    private var summaryColumns: [GridItem] {
-        Array(repeating: GridItem(.flexible(), spacing: 12), count: dynamicTypeSize.isAccessibilitySize ? 1 : 2)
-    }
-
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
-                    displayOptions
+                VStack(alignment: .leading, spacing: 24) {
+                    balanceHeader
                     summary
-                    Picker("Transaction type", selection: $selectedKind) {
-                        Text("Expense").tag(TransactionKind.expense)
-                        Text("Income").tag(TransactionKind.income)
+                    VStack(spacing: 12) {
+                        Picker("Transaction type", selection: $selectedKind) {
+                            Text("Expense").tag(TransactionKind.expense)
+                            Text("Income").tag(TransactionKind.income)
+                        }
+                        .pickerStyle(.segmented)
+                        .accessibilityIdentifier("homeTransactionType")
+                        categorySummary
                     }
-                    .pickerStyle(.segmented)
-                    .accessibilityIdentifier("homeTransactionType")
-
-                    categorySummary
                     Button(action: showTransactions) {
-                        HStack(spacing: 10) {
+                        HStack(spacing: 12) {
                             Label("Transactions", systemImage: "clock")
                             Spacer(minLength: 8)
-                            Image(systemName: "chevron.forward").font(.footnote)
-                                .foregroundStyle(.secondary)
+                            Image(systemName: "chevron.forward")
+                                .font(.footnote.weight(.semibold))
+                                .foregroundStyle(.tertiary)
                         }
-                        .frame(minHeight: 44)
-                        .padding(.horizontal, 12)
-                        .background(WalletTheme.surface, in: RoundedRectangle(cornerRadius: 12))
+                        .padding(.horizontal, 16)
+                        .frame(minHeight: 52)
+                        .background(surface, in: RoundedRectangle(cornerRadius: 16))
                     }
                     .buttonStyle(.plain)
                     .accessibilityIdentifier("showTransactions")
                 }
-                .padding(.horizontal, 16)
+                .padding(.horizontal, 20)
                 .padding(.top, 12)
-                .padding(.bottom, 100)
+                .padding(.bottom, 24)
             }
             .accessibilityIdentifier("walletHome")
-            .background(WalletTheme.background)
-            .foregroundStyle(WalletTheme.accent)
+            .background(Color(uiColor: .systemGroupedBackground))
+            .foregroundStyle(.primary)
             .navigationTitle("iWallet")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Settings", systemImage: "gearshape") { showingSettings = true }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button { showingSettings = true } label: {
-                        if dynamicTypeSize.isAccessibilitySize {
-                            Image(systemName: "gearshape")
-                        } else {
-                            Text("Settings")
-                        }
-                    }
-                    .accessibilityLabel("Settings")
+                    Button("New transaction", systemImage: "plus") { showingEditor = true }
                 }
-            }
-            .overlay(alignment: .bottomTrailing) {
-                Button { showingEditor = true } label: {
-                    Image(systemName: "plus")
-                        .font(.title2.weight(.semibold))
-                        .foregroundStyle(WalletTheme.background)
-                        .frame(width: 56, height: 56)
-                        .background(WalletTheme.accent, in: Circle())
-                        .shadow(color: .black.opacity(0.12), radius: 4, y: 2)
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel("New transaction")
-                .padding(20)
             }
             .sheet(isPresented: $showingEditor) {
                 TransactionEditorView(initialKind: selectedKind, initialCurrencyCode: currency)
@@ -95,98 +76,132 @@ struct WalletHomeView: View {
         }
     }
 
-    private var displayOptions: some View {
-        let layout = dynamicTypeSize.isAccessibilitySize
-            ? AnyLayout(VStackLayout(alignment: .leading, spacing: 4))
-            : AnyLayout(HStackLayout(spacing: 12))
-        return layout {
-            Menu {
-                Picker("Display currency", selection: Binding(get: { currency }, set: { selectedCurrency = $0 })) {
-                    ForEach(currencies, id: \.self) { Text($0).tag($0) }
-                }
-            } label: {
-                HStack(spacing: 5) {
-                    Text(currency).fontWeight(.semibold)
-                    Image(systemName: "chevron.down").font(.caption)
-                }
-                .frame(minHeight: 44)
-                .contentShape(Rectangle())
-            }
-            .accessibilityLabel("Display currency")
-            .accessibilityValue(currency)
+    private var surface: Color { Color(uiColor: .secondarySystemGroupedBackground) }
 
-            if !dynamicTypeSize.isAccessibilitySize { Spacer() }
-            Menu {
-                Picker("Period", selection: $allTime) {
-                    Text("This month").tag(false)
-                    Text("All time").tag(true)
-                }
-            } label: {
-                HStack(spacing: 5) {
-                    Text(LocalizedStringKey(allTime ? "All time" : "This month"))
-                    Image(systemName: "chevron.down").font(.caption)
-                }
-                .frame(minHeight: 44)
-                .contentShape(Rectangle())
+    private var balanceHeader: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack(spacing: 12) {
+                Text("Total balance")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .accessibilityHidden(true)
+                Spacer(minLength: 8)
+                currencyMenu
             }
-            .accessibilityLabel("Period")
-            .accessibilityValue(Text(LocalizedStringKey(allTime ? "All time" : "This month")))
+            amount(balanceResult, font: .largeTitle.weight(.semibold))
+                .accessibilityLabel("Total balance")
+                .accessibilityValue(balanceAccessibilityValue)
         }
-        .font(.subheadline)
+        .padding(.horizontal, 4)
+        .padding(.bottom, 4)
+    }
+
+    private var currencyMenu: some View {
+        Menu {
+            Picker("Display currency", selection: Binding(get: { currency }, set: { selectedCurrency = $0 })) {
+                ForEach(currencies, id: \.self) { Text($0).tag($0) }
+            }
+        } label: {
+            HStack(spacing: 4) {
+                Text(currency)
+                Image(systemName: "chevron.down").font(.caption2.weight(.semibold))
+            }
+            .font(.subheadline)
+            .foregroundStyle(.secondary)
+            .frame(minWidth: 44, minHeight: 44)
+            .contentShape(Rectangle())
+        }
+        .accessibilityLabel("Display currency")
+        .accessibilityValue(currency)
+    }
+
+    private var periodMenu: some View {
+        Menu {
+            Picker("Period", selection: $allTime) {
+                Text("This month").tag(false)
+                Text("All time").tag(true)
+            }
+        } label: {
+            HStack(spacing: 4) {
+                Text(LocalizedStringKey(allTime ? "All time" : "This month"))
+                Image(systemName: "chevron.down").font(.caption2.weight(.semibold))
+            }
+            .font(.subheadline)
+            .foregroundStyle(.secondary)
+            .frame(minHeight: 44)
+            .contentShape(Rectangle())
+        }
+        .accessibilityLabel("Period")
+        .accessibilityValue(Text(LocalizedStringKey(allTime ? "All time" : "This month")))
     }
 
     private var summary: some View {
-        LazyVGrid(columns: summaryColumns, spacing: 12) {
-            metric("Balance", symbol: "equal.circle", color: "colorBlue", result: balanceResult, isAllTime: true)
-            metric("Expense average", symbol: "plusminus.circle", color: "colorYellow", result: averageResult)
-                .accessibilityHint("Average expense per day with spending in the selected period.")
-            metric("Income", symbol: "plus.circle", color: "colorGreen", result: total(for: .income))
-            metric("Expense", symbol: "minus.circle", color: "colorRed", result: total(for: .expense))
+        VStack(spacing: 8) {
+            let headerLayout = dynamicTypeSize.isAccessibilitySize
+                ? AnyLayout(VStackLayout(alignment: .leading, spacing: 0))
+                : AnyLayout(HStackLayout(spacing: 12))
+            headerLayout {
+                Text("Summary").font(.headline).accessibilityAddTraits(.isHeader)
+                if !dynamicTypeSize.isAccessibilitySize { Spacer(minLength: 8) }
+                periodMenu
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 4)
+
+            VStack(spacing: 0) {
+                metric("Income", result: total(for: .income))
+                Divider().padding(.leading, 16)
+                metric("Expense", result: total(for: .expense))
+                Divider().padding(.leading, 16)
+                metric("Expense average", result: averageResult, detail: "Per day with spending")
+                    .accessibilityHint("Average expense per day with spending in the selected period.")
+            }
+            .background(surface, in: RoundedRectangle(cornerRadius: 16))
         }
     }
 
-    private func metric(_ title: LocalizedStringKey, symbol: String, color: String,
-                        result: Result<Int64, Error>, isAllTime: Bool = false) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 8) {
-                    metricIcon(symbol, color: color)
-                    Spacer(minLength: 0)
-                    metricAmount(result).fixedSize(horizontal: true, vertical: false)
-                }
-                VStack(alignment: .leading, spacing: 8) {
-                    metricIcon(symbol, color: color)
-                    metricAmount(result).fixedSize(horizontal: false, vertical: true)
+    private func metric(_ title: LocalizedStringKey, result: Result<Int64, Error>,
+                        detail: LocalizedStringKey? = nil) -> some View {
+        let layout = dynamicTypeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(alignment: .leading, spacing: 6))
+            : AnyLayout(HStackLayout(alignment: .firstTextBaseline, spacing: 16))
+        return layout {
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title).font(.subheadline)
+                if let detail {
+                    Text(detail).font(.caption).foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
             }
-            Text(title).font(.subheadline).foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-            Text(LocalizedStringKey(isAllTime || allTime ? "All time" : "This month"))
-                .font(.caption).foregroundStyle(.secondary)
+            .fixedSize(horizontal: false, vertical: true)
+            if !dynamicTypeSize.isAccessibilitySize { Spacer(minLength: 0) }
+            amount(result, font: .subheadline.weight(.semibold))
+                .multilineTextAlignment(dynamicTypeSize.isAccessibilitySize ? .leading : .trailing)
+                .layoutPriority(1)
         }
-        .padding(12)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .background(WalletTheme.surface, in: RoundedRectangle(cornerRadius: 12))
+        .frame(maxWidth: .infinity, minHeight: 28, alignment: .leading)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
         .accessibilityElement(children: .combine)
     }
 
-    private func metricIcon(_ symbol: String, color: String) -> some View {
-        Image(systemName: symbol)
-            .font(.body.weight(.medium))
-            .foregroundStyle(.black)
-            .padding(6)
-            .background(WalletTheme.categoryColor(color), in: RoundedRectangle(cornerRadius: 8))
-            .accessibilityHidden(true)
-    }
-
     @ViewBuilder
-    private func metricAmount(_ result: Result<Int64, Error>) -> some View {
+    private func amount(_ result: Result<Int64, Error>, font: Font) -> some View {
         switch result {
-        case .success(let amount):
-            Text(Money.format(amount, currencyCode: currency))
-                .font(.headline).monospacedDigit()
+        case .success(let value):
+            Text(Money.format(value, currencyCode: currency))
+                .font(font).monospacedDigit()
+                .fixedSize(horizontal: false, vertical: true)
         case .failure:
             Text("Total is too large to display").font(.subheadline)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    private var balanceAccessibilityValue: String {
+        switch balanceResult {
+        case .success(let value): Money.format(value, currencyCode: currency)
+        case .failure: String(localized: "Total is too large to display")
         }
     }
 
@@ -235,7 +250,7 @@ struct WalletHomeView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .padding(24)
-                .background(WalletTheme.surface, in: RoundedRectangle(cornerRadius: 12))
+                .background(surface, in: RoundedRectangle(cornerRadius: 16))
             } else {
                 LazyVStack(spacing: 0) {
                     ForEach(totals) { item in
@@ -247,46 +262,45 @@ struct WalletHomeView: View {
                         }
                         .buttonStyle(.plain)
                         .accessibilityHint("View category transactions")
-                        if item.id != totals.last?.id { Divider().padding(.leading, 52) }
+                        if item.id != totals.last?.id { Divider().padding(.leading, 58) }
                     }
                 }
-                .background(WalletTheme.surface, in: RoundedRectangle(cornerRadius: 12))
+                .background(surface, in: RoundedRectangle(cornerRadius: 16))
             }
         }
     }
 
     private func categoryRow(_ item: HomeCategoryTotal) -> some View {
-        HStack(spacing: 10) {
-            CategoryBadge(category: item.category)
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 8) {
-                    Text(item.name).fixedSize(horizontal: true, vertical: false)
-                    Spacer(minLength: 0)
-                    Text(Money.format(item.amount, currencyCode: currency))
-                        .fontWeight(.semibold).fixedSize(horizontal: true, vertical: false)
-                }
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(item.name)
-                    Text(Money.format(item.amount, currencyCode: currency)).fontWeight(.semibold)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .fixedSize(horizontal: false, vertical: true)
+        HStack(spacing: 12) {
+            CategoryBadge(category: item.category, size: 28)
+                .dynamicTypeSize(.large)
+                .accessibilityHidden(true)
+            let layout = dynamicTypeSize.isAccessibilitySize
+                ? AnyLayout(VStackLayout(alignment: .leading, spacing: 4))
+                : AnyLayout(HStackLayout(alignment: .firstTextBaseline, spacing: 12))
+            layout {
+                Text(item.name)
+                    .fixedSize(horizontal: false, vertical: true)
+                if !dynamicTypeSize.isAccessibilitySize { Spacer(minLength: 0) }
+                Text(Money.format(item.amount, currencyCode: currency))
+                    .fontWeight(.medium).monospacedDigit()
+                    .fixedSize(horizontal: false, vertical: true)
+                    .multilineTextAlignment(dynamicTypeSize.isAccessibilitySize ? .leading : .trailing)
+                    .layoutPriority(1)
             }
             .font(.body)
-            Image(systemName: "chevron.forward").font(.footnote)
-                .foregroundStyle(.secondary).accessibilityHidden(true)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            Image(systemName: "chevron.forward")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.tertiary).accessibilityHidden(true)
         }
-        .padding(.vertical, 10)
-        .padding(.horizontal, 12)
+        .padding(.vertical, 12)
+        .padding(.horizontal, 16)
         .frame(minHeight: 52)
         .contentShape(Rectangle())
-        .overlay(alignment: .leading) {
-            RoundedRectangle(cornerRadius: 2)
-                .fill(WalletTheme.categoryColor(item.category?.color ?? "colorBlue"))
-                .frame(width: 4).padding(.vertical, 8)
-        }
         .accessibilityElement(children: .combine)
     }
+
 }
 
 private struct HomeCategoryTotal: Identifiable {
