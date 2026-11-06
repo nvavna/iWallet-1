@@ -1,52 +1,66 @@
-<h1 align="center">✨ iWallet - Expenses and Income ✨</h1>
+# iWallet
 
-![iWallet](https://github.com/idevnva/iWallet/assets/127990298/5f509056-3207-4b3e-8995-4be1347d28c6)
+Личный учёт доходов и расходов на **SwiftUI + SwiftData**, iOS 17+. Проект восстанавливает [первое приложение iWallet](https://github.com/iWalletTeam/iWallet), сохраняя историю разработки и Bundle ID `com.idevnva.iwallet`.
 
-<h3 align="center">
-It is a personal finance management assessment tool that will help you keep track of your income and expenses, keep an eye on your budget, and achieve your financial goals. Install iWallet and enjoy complete control over your finances!
-</h3>
-  
-<h3 align="center">
-<p float="left">
-  <a href="https://apps.apple.com/us/app/iwallet-expenses-and-income/id6447585809">
-    <img src="https://img.shields.io/badge/App Store-0D96F6?style=flat" height="40">
-  </a>
-  <a href="https://idevnva.com/iwallet">
-    <img src="https://img.shields.io/badge/Web site-238636?style=flat" height="40">
-  </a>
-</p>
-</h3>
+**Версия 2.0.0 (6)** добавляет локальные напоминания, прогноз регулярных платежей на 7 или 30 календарных дней и месячные бюджеты расходных категорий. Настройки напоминаний доступны по колокольчику в «Платежах», бюджеты — в «Настройках» и под списком расходов в «Обзоре».
 
-## You can
-* Calculate the average expense per day, taking into account all financial transactions, for more accurate planning and control of your budget.
+## Возможности
 
-* Data security and privacy, since all data is stored on your device and you have full control over access to it.
+- Четыре нативные вкладки: **Обзор, Операции, Платежи, Настройки**.
+- Баланс, доходы, расходы и средний расход по дням с расходами. Фильтры валюты и периода; по умолчанию «Месяц».
+- Интерактивные Swift Charts: доходы/расходы по времени, сравнение с предыдущим периодом и распределение по категориям. Точные суммы доступны текстом; разные валюты не объединяются и не конвертируются.
+- История с поиском, фильтрами, редактированием и подтверждением удаления. Архивирование категории сохраняет операции и связанные планы платежей.
+- Регулярные расходы и подписки: неделя, месяц или год, дата следующего платежа, пауза и возобновление. **Расход появляется только после явного «Оплачено»**; пропуск сдвигает один период без расхода.
+- Расписание сохраняет исходный день и часовой пояс: 31-е число возвращается после короткого месяца, 29 февраля — в следующий високосный год. Просроченные периоды не проводятся автоматически.
+- Прогноз от сегодняшнего дня включает каждое повторение в выбранной валюте. Первый открытый просроченный срок учтён отдельно. У каждого плана свой часовой пояс.
+- Уведомления включаются на этом устройстве по желанию. Можно выбрать день платежа или накануне и время по часовому поясу плана. iOS показывает общий текст и по нажатию открывает «Платежи».
+- Бюджет задаётся для отдельного месяца, расходной категории и валюты. Расходы за этот месяц показывают, сколько осталось или на сколько превышен лимит.
+- JSON-экспорт и восстановление: одинаковые записи пропускаются, конфликтующие ID отклоняют весь импорт. Формат v3 включает расписания и бюджеты. Поддерживается импорт v1 и v2. Настройки уведомлений остаются на устройстве.
+- Русский и английский интерфейс, системные темы, масштабируемый текст, отдельные черновики форм с защитой несохранённых изменений.
 
-## Create categories
-* One of the main features of iWallet is the ability to create custom categories for expenses and income.
+Все записи хранятся локально в SwiftData, без CloudKit, аккаунта, рекламы и аналитических сервисов. Деньги — `Int64` в минимальных единицах валюты, расчёты — `Int64`/`Decimal`; `Double` используется только для отрисовки графиков.
 
-* You can choose a unique icon and color for each category to help you better represent your financial activities. In addition, the application allows you to analyze data and identify areas where you can reduce costs.
+Переходный релиз включает **Realm Swift 20.0.6** исключительно для переноса прежней базы. Reader открывает рабочую копию; исходник и проверенная резервная копия сохраняются. Валюту и округление подтверждает пользователь. Полные уведомления о лицензиях доступны в «Настройки → Лицензии».
 
-## Recording transactions
-* iWallet is a reliable financial management assistant: track all income and expenses with high accuracy (including date, category and notes) and control your finances with convenience.
+## Запуск и тесты
 
-* Be aware of your financial flows and make informed decisions about your money.
+Откройте `iWallet.xcodeproj`, выберите схему **iWallet** и iOS Simulator. Для физического устройства настройте signing своей Apple Developer Team. Локально используется Xcode 27.2.
 
-![iWalletTeam](https://github.com/iWalletTeam/iWallet/assets/127990298/41e45886-da1c-445c-b5d0-e5c3a2605a30)
+```sh
+xcodebuild -project iWallet.xcodeproj -scheme iWallet \
+  -configuration Debug -destination 'generic/platform=iOS Simulator' \
+  -derivedDataPath build/DerivedData CODE_SIGNING_ALLOWED=NO build
 
-## Our team
-* Our team is working on the development of iWallet — an open source project that allows users to manage their finances more efficiently. We believe that everyone should have access to a quality tool to keep track of their income and expenses.
+swift test -j 2
+```
 
-* We strive to create an application that is convenient and easy to use, but at the same time functional and powerful. We are constantly working to improve iWallet and add new features so that our users can get the most out of it.
+Тесты SwiftData выполняются на macOS 14+ с временными базами, не с личным кошельком.
 
-* Our team consists of beginner developers, designers and a huge amount of motivation. We work with open source to ensure that our project is transparent and accessible to everyone. We also welcome contributions from the community and encourage participation in iWallet development.
+| Проверка | Подтверждённый результат |
+| --- | --- |
+| Build 6 | 123 модульных теста прошли полным прогоном (107 core, 16 legacy). Два новых UI-сценария на iPhone Simulator прошли, включая системное разрешение iOS, расчёты и перезапуск |
+| Обновление установленного build 5 → 6 | Пользовательские поля 7 операций, 12 категорий и 2 планов совпали до и после обновления |
+| Unit-тесты build 5 | **95 PASS** полным прогоном: 79 core и 16 legacy; затем **1 PASS** отдельно для отката неудачного ручного INSERT. Единого полного прогона 96 не было |
+| Приложение build 5 | **TEST BUILD SUCCEEDED**; `/tmp/iwallet-build5-test-build-final.log` |
+| Обновление установленного build 4 → 5 | 7 операций и 12 категорий сохранены, пользовательские поля совпали; `build/QA/design5-upgrade/comparison.json` |
+| UI build 5 | CRUD/архив/перезапуск, черновик, полный цикл подписки и Realm-перенос — четыре сценария PASS в отдельных прогонах; подробности в RESTORATION |
+| Визуальная проверка build 5 | 18 RU/EN, 9 Dark и 29 AX-кадров; capture-тесты PASS, просмотрены и нижние строки длинных экранов |
+| Релизный пакет build 5 | Signed archive, App Store export и deep/strict codesign — PASS; `build/QA/build5-ipa-validation.json`. Upload успешен, завершение обработки Apple не подтверждено |
 
-## iWalletTeam
-> ### " Our goal is to make iWallet the best financial accounting tool available to everyone. We believe that every person deserves financial stability and we do our best to help them achieve this goal. "
+Проверены атомарная оплата и пропуск, повторные подтверждения, часовые пояса/DST, месяцы/високосные годы, откат ошибок, JSON v1/v2 и обновление прежней SwiftData-схемы. [Историческая Realm-фикстура](Tests/Fixtures/README.md) создана настоящим Realm Cocoa 10.40.0 / Core 13.13.0, schema 15, формат 23; перенос сохраняет её исходные байты. Личной старой базы владельца нет. Это не заменяет обновление установленной версии 1.1.8 на физическом устройстве.
 
-![iWallet](https://github.com/idevnva/iWallet/assets/127990298/c1397684-89f4-4d84-b936-4c32f6962dfc)
+Три снимка показывают [прогноз](docs/images/planning/forecast.png), [месячный бюджет](docs/images/planning/budget.png), [напоминания](docs/images/planning/reminders.png).
 
+Девять русских превью предыдущего build 5 доступны в [docs/images/design5](docs/images/design5); [полные снимки и протокол](docs/APPSTORE-SCREENSHOTS.md).
 
+## Выпуск
 
+6 ноября 2026 года Apple приняла подписанную сборку 2.0.0 (6) и начала обработку. Результат загрузки записан в `/tmp/iwallet-build6-upload.log`. Для установки на iPhone предстоит подтвердить готовность в TestFlight. Последняя сверка черновика магазина была 5 ноября, в нём был выбран build 2. Перед выпуском остаются проверка на iPhone, минимальной iOS 17, VoiceOver и сверка Privacy Report.
 
+- [Ход восстановления и доказательства предыдущих сборок](docs/RESTORATION.md)
+- [Протокол переноса Realm](docs/LEGACY-MIGRATION.md)
+- [Подготовка App Store](docs/APP-STORE-RELEASE.md)
+- [Договор дизайна и проверки доступности](docs/DESIGN.md)
+- [Воспроизведение снимков](docs/APPSTORE-SCREENSHOTS.md)
 
+Исходная версия 1.1.8 сохранена в Git (`b521ad4`); рабочая ветка — `restoration/foundation`.
