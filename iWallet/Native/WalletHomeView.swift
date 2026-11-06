@@ -21,9 +21,6 @@ struct WalletHomeView: View {
         Set(transactions.map(\.currencyCode) + payments.map(\.currencyCode) + [preferredCurrency]).sorted()
     }
     private var currencyTransactions: [WalletTransaction] { transactions.filter { $0.currencyCode == currency } }
-    private var upcomingPayments: [WalletRecurringPayment] {
-        Array(payments.filter { $0.isActive && $0.currencyCode == currency }.prefix(3))
-    }
     private var dashboard: WalletInsights.SnapshotResult {
         WalletInsights.result(entries: transactions.map { WalletInsights.Entry(transaction: $0) },
                               currencyCode: currency, period: period, now: now)
@@ -48,6 +45,20 @@ struct WalletHomeView: View {
                             .accessibilityIdentifier("homeTransactionType")
                             WalletCategoryChartCard(snapshot: snapshot, kind: selectedKind)
                             categorySummary(snapshot)
+                            if selectedKind == .expense {
+                                NavigationLink {
+                                    WalletBudgetListView()
+                                } label: {
+                                    HStack {
+                                        Label("Monthly budgets", systemImage: "chart.bar")
+                                        Spacer()
+                                        Image(systemName: "chevron.forward").font(.caption)
+                                            .accessibilityHidden(true)
+                                    }
+                                    .frame(minHeight: 44)
+                                }
+                                .accessibilityIdentifier("overviewBudgets")
+                            }
                         }
                     case .failure:
                         Label("Total is too large to display", systemImage: "exclamationmark.triangle")
@@ -203,72 +214,7 @@ struct WalletHomeView: View {
     }
 
     private var upcomingSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("Upcoming payments").font(.headline)
-                Spacer(minLength: 8)
-                Button("All", action: showPayments)
-                    .frame(minWidth: 44, minHeight: 44)
-            }
-            .accessibilityAddTraits(.isHeader)
-            if upcomingPayments.isEmpty {
-                Button(action: showPayments) {
-                    Label("Plan subscriptions and other regular expenses.", systemImage: "calendar.badge.clock")
-                        .font(.subheadline)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.vertical, 4)
-                }
-            } else {
-                ForEach(upcomingPayments) { payment in
-                    NavigationLink {
-                        RecurringPaymentDetailView(payment: payment)
-                    } label: {
-                        upcomingRow(payment)
-                    }
-                    .buttonStyle(.plain)
-                    if payment.id != upcomingPayments.last?.id { Divider().padding(.leading, 44) }
-                }
-                Text("Expenses are recorded only when you mark a payment as paid.")
-                    .font(.caption).foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-        }
-        .walletSurface()
-        .accessibilityIdentifier("upcomingPayments")
-    }
-
-    private func upcomingRow(_ payment: WalletRecurringPayment) -> some View {
-        HStack(alignment: .top, spacing: 12) {
-            CategoryBadge(category: payment.category).accessibilityHidden(true)
-            VStack(alignment: .leading, spacing: 4) {
-                Text(payment.name).font(.subheadline.weight(.medium))
-                Text(Money.format(payment.amountMinor, currencyCode: payment.currencyCode))
-                    .font(.subheadline.weight(.semibold)).monospacedDigit()
-                HStack(spacing: 6) {
-                    if payment.isOverdue(asOf: now) {
-                        Text("Overdue").foregroundStyle(.orange)
-                    }
-                    Text(paymentDate(payment)).foregroundStyle(.secondary)
-                }.font(.caption)
-            }
-            .fixedSize(horizontal: false, vertical: true)
-            Spacer(minLength: 0)
-            Image(systemName: "chevron.forward").font(.caption.weight(.semibold))
-                .foregroundStyle(.tertiary).accessibilityHidden(true)
-        }
-        .frame(minHeight: 44)
-        .contentShape(Rectangle())
-        .accessibilityElement(children: .combine)
-    }
-
-    private func paymentDate(_ payment: WalletRecurringPayment) -> String {
-        let formatter = DateFormatter()
-        formatter.locale = .current
-        formatter.calendar = payment.calendar
-        formatter.timeZone = payment.timeZone
-        formatter.dateStyle = .medium
-        return formatter.string(from: payment.nextDueDate)
+        WalletForecastCard(payments: payments, currencyCode: currency, now: now, showPayments: showPayments)
     }
 
     @ViewBuilder

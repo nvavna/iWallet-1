@@ -3,6 +3,8 @@ import SwiftData
 
 @main
 struct iWalletApp: App {
+    init() { PaymentReminders.installNotificationDelegate() }
+
     var body: some Scene {
         WindowGroup {
             WalletBootstrapView()
@@ -14,6 +16,8 @@ struct iWalletApp: App {
 private enum WalletDestination: Hashable { case overview, transactions, payments, settings }
 
 private struct WalletBootstrapView: View {
+    @Environment(\.scenePhase) private var scenePhase
+    private let reminders = PaymentReminders.shared
     @State private var container: ModelContainer?
     @State private var failure: String?
     @State private var legacyFiles: [URL] = []
@@ -33,6 +37,16 @@ private struct WalletBootstrapView: View {
                         .modelContainer(container)
                         .environment(\.walletDidRestore, reloadWallet)
                         .environment(\.walletDidChange, reloadWallet)
+                        .task(id: scenePhase == .active ? revision : nil) {
+                            guard scenePhase == .active else { return }
+                            await reminders.refresh(context: container.mainContext)
+                        }
+                        .onChange(of: reminders.openPaymentsRequested, initial: true) { _, requested in
+                            if requested {
+                                selection = .payments
+                                reminders.consumeOpenPaymentsRequest()
+                            }
+                        }
                 }
             } else if let failure {
                 ContentUnavailableView {
@@ -76,6 +90,7 @@ private struct WalletBootstrapView: View {
         } catch {
             container = nil
             failure = error.localizedDescription
+            Task { await reminders.refreshAfterReadFailure(error) }
         }
     }
 }

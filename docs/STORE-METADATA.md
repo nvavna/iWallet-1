@@ -1,14 +1,10 @@
 # Тексты App Store для iWallet
 
-> **Текущая локальная работа — build 5.** Четыре вкладки: Overview / Transactions / Payments / Settings; графики доходов, расходов и категорий; ручной учёт регулярных платежей и подписок; JSON-копии формата 2 с импортом совместимого формата 1. Описания, What’s New и единый Review Notes ниже подготовлены **только локально и не отправлены**. Проверены 96 unit-тестов, четыре UI-сценария, 18 RU/EN-снимков, Dark и максимальный AX. Подписанный build 5 загружен в Apple; завершение обработки ещё не подтверждено. В черновике магазина он не выбран.
+Материалы для версии **2.0.0 (6)** подготовлены локально. Ниже приведены описания и «Что нового» для двух языков, затем единый английский текст для App Review. Названия, подзаголовки, ключевые слова и рекламный текст сохранены из предыдущего комплекта.
 
-**В App Store Connect по-прежнему выбран и сохранён build 2.** В черновике [2.0.0](https://appstoreconnect.apple.com/apps/6447585809/distribution/ios/version/inflight) сохранены его RU/EN-описания, What’s New, Review Notes и шесть снимков (по три на язык); миниатюры обработаны и проверены. Статус — «Подготовка к отправке», выпуск ручной. Версия не отправлена на App Review и не опубликована. Карточка `6447585809` восстановлена; Bundle ID `com.idevnva.iwallet`, SKU `001`, прежняя версия `1.1.8` (1). Баннер о снятии прежнего приложения с продажи сохраняется.
+Последняя зафиксированная сверка App Store Connect относится к 5 ноября 2026 года. Тогда в черновике 2.0.0 был выбран build 2 с его текстами и тремя снимками на язык, для выпуска был выбран ручной режим. 6 ноября Xcode подтвердил загрузку build 6 и начало обработки Apple. Фактическое состояние карточки, обработки и выбора сборки нужно сверить в App Store Connect при подготовке отправки build 6. [Карточка iWallet](https://appstoreconnect.apple.com/apps/6447585809/distribution/ios/version/inflight) · [Журнал подготовки выпуска](APP-STORE-RELEASE.md)
 
-Build 2 прошёл 60 unit-тестов (44 WalletCore + 16 LegacyMigration), два UI-сценария без ошибок и пропусков, проверку подписанного архива/IPA и обработку Apple; доказательства перечислены в [APP-STORE-RELEASE.md](APP-STORE-RELEASE.md). Исторический build 1 также был загружен и обработан после повторной загрузки `e8c9f1ce-1906-4211-9860-f95247d7f8c3`; его 55 unit- и два UI-теста не подтверждают последующие изменения.
-
-Build 4 завершил симуляторную проверку: `build/UITests-Design4-Smoke-Final.xcresult` — 2 PASS, `build/UITests-Design4-Migration.xcresult` — 1 PASS, без ошибок и пропусков. Сняты и просмотрены 12 RU/EN, 6 Dark и 18 AX-кадров; ограничения крупного текста и прежнее предупреждение Invalid frame при клавиатуре сохранены в QA-документах. Build 4 не подписывался и не загружался. Эти результаты относятся к предыдущему интерфейсу с тремя вкладками и не являются проверкой build 5. Физический iPhone, iOS 17 и полная матрица VoiceOver остаются открытыми проверками.
-
-Названия, subtitle, promotional text и keywords ниже сохраняют прежний текст. Лимиты: название и subtitle — до 30 символов, promotional text — до 170, description — до 4000. Для keywords используется предел 100 байт UTF-8. [App information](https://developer.apple.com/help/app-store-connect/reference/app-information/app-information/), [Platform version information](https://developer.apple.com/help/app-store-connect/reference/app-information/platform-version-information/)
+Apple допускает до 30 символов в названии и подзаголовке, 170 в рекламном тексте, 4000 в описании и 4000 в «Что нового». Для ключевых слов предел составляет 100 байт, для единых App Review Notes — 4000 байт. [App information](https://developer.apple.com/help/app-store-connect/reference/app-information/app-information/) · [Platform version information](https://developer.apple.com/help/app-store-connect/reference/app-information/platform-version-information/)
 
 ## Русский
 
@@ -19,53 +15,45 @@ Build 4 завершил симуляторную проверку: `build/UITes
 | Subtitle | Личные финансы под контролем |
 | Keywords | кошелёк,доходы,траты,баланс,категории,учёт |
 
-### Promotional text — сохранённый текст
+### Рекламный текст
 
 ```text
 Записывайте доходы и расходы, находите операции и следите за тратами по категориям. Понятный обзор, разные валюты и данные на вашем устройстве.
 ```
 
-### Полное описание — локальная подготовка build 5, не отправлено
+### Полное описание для сборки 6
 
 ```text
-iWallet помогает вести личные финансы: записывайте доходы и расходы, смотрите баланс, изучайте траты и планируйте регулярные платежи.
+iWallet помогает понять, сколько денег осталось, на что они уходят и какие платежи предстоят. Записывайте доходы и расходы вручную. Кошелёк работает без регистрации и подключения к банку.
 
-ОБЗОР И ГРАФИКИ
-Баланс показывает всю историю выбранной валюты. Для доходов, расходов и графиков выберите месяц, квартал, год или всё время. По умолчанию открыт текущий месяц. Текущие календарные периоды включают данные до конца сегодняшнего дня; сравнение показывает соответствующую часть предыдущего периода с точными датами. Если прежняя сумма равна нулю, процентное изменение не рассчитывается.
+Баланс и история
+В «Обзоре» выберите валюту, чтобы увидеть баланс за всё время. Сравните доходы и расходы за месяц, квартал или год, посмотрите распределение трат по категориям или раскройте точные суммы. В «Операциях» можно найти покупку по заметке, категории или валюте, исправить запись или удалить её. Создавайте свои категории и архивируйте ненужные с сохранением истории.
 
-Сравнивайте доходы и расходы на столбчатом графике и смотрите распределение по категориям на круговой диаграмме. Выбирайте элементы графиков или раскрывайте точные значения. Средний расход рассчитывается по календарным дням, в которые были расходы.
+Бюджеты на месяц
+Задайте лимит для категории расходов, календарного месяца и валюты. Например, выделите 20 000 ₽ на продукты в ноябре. После каждой записанной покупки iWallet показывает, сколько потрачено и сколько осталось. Если вы превысили лимит, увидите сумму превышения. Для следующего месяца можно задать другой лимит.
 
-БЫСТРЫЙ УЧЁТ
-Четыре вкладки — Обзор, Операции, Платежи и Настройки — разделяют сводку, историю и планы. Добавьте сумму, категорию, дату и заметку. Находите операции по заметке, категории или валюте, редактируйте и удаляйте записи. Из списка категорий в обзоре можно открыть всю историю выбранной категории в той же валюте.
+Платежи и подписки
+Добавьте регулярный платёж, укажите его сумму, следующую дату и периодичность. В «Обзоре» доступен прогноз на 7 или 30 дней, включая сегодня. Он суммирует предстоящие даты активных планов в выбранной валюте. По каждому просроченному плану одна открытая дата показана отдельно. Когда вы подтверждаете оплату, iWallet записывает один расход и переносит дату на следующий период. Платёж можно пропустить или приостановить.
 
-РЕГУЛЯРНЫЕ ПЛАТЕЖИ И ПОДПИСКИ
-Сохраните название, сумму, валюту, категорию, периодичность и следующую дату. Различайте предстоящие, просроченные и приостановленные планы. Действие «Отметить оплаченным» записывает один расход и переносит следующую дату на один период. Пропуск переносит дату без расхода. План можно приостановить или удалить, сохранив уже записанные операции. Деньги автоматически не списываются.
+Напоминания
+Во вкладке «Платежи» нажмите на колокольчик, чтобы включить напоминания на этом устройстве. Выберите время в день платежа или накануне. iWallet учитывает часовой пояс плана. На экране блокировки появится общее напоминание без названия и суммы. Нажмите на него, чтобы перейти во вкладку «Платежи».
 
-ВАШИ КАТЕГОРИИ И ВАЛЮТЫ
-Создавайте категории с названиями, системными значками и цветами. Архивируйте ненужные категории, сохраняя операции. Суммы разных валют учитываются отдельно; изменение валюты не выполняет обмен по курсу.
+Ваши данные
+Категории, операции, планы и бюджеты хранятся на устройстве. Сохраните JSON-копию в выбранном месте. Новый формат 3 включает бюджеты, также можно импортировать совместимые копии форматов 1 и 2. Импорт добавляет недостающие записи и пропускает совпадающие. При конфликте данные кошелька сохраняются. Настройки напоминаний остаются на устройстве.
 
-ЛОКАЛЬНЫЕ ДАННЫЕ И КОПИИ
-Категории, операции и планы платежей хранятся на устройстве. Для учёта не нужны регистрация или подключение банка. Приложение не содержит рекламы и аналитических сервисов.
-
-Экспортируйте данные в JSON-файл и самостоятельно выбирайте, где его сохранить или кому передать. Импорт совместимой копии добавляет отсутствующие записи, пропускает идентичные и останавливается при конфликте. Поддерживаются совместимые копии предыдущего формата без планов платежей. Настройки приложения в копию не входят.
-
-Интерфейс доступен на русском и английском языках. Требуется iOS 17 или новее.
+Интерфейс доступен на русском и английском. Требуется iOS 17 или новее.
 ```
 
-### Что нового — локальная подготовка build 5, не отправлено
+### Что нового в версии 2.0.0
 
 ```text
-iWallet получил обновлённый интерфейс и новое локальное хранилище.
+В «Обзоре» появился прогноз регулярных платежей на 7 и 30 дней. В прогноз входят планы в выбранной валюте. Просроченные открытые платежи видны отдельно.
 
-• Четыре вкладки: Обзор, Операции, Платежи и Настройки.
-• График доходов и расходов, диаграмма категорий и точные значения.
-• Периоды месяц, квартал, год и всё время; сравнение с предыдущим периодом.
-• Планы регулярных платежей и подписок: отметить оплаченным, пропустить или приостановить. Расход записывается только после вашего действия.
-• Раздельный учёт валют, поиск и редактирование операций.
-• Категории с системными значками и архивирование без потери истории.
-• JSON-копии включают планы платежей; поддерживается импорт совместимых прежних копий.
+В «Бюджетах на месяц» можно установить лимит для категории и следить за остатком по записанным расходам. У каждого лимита свой месяц и валюта.
 
-Новая версия требует iOS 17 или новее.
+Во вкладке «Платежи» теперь можно включить локальные напоминания в день платежа или накануне. Вы выбираете время, название и сумма остаются скрытыми. Расход записывается при подтверждении оплаты.
+
+JSON-копии формата 3 сохраняют бюджеты вместе с категориями, операциями и планами. Импорт принимает совместимые копии форматов 1 и 2.
 ```
 
 ## English
@@ -77,95 +65,82 @@ iWallet получил обновлённый интерфейс и новое �
 | Subtitle | Income, spending and clarity |
 | Keywords | spending,income,money,ledger,categories,offline,currency,balance,export |
 
-### Promotional text — saved text
+### Promotional text
 
 ```text
 Keep track of income and expenses, find transactions, and see spending by category. A clear overview, multiple currencies, and data stored on your device.
 ```
 
-### Full description — local build 5 preparation, not submitted
+### Full description for build 6
 
 ```text
-iWallet helps you keep a clear record of your finances. Record income and expenses, check your balance, explore spending, and plan recurring payments.
+iWallet helps you see what you have, where your money goes and which payments are coming up. Record income and expenses yourself. You can use your wallet without an account or a bank connection.
 
-OVERVIEW AND CHARTS
-Your balance covers all recorded history in the selected currency. Choose month, quarter, year or all time for income, expenses and charts. The current month opens by default. Current calendar periods include data through today; comparisons show the corresponding part of the previous period with explicit dates. No percentage change is calculated when the previous amount is zero.
+Balance and history
+Choose a currency in Overview to see its balance across your recorded history. Compare income and expenses by month, quarter or year, explore spending by category, or expand the charts for exact amounts. Find a transaction by note, category or currency to edit or delete it. Create your own categories and archive the ones you no longer use while keeping their history.
 
-Compare income and expenses in a bar chart and explore a category donut chart. Select chart elements or expand their exact values. The expense average uses calendar days with spending.
+Monthly budgets
+Set a spending limit for an expense category, calendar month and currency. For example, set aside $300 for groceries in November. As you record purchases, iWallet shows what you spent and how much remains. If you go over budget, you can see the difference. Choose a different limit for the next month.
 
-QUICK ENTRY
-Four tabs — Overview, Transactions, Payments and Settings — organize your summary, history and plans. Add an amount, category, date and note. Find transactions by note, category or currency, then edit or delete records. Open a category from Overview to see its full history in the same currency.
+Payments and subscriptions
+Give a recurring payment an amount, next due date and repeat schedule. Overview shows the next 7 or 30 days, including today. The forecast totals upcoming dates from active plans in the selected currency. Each overdue plan has one outstanding date listed separately. Confirm Mark as paid to record one expense and advance the due date by one period. You can also skip a payment or pause a plan.
 
-RECURRING PAYMENTS AND SUBSCRIPTIONS
-Save a name, amount, currency, category, repeat schedule and next date. See upcoming, overdue and paused plans. Mark as paid records one expense and advances the next date by one period. Skip advances the date without recording an expense. Pause or delete a plan while keeping previously recorded transactions. The app does not charge you or move money automatically.
+Reminders
+Tap the bell in Payments to turn on local reminders if you want them. Choose a time on the due date or the day before. Each reminder follows the payment's time zone. The Lock Screen shows a general message that keeps the name and amount private. Tap it to open Payments.
 
-YOUR CATEGORIES AND CURRENCIES
-Create categories with names, system symbols and colors. Archive categories while keeping their transactions. Different currencies have separate totals; changing a currency does not perform an exchange-rate conversion.
-
-LOCAL DATA AND BACKUPS
-Your categories, transactions and payment plans are stored on your device. No account or bank connection is needed. The app contains no advertising or analytics services.
-
-Export your data as a JSON file and choose where to save it or who receives it. Import a compatible backup to add missing records and skip identical ones; a conflict stops the import. Compatible backups in the previous format, without payment plans, are supported. Backups do not include app preferences.
+Your data
+Your categories, transactions, payment plans and budgets stay on your device. Export a JSON backup to a location you choose. Format 3 includes budgets, and you can import compatible format 1 and 2 backups. Import adds missing records and skips identical ones. If records conflict, your existing wallet is preserved. Reminder preferences stay on the device.
 
 Available in English and Russian. Requires iOS 17 or later.
 ```
 
-### What's New — local build 5 preparation, not submitted
+### What's New in version 2.0.0
 
 ```text
-iWallet has a refreshed interface and new local storage.
+Overview now shows recurring payments scheduled over the next 7 or 30 days. See the total in your selected currency and check outstanding overdue payments separately.
 
-• Four tabs: Overview, Transactions, Payments and Settings.
-• Income and expense bars, a category donut chart, and exact values.
-• Month, quarter, year and all-time periods, with previous-period comparisons.
-• Recurring payment and subscription plans: mark as paid, skip or pause. An expense is recorded only after your action.
-• Separate currency totals, transaction search and editing.
-• Categories with system symbols and archiving that keeps your history.
-• JSON backups now include payment plans and support importing compatible older backups.
+Set a monthly spending limit for an expense category and see how much remains as you record purchases. Each limit has its own month and currency.
 
-This version requires iOS 17 or later.
+Turn on local reminders in Payments to get an alert on the due date or the day before. Choose the time. Payment names and amounts stay private. Confirming payment records the expense.
+
+Format 3 JSON backups include budgets alongside categories, transactions and payment plans. Compatible format 1 and 2 backups can still be imported.
 ```
 
-## App Review Notes — единый локальный текст build 5, не отправлен
-
-Это подготовленная замена; в App Store Connect пока сохранены Review Notes build 2. Перед заменой требуется завершить QA и подготовку build 5. Существующие review-контакты сохранены; личные контактные данные в документ не копируются.
+## App Review Notes для версии 2.0.0 (6)
 
 ```text
-iWallet is a manual personal income and expense tracker. No sign-in is required. It does not connect to banks, provide banking services, move money or perform currency exchange. Totals are separate for each currency. Payment plans are user-entered records, not purchases or subscriptions sold by this app.
+iWallet 2.0.0 (6) is a manual personal finance tracker for iOS 17 and later. Review it on a clean install without signing in. Entries stay on the device. Payment plans describe the user's existing commitments. Recording an expense does not charge a bank account or purchase a subscription.
 
-Clean-install review flow:
-1. The four native tabs are Overview, Transactions, Payments and Settings. Overview defaults to the current month. Its balance always covers all recorded history in the selected currency. Choose month, quarter, year or all time for cash flow and charts. Current periods run through today; the previous comparison uses the same elapsed calendar-day count, clamped to the preceding period, with explicit dates. A zero previous amount has no percentage comparison. Expense average uses only calendar days with spending.
-2. Select Expense or Income in Overview and tap the toolbar plus. Enter an amount, category, date and optional note, then Save. Select chart bars or category sectors to inspect values, or expand Values for exact amounts. A category's history opens in the selected currency across all dates. Transactions provides search, editing and deletion.
-3. Open Payments and tap plus. Enter a name, amount, currency, active expense category, repeat schedule and next date; optionally label the plan Subscription. Save, open the plan and choose Mark as paid, then confirm. This creates one expense dated at confirmation preparation and advances the due date by one period. Skip advances the date without an expense. Pause suspends the plan; deleting a plan keeps recorded expenses. No automatic charges or reminder notifications are implemented.
-4. Open Settings > Categories to create or archive a category. Archiving keeps recorded transactions. New categories can also be created within transaction or payment forms. Changed drafts require a discard decision when cancelled.
-5. Settings > Export all data saves a JSON file using the system file exporter. Format 2 includes categories, transactions and recurring payment plans. Import a backup also accepts compatible format 1 files without plans. Missing records are added, identical ones skipped, and conflicts stop import without replacing current records. Preferences are not included.
+1. Overview and Transactions. Choose a currency in Overview. Add an income or expense with the plus button, choose a category and save. The balance covers all recorded history in that currency. The selected period controls the charts and period comparisons. Tap chart elements or expand Values for exact amounts. Search, edit or delete the entry in Transactions. Settings > Categories also lets you create and archive categories.
 
-Data is stored locally with SwiftData. There is no account system, advertising, analytics service or developer-operated data server. The user chooses where exported files are saved.
+2. Payments and forecast. In Payments, tap plus and create a weekly plan in the same currency with its next date tomorrow. Overview > Upcoming payments lets you switch between 7 and 30 days and expand Scheduled dates. The window includes today in each plan's time zone. The scheduled total includes projected occurrences of active plans in that currency. To see the overdue section, set a plan's next date to last week. Each overdue plan contributes one outstanding occurrence separately. Open a plan and confirm Mark as paid to create one expense and advance one period. Skip advances one period without an expense. Pause excludes the plan from forecasts and reminders. Deleting a plan keeps recorded expenses.
 
-Upgrade migration:
-This transitional release includes Realm Swift only to read supported legacy local wallet data (schema 15 from version 1.1.8). It does not use Atlas Device Sync. When supported previous data is detected, Your history asks the user to confirm the original currency, review counts and totals, and acknowledge any rounding changes. The original file and a snapshot are retained. Data and a migration receipt are saved together, preventing a repeat transfer after relaunch. Unsupported schemas or multiple old wallet files show an explanation instead of opening an empty wallet.
+3. Optional local notifications. Open the bell in Payments and turn on Payment reminders. Only this action requests iOS notification permission. After granting permission, choose the due date or the day before and the alert time. For a quick check, set a plan due today and choose a reminder time a few minutes ahead in its saved time zone. Scheduled alerts shows the queue count. A notification contains a general message without the payment name or amount. Tapping it opens Payments. A schedule change updates its reminder. The switch turns reminders off. If permission was denied, Open notification settings takes you to iOS Settings. The ledger works with reminders off.
 
-Prepared for version 2.0.0 (5), iOS 17 or later.
+4. Budgets. Open Settings > Monthly budgets, choose a month, tap plus and set a limit for an expense category and currency. Enter an expense using the same category, month and currency. The budget shows spending, the remaining amount or the amount over budget. A planned payment affects spending when it is recorded as an expense.
+
+5. Backups. Settings > Export all data creates a format 3 JSON file with categories, transactions, recurring plans and budgets. Import a backup also accepts compatible format 1 files (categories and transactions) and format 2 files (also recurring plans). Missing records are added, identical records are skipped, and a conflict stops the import. Device preferences, including reminder choices, are excluded.
+
+Upgrade from 1.1.8. On supported local Realm schema 15, Your history asks for the original currency and shows counts, totals and any rounding to review before transfer. The original file and a snapshot are retained. SwiftData saves the imported records and a receipt together to prevent duplicate transfer. Multiple or unsupported old files show an explanation. There is no bank connection, developer-operated data server, advertising or analytics service.
 ```
 
-## Поля карточки и финальная сверка
+## Поля карточки для сверки
 
-| Поле | Подтверждённое состояние / оставшаяся сверка |
+Значения ниже перенесены из последней записанной проверки. При подготовке отправки следует сверить их с карточкой App Store Connect.
+
+| Поле | Зафиксированное значение |
 | --- | --- |
-| Support URL | [Поддержка iWallet](https://github.com/nvavna/iWallet-1/blob/restoration/foundation/docs/SUPPORT.md) — опубликовано в `ffb019b`, HTTP 200 без авторизации проверен |
-| Privacy Policy URL | [Политика iWallet](https://github.com/nvavna/iWallet-1/blob/restoration/foundation/docs/PRIVACY.md) — опубликовано в `ffb019b`, HTTP 200 без авторизации проверен |
-| Support email | `idevnva@icloud.com` — одобрен пользователем |
-| Marketing URL | Пусто для RU/EN, сохранение проверено. Прежний `https://idevnva.com/iwallet` недоступен: DNS resolution failure, HTTP 000 |
-| Copyright | Сверить существующее значение карточки при финальном review; новый правообладатель не выдумывался |
-| App Review contact | Существующие контакты сохранены; владелец может проверить актуальность перед финальной отправкой |
-| Версия / build / выпуск | Черновик `2.0.0`, ручной выпуск. Build 2 обработан Apple, выбран и сохранён. Build 5 не загружен |
-| Категория | Сверить с действующей карточкой при финальном review; изменение категории не заявлено |
-| Возрастной рейтинг | `4+` рассчитан и сохранён после семишаговой анкеты для предыдущего состава функций; финальная сверка build 5 ещё впереди |
-| App Privacy / DSA | Сохранены прежний Data Not Collected и явно выбранный пользователем non-trader; compliance Active |
-| Соглашение | Free app agreement Active с 1 ноября 2026 по 8 марта 2027 |
-| Тексты / Review Notes | В ASC — build 2. Тексты выше — локальная подготовка build 5, не отправлены |
-| Скриншоты | В ASC — 3 RU + 3 EN build 2. Для build 5 сняты и проверены 9 на язык, включая Payments, timeline и category chart; оба capture PASS. Новые изображения ещё не загружены. [Сценарий](APPSTORE-SCREENSHOTS.md) |
+| Карточка | Apple ID `6447585809`, Bundle ID `com.idevnva.iwallet`, SKU `001`, прежняя версия `1.1.8` (1) |
+| Support URL | [Поддержка iWallet](https://github.com/nvavna/iWallet-1/blob/restoration/foundation/docs/SUPPORT.md) |
+| Privacy Policy URL | [Политика iWallet](https://github.com/nvavna/iWallet-1/blob/restoration/foundation/docs/PRIVACY.md) |
+| Support email | `idevnva@icloud.com` |
+| Marketing URL | Поле было пустым в обеих локализациях |
+| Copyright и категория | Сверить значения в существующей карточке |
+| App Review contact | Использовать существующие контакты владельца из App Store Connect |
+| Версия и выпуск | При последней сверке в черновике `2.0.0` был сохранён build 2, выпуск ручной |
+| Возрастной рейтинг | Ранее рассчитан `4+` |
+| App Privacy и DSA | Ранее сохранены Data Not Collected и выбранный владельцем статус non-trader |
+| Соглашение | При последней сверке Free app agreement действовало с 1 ноября 2026 года по 8 марта 2027 года |
+| Тексты и снимки | В черновике были материалы build 2, включая 3 RU и 3 EN снимка. Локальный комплект build 5 содержал 9 снимков на язык. [Подготовка снимков](APPSTORE-SCREENSHOTS.md) |
 
-Support/Privacy URL сохранены в обоих языках; необязательный Privacy Choices URL удалён. Проверка ссылок из финальной установленной сборки остаётся в плане. `ITSAppUsesNonExemptEncryption=false` ранее подтверждён в подписанных артефактах build 1/2; это не проверка будущего IPA build 5. Окончательное решение об отправке версии и правовые заявления проверяются при финальном review. Сохранённые поля не требуют повторного ввода без соответствующих изменений.
-
-Не заявлять автоматические списания, напоминания, банковское подключение, синхронизацию, бюджеты/лимиты, Face ID, шифрование базы или поддержку всех старых баз, если проверенной функции нет в релизе. JSON-импорт не заменяет изменённые текущие записи и не восстанавливает настройки. Фразы о локальности и отсутствии сбора окончательно сверяются с [APP-STORE-RELEASE.md](APP-STORE-RELEASE.md) и фактическим Privacy Report.
+Перед отправкой сверить выбранную сборку, тексты, обязательные снимки, URL и декларацию App Privacy с фактическим содержимым релизного архива. [Журнал выпуска и проверок](APP-STORE-RELEASE.md)

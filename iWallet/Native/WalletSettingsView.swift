@@ -27,6 +27,12 @@ struct WalletSettingsView: View {
                         Label("Categories", systemImage: "square.grid.2x2")
                     }
                     .accessibilityIdentifier("settingsCategories")
+                    NavigationLink {
+                        WalletBudgetListView()
+                    } label: {
+                        Label("Monthly budgets", systemImage: "gauge.with.dots.needle.50percent")
+                    }
+                    .accessibilityIdentifier("settingsBudgets")
                 }
                 Section {
                     Picker("Default currency", selection: $currency) {
@@ -96,6 +102,7 @@ struct WalletSettingsView: View {
                             LabeledContent("Categories", value: String(preview.backup.categories.count))
                             LabeledContent("Transactions", value: String(preview.backup.transactions.count))
                             LabeledContent("Payments", value: String(preview.backup.recurringPayments.count))
+                            LabeledContent("Monthly budgets", value: String(preview.backup.budgets.count))
                             LabeledContent("Created", value: preview.backup.createdAt.formatted(date: .abbreviated, time: .shortened))
                         }
                         Section {
@@ -131,9 +138,9 @@ struct WalletSettingsView: View {
                 }
             } message: {
                 if let summary = importSummary {
-                    Text(String(format: NSLocalizedString("Added %d categories, %d transactions and %d payments. Skipped %d identical records.", comment: "Import result"),
-                                summary.insertedCategories, summary.insertedTransactions, summary.insertedRecurringPayments,
-                                summary.skippedCategories + summary.skippedTransactions + summary.skippedRecurringPayments))
+                    Text(String(format: NSLocalizedString("Added %d categories, %d transactions, %d payments and %d budgets. Skipped %d identical records.", comment: "Import result"),
+                                summary.insertedCategories, summary.insertedTransactions, summary.insertedRecurringPayments, summary.insertedBudgets,
+                                summary.skippedCategories + summary.skippedTransactions + summary.skippedRecurringPayments + summary.skippedBudgets))
                 } else {
                     Text(errorMessage ?? "")
                 }
@@ -146,7 +153,7 @@ struct WalletSettingsView: View {
             Section {
                 Label("Stored on your device", systemImage: "iphone")
                     .font(.headline)
-                Text("Your categories, transactions and payment schedules are saved locally. iWallet does not send them to a server.")
+                Text("Your categories, transactions, budgets and payment schedules are saved locally. iWallet does not send them to a server.")
                     .foregroundStyle(.secondary)
             }
             Section {

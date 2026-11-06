@@ -38,8 +38,12 @@ enum WalletDateRange {
 
 @MainActor
 enum WalletStore {
+    static var schema: Schema {
+        Schema([WalletCategory.self, WalletTransaction.self, WalletMigrationReceipt.self, WalletRecurringPayment.self, WalletBudget.self])
+    }
+
     static func makeContainer(inMemory: Bool = false) throws -> ModelContainer {
-        let schema = Schema([WalletCategory.self, WalletTransaction.self, WalletMigrationReceipt.self, WalletRecurringPayment.self])
+        let schema = Self.schema
         let configuration: ModelConfiguration
         if inMemory {
             configuration = ModelConfiguration("iWalletNative", schema: schema,
@@ -153,7 +157,7 @@ enum WalletStore {
             .filter { manager.fileExists(atPath: $0.path) }
     }
 
-    private static func write(context: ModelContext, mutation: () -> Void) throws {
+    static func write(context: ModelContext, mutation: () -> Void) throws {
         context.autosaveEnabled = false
         mutation()
         do {

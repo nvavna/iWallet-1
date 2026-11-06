@@ -24,7 +24,7 @@ enum WalletBackupError: LocalizedError, Equatable {
         case .unsupportedVersion:
             return NSLocalizedString("This backup requires a different version of iWallet.", comment: "Backup error")
         case .invalidRecord:
-            return NSLocalizedString("The backup contains an invalid category, transaction or recurring payment.", comment: "Backup error")
+            return NSLocalizedString("The backup contains an invalid record.", comment: "Backup error")
         case .duplicateID:
             return NSLocalizedString("The backup contains duplicate record identifiers.", comment: "Backup error")
         case .missingCategory:
@@ -40,7 +40,7 @@ enum WalletBackupError: LocalizedError, Equatable {
 }
 
 struct WalletBackup: Codable, Equatable, Sendable {
-    static let currentFormatVersion = 2
+    static let currentFormatVersion = 3
     static let maximumFileSize = 50 * 1_024 * 1_024
     static let maximumRecordCount = 100_000
 
@@ -49,19 +49,21 @@ struct WalletBackup: Codable, Equatable, Sendable {
     var categories: [CategoryRecord]
     var transactions: [TransactionRecord]
     var recurringPayments: [RecurringPaymentRecord]
+    var budgets: [BudgetRecord]
 
     init(formatVersion: Int = currentFormatVersion, createdAt: Date = Date(),
          categories: [CategoryRecord], transactions: [TransactionRecord],
-         recurringPayments: [RecurringPaymentRecord] = []) {
+         recurringPayments: [RecurringPaymentRecord] = [], budgets: [BudgetRecord] = []) {
         self.formatVersion = formatVersion
         self.createdAt = createdAt
         self.categories = categories
         self.transactions = transactions
         self.recurringPayments = recurringPayments
+        self.budgets = budgets
     }
 
     private enum CodingKeys: String, CodingKey {
-        case formatVersion, createdAt, categories, transactions, recurringPayments
+        case formatVersion, createdAt, categories, transactions, recurringPayments, budgets
     }
 
     init(from decoder: Decoder) throws {
@@ -75,6 +77,11 @@ struct WalletBackup: Codable, Equatable, Sendable {
         } else {
             recurringPayments = try values.decode([RecurringPaymentRecord].self, forKey: .recurringPayments)
         }
+        if formatVersion < 3 {
+            budgets = try values.decodeIfPresent([BudgetRecord].self, forKey: .budgets) ?? []
+        } else {
+            budgets = try values.decode([BudgetRecord].self, forKey: .budgets)
+        }
     }
 
     func encode(to encoder: Encoder) throws {
@@ -84,6 +91,7 @@ struct WalletBackup: Codable, Equatable, Sendable {
         try values.encode(categories, forKey: .categories)
         try values.encode(transactions, forKey: .transactions)
         if formatVersion >= 2 { try values.encode(recurringPayments, forKey: .recurringPayments) }
+        if formatVersion >= 3 { try values.encode(budgets, forKey: .budgets) }
     }
 
     struct CategoryRecord: Codable, Equatable, Sendable {
@@ -121,6 +129,20 @@ struct WalletBackup: Codable, Equatable, Sendable {
         var occurrenceID: UUID
     }
 
+    struct BudgetRecord: Codable, Equatable, Sendable {
+        var id: UUID
+        var categoryID: UUID
+        var year: Int
+        var month: Int
+        var currencyCode: String
+        var limitMinor: Int64
+        var timeZoneIdentifier: String
+
+        var scopeKey: String {
+            WalletBudget.key(categoryID: categoryID, year: year, month: month, currencyCode: currencyCode)
+        }
+    }
+
     struct ImportSummary: Equatable, Sendable {
         let insertedCategories: Int
         let insertedTransactions: Int
@@ -128,15 +150,20 @@ struct WalletBackup: Codable, Equatable, Sendable {
         let skippedTransactions: Int
         let insertedRecurringPayments: Int
         let skippedRecurringPayments: Int
+        let insertedBudgets: Int
+        let skippedBudgets: Int
 
         init(insertedCategories: Int, insertedTransactions: Int, skippedCategories: Int, skippedTransactions: Int,
-             insertedRecurringPayments: Int = 0, skippedRecurringPayments: Int = 0) {
+             insertedRecurringPayments: Int = 0, skippedRecurringPayments: Int = 0,
+             insertedBudgets: Int = 0, skippedBudgets: Int = 0) {
             self.insertedCategories = insertedCategories
             self.insertedTransactions = insertedTransactions
             self.skippedCategories = skippedCategories
             self.skippedTransactions = skippedTransactions
             self.insertedRecurringPayments = insertedRecurringPayments
             self.skippedRecurringPayments = skippedRecurringPayments
+            self.insertedBudgets = insertedBudgets
+            self.skippedBudgets = skippedBudgets
         }
     }
 
@@ -150,9 +177,11 @@ struct WalletBackup: Codable, Equatable, Sendable {
         let categories = try readContext.fetch(FetchDescriptor<WalletCategory>()).map(CategoryRecord.init)
         let transactions = try readContext.fetch(FetchDescriptor<WalletTransaction>()).map(TransactionRecord.init)
         let recurringPayments = try readContext.fetch(FetchDescriptor<WalletRecurringPayment>()).map(RecurringPaymentRecord.init)
+        let budgets = try readContext.fetch(FetchDescriptor<WalletBudget>()).map(BudgetRecord.init)
         let backup = WalletBackup(categories: categories.sorted { $0.id.uuidString < $1.id.uuidString },
                                   transactions: transactions.sorted { $0.id.uuidString < $1.id.uuidString },
-                                  recurringPayments: recurringPayments.sorted { $0.id.uuidString < $1.id.uuidString })
+                                  recurringPayments: recurringPayments.sorted { $0.id.uuidString < $1.id.uuidString },
+                                  budgets: budgets.sorted { $0.id.uuidString < $1.id.uuidString })
         try backup.validate()
         return backup
     }
@@ -196,9 +225,11 @@ struct WalletBackup: Codable, Equatable, Sendable {
     func validate() throws {
         guard (1...Self.currentFormatVersion).contains(formatVersion) else { throw WalletBackupError.unsupportedVersion }
         guard formatVersion != 1 || recurringPayments.isEmpty else { throw WalletBackupError.invalidRecord }
+        guard formatVersion >= 3 || budgets.isEmpty else { throw WalletBackupError.invalidRecord }
         guard categories.count <= Self.maximumRecordCount,
               transactions.count <= Self.maximumRecordCount - categories.count,
-              recurringPayments.count <= Self.maximumRecordCount - categories.count - transactions.count else {
+              recurringPayments.count <= Self.maximumRecordCount - categories.count - transactions.count,
+              budgets.count <= Self.maximumRecordCount - categories.count - transactions.count - recurringPayments.count else {
             throw WalletBackupError.tooManyRecords
         }
         guard WalletDateRange.contains(createdAt) else { throw WalletBackupError.invalidRecord }
@@ -238,6 +269,19 @@ struct WalletBackup: Codable, Equatable, Sendable {
                 guard let category = categoryMap[id] else { throw WalletBackupError.missingCategory }
                 guard category.kind == TransactionKind.expense.rawValue else { throw WalletBackupError.categoryKindMismatch }
             }
+        }
+        var budgetIDs = Set<UUID>()
+        var budgetScopes = Set<String>()
+        for budget in budgets {
+            guard budgetIDs.insert(budget.id).inserted, budgetScopes.insert(budget.scopeKey).inserted else {
+                throw WalletBackupError.duplicateID
+            }
+            guard let category = categoryMap[budget.categoryID] else { throw WalletBackupError.missingCategory }
+            guard category.kind == TransactionKind.expense.rawValue else { throw WalletBackupError.categoryKindMismatch }
+            guard WalletCurrency(rawValue: budget.currencyCode) != nil,
+                  budget.limitMinor > 0, budget.limitMinor <= Money.maximumAmountMinor,
+                  (try? BudgetMonth(year: budget.year, month: budget.month).interval(in: budget.timeZoneIdentifier)) != nil
+            else { throw WalletBackupError.invalidRecord }
         }
     }
 
@@ -288,9 +332,23 @@ struct WalletBackup: Codable, Equatable, Sendable {
                 throw WalletBackupError.conflictingRecord
             }
         }
+        // UUIDs identify backups. Scope also has to match because there can
+        // only be one limit for a category, month, and currency.
+        let storedBudgets = try context.fetch(FetchDescriptor<WalletBudget>())
+        var budgetsByID: [UUID: BudgetRecord] = [:]
+        var ownerByScope: [String: UUID] = [:]
+        for model in storedBudgets {
+            let record = BudgetRecord(model)
+            guard budgetsByID.updateValue(record, forKey: record.id) == nil,
+                  ownerByScope.updateValue(record.id, forKey: record.scopeKey) == nil else { throw WalletBackupError.conflictingRecord }
+        }
+        for record in budgets {
+            if let existing = budgetsByID[record.id], existing != record { throw WalletBackupError.conflictingRecord }
+            if let owner = ownerByScope[record.scopeKey], owner != record.id { throw WalletBackupError.conflictingRecord }
+        }
         var receiptToInsert: WalletMigrationReceipt?
         if let receipt = migrationReceipt {
-            guard recurringPayments.isEmpty, receipt.modelContext == nil,
+            guard recurringPayments.isEmpty, budgets.isEmpty, receipt.modelContext == nil,
                   !receipt.id.isEmpty, receipt.id.count <= 128,
                   receipt.sourceDigest.count == 64,
                   receipt.sourceDigest.allSatisfy({ $0.isASCII && $0.isHexDigit }),
@@ -312,12 +370,14 @@ struct WalletBackup: Codable, Equatable, Sendable {
         let newCategories = categories.filter { categoriesByID[$0.id] == nil }
         let newTransactions = transactions.filter { transactionsByID[$0.id] == nil }
         let newRecurringPayments = recurringPayments.filter { recurringPaymentsByID[$0.id] == nil }
+        let newBudgets = budgets.filter { budgetsByID[$0.id] == nil }
         let summary = ImportSummary(insertedCategories: newCategories.count, insertedTransactions: newTransactions.count,
                                     skippedCategories: categories.count - newCategories.count,
                                     skippedTransactions: transactions.count - newTransactions.count,
                                     insertedRecurringPayments: newRecurringPayments.count,
-                                    skippedRecurringPayments: recurringPayments.count - newRecurringPayments.count)
-        guard !newCategories.isEmpty || !newTransactions.isEmpty || !newRecurringPayments.isEmpty || receiptToInsert != nil else { return summary }
+                                    skippedRecurringPayments: recurringPayments.count - newRecurringPayments.count,
+                                    insertedBudgets: newBudgets.count, skippedBudgets: budgets.count - newBudgets.count)
+        guard !newCategories.isEmpty || !newTransactions.isEmpty || !newRecurringPayments.isEmpty || !newBudgets.isEmpty || receiptToInsert != nil else { return summary }
 
         for record in newCategories {
             // validate() has already checked every raw value.
@@ -342,6 +402,11 @@ struct WalletBackup: Codable, Equatable, Sendable {
                                                    anchorDay: record.anchorDay, anchorMonth: record.anchorMonth,
                                                    timeZoneIdentifier: record.timeZoneIdentifier, isActive: record.isActive,
                                                    isSubscription: record.isSubscription, id: record.id, occurrenceID: record.occurrenceID))
+        }
+        for record in newBudgets {
+            context.insert(WalletBudget(categoryID: record.categoryID, year: record.year, month: record.month,
+                                        currencyCode: record.currencyCode, limitMinor: record.limitMinor,
+                                        timeZoneIdentifier: record.timeZoneIdentifier, id: record.id))
         }
         if let receiptToInsert { context.insert(receiptToInsert) }
         do {
@@ -378,6 +443,13 @@ private extension WalletBackup.RecurringPaymentRecord {
                   nextDueDate: payment.nextDueDate, anchorDay: payment.anchorDay, anchorMonth: payment.anchorMonth,
                   timeZoneIdentifier: payment.timeZoneIdentifier, isActive: payment.isActive,
                   isSubscription: payment.isSubscription, occurrenceID: payment.occurrenceID)
+    }
+}
+
+private extension WalletBackup.BudgetRecord {
+    init(_ budget: WalletBudget) {
+        self.init(id: budget.id, categoryID: budget.categoryID, year: budget.year, month: budget.month,
+                  currencyCode: budget.currencyCode, limitMinor: budget.limitMinor, timeZoneIdentifier: budget.timeZoneIdentifier)
     }
 }
 

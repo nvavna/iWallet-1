@@ -292,7 +292,7 @@ final class WalletStoreTests: XCTestCase {
 
     @MainActor
     private func diskContainer(at url: URL, allowsSave: Bool = true) throws -> ModelContainer {
-        let schema = Schema([WalletCategory.self, WalletTransaction.self, WalletMigrationReceipt.self, WalletRecurringPayment.self])
+        let schema = WalletStore.schema
         let configuration = ModelConfiguration("Test", schema: schema, url: url, allowsSave: allowsSave, cloudKitDatabase: .none)
         let container = try ModelContainer(for: schema, configurations: [configuration])
         container.mainContext.autosaveEnabled = false

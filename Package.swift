@@ -11,9 +11,11 @@ let package = Package(
     ],
     targets: [
         .target(name: "WalletCore", dependencies: [.product(name: "RealmSwift", package: "realm-swift")], path: "iWallet/Native",
-                exclude: ["RecurringPaymentViews.swift", "WalletAnalyticsViews.swift", "CategoryViews.swift", "TransactionViews.swift", "WalletHomeView.swift",
+                exclude: ["PaymentReminderViews.swift", "WalletBudgetViews.swift", "WalletForecastViews.swift",
+                          "RecurringPaymentViews.swift", "WalletAnalyticsViews.swift", "CategoryViews.swift", "TransactionViews.swift", "WalletHomeView.swift",
                           "WalletSettingsView.swift", "WalletMigrationView.swift", "WalletTheme.swift", "iWalletApp.swift", "PrivacyInfo.xcprivacy", "ThirdPartyNotices.txt"],
-                sources: ["RecurringPayments.swift", "WalletInsights.swift", "WalletModels.swift", "Money.swift", "WalletStore.swift", "WalletBackup.swift", "LegacyWalletMigration.swift"]),
+                sources: ["PaymentReminders.swift", "WalletBudgets.swift", "WalletForecast.swift",
+                          "RecurringPayments.swift", "WalletInsights.swift", "WalletModels.swift", "Money.swift", "WalletStore.swift", "WalletBackup.swift", "LegacyWalletMigration.swift"]),
         .testTarget(name: "WalletCoreTests", dependencies: ["WalletCore"], path: "Tests/WalletCoreTests"),
         .testTarget(name: "LegacyMigrationTests", dependencies: ["WalletCore", .product(name: "RealmSwift", package: "realm-swift")],
                     path: "Tests/LegacyMigrationTests")

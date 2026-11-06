@@ -300,6 +300,249 @@ final class WalletSmokeTests: XCTestCase {
         attachScreenshot("Recorded expense preserved after plan deletion and relaunch")
     }
 
+    func testMonthlyBudgetTracksActualExpenseAndDeletionPreservesHistory() throws {
+        XCTAssertTrue(home.waitForExistence(timeout: 15))
+        let suffix = String(UUID().uuidString.prefix(8))
+        let name = "00 Budget \(suffix)"
+        let note = "Budget expense \(suffix)"
+        createExpenseCategory(named: name)
+
+        goHome()
+        app.buttons["New transaction"].tap()
+        let amount = app.textFields["transactionAmount"]
+        XCTAssertTrue(amount.waitForExistence(timeout: 5))
+        let expense = app.segmentedControls.buttons["Expense"].firstMatch
+        if expense.exists && !expense.isSelected { expense.tap() }
+        amount.tap()
+        amount.typeText("12.34")
+        app.buttons["Done"].firstMatch.tap()
+        chooseTransactionUSD()
+        chooseMenuOption("transactionCategory", named: name)
+        let noteField = app.descendants(matching: .any).matching(identifier: "transactionNote").firstMatch
+        reveal(noteField)
+        noteField.tap()
+        noteField.typeText(note)
+        app.buttons["Done"].firstMatch.tap()
+        app.buttons["saveTransaction"].tap()
+        XCTAssertTrue(amount.waitForNonExistence(timeout: 5))
+
+        selectTab("Settings")
+        if app.navigationBars["Categories"].exists {
+            app.navigationBars["Categories"].buttons.element(boundBy: 0).tap()
+        }
+        app.buttons["settingsBudgets"].tap()
+        XCTAssertTrue(app.navigationBars["Monthly budgets"].waitForExistence(timeout: 5))
+        app.buttons["newBudget"].tap()
+        let limit = app.textFields["budgetAmount"]
+        XCTAssertTrue(limit.waitForExistence(timeout: 5))
+        chooseMenuOption("budgetCategory", named: name)
+        chooseUSD(inMenu: "budgetCurrency")
+        limit.tap()
+        limit.typeText("10")
+        app.buttons["saveBudget"].tap()
+        XCTAssertTrue(limit.waitForNonExistence(timeout: 5))
+
+        let row = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@ AND label CONTAINS %@", "budgetRow-", name)).firstMatch
+        reveal(row)
+        waitForLabel(of: row, containing: ["$10.00", "Spent", "$12.34", "Over budget", "$2.34"])
+        attachScreenshot("Budget exceeds its limit by 2.34 USD")
+        row.tap()
+        XCTAssertTrue(limit.waitForExistence(timeout: 5))
+        replaceText(in: limit, with: "20")
+        app.buttons["saveBudget"].tap()
+        XCTAssertTrue(limit.waitForNonExistence(timeout: 5))
+        waitForLabel(of: row, containing: ["$20.00", "Spent", "$12.34", "Remaining", "$7.66"])
+        attachScreenshot("Edited budget has 7.66 USD remaining")
+
+        app.buttons["nextBudgetMonth"].tap()
+        XCTAssertTrue(row.waitForNonExistence(timeout: 5))
+        app.buttons["previousBudgetMonth"].tap()
+        XCTAssertTrue(row.waitForExistence(timeout: 5))
+        waitForLabel(of: row, containing: ["Remaining", "$7.66"])
+        row.tap()
+        reveal(app.buttons["deleteBudget"])
+        app.buttons["deleteBudget"].tap()
+        app.buttons["confirmDeleteBudget"].firstMatch.tap()
+        XCTAssertTrue(row.waitForNonExistence(timeout: 5))
+        app.terminate()
+        app.launch()
+        XCTAssertTrue(home.waitForExistence(timeout: 10))
+        assertSingleTransaction(named: note, amount: "$12.34")
+        attachScreenshot("Expense preserved after deleting its budget")
+    }
+
+    func testWeeklyForecastAndOptInReminderSurviveRelaunch() throws {
+        // Only this test authorizes OS notifications. A dedicated QA simulator
+        // is required so a regular developer device keeps its permission state.
+        let device = ProcessInfo.processInfo.environment["SIMULATOR_DEVICE_NAME"] ?? ""
+        guard device.lowercased().contains("iwallet") ||
+              ProcessInfo.processInfo.environment["IWALLET_TEST_REMINDERS"] == "1" else {
+            throw XCTSkip("Run on a dedicated iWallet simulator or opt in with IWALLET_TEST_REMINDERS=1.")
+        }
+        XCTAssertTrue(home.waitForExistence(timeout: 15))
+        let suffix = String(UUID().uuidString.prefix(8))
+        let category = "00 Forecast \(suffix)"
+        let plan = "Weekly forecast \(suffix)"
+        createExpenseCategory(named: category)
+        let initialBalance = try overviewUSDBalance()
+        let initialSeven = try forecastUSD(days: 7)
+        let initialThirty = try forecastUSD(days: 30)
+
+        openPayments()
+        app.buttons["newRecurringPayment"].tap()
+        let name = app.textFields["paymentName"]
+        XCTAssertTrue(name.waitForExistence(timeout: 5))
+        name.tap()
+        name.typeText(plan)
+        app.buttons["Done"].firstMatch.tap()
+        let amount = app.textFields["paymentAmount"]
+        reveal(amount)
+        amount.tap()
+        amount.typeText("7.00")
+        app.buttons["Done"].firstMatch.tap()
+        chooseUSD(inMenu: "paymentCurrency")
+        chooseMenuOption("paymentCategory", named: category)
+        chooseMenuOption("paymentCadence", named: "Weekly")
+        // The new editor defaults to today in the plan's local time zone.
+        app.buttons["saveRecurringPayment"].tap()
+        waitForPaymentsRoot()
+        XCTAssertTrue(name.waitForNonExistence(timeout: 5))
+        XCTAssertEqual(try overviewUSDBalance(), initialBalance)
+        XCTAssertEqual(try forecastUSD(days: 7), initialSeven.adding(NSDecimalNumber(string: "7.00")))
+        XCTAssertEqual(try forecastUSD(days: 30), initialThirty.adding(NSDecimalNumber(string: "35.00")))
+        attachScreenshot("30 day forecast includes five weekly occurrences")
+
+        openPayment(named: plan)
+        let today = try recurringDueDate()
+        XCTAssertTrue(Calendar.current.isDateInToday(today))
+        reveal(app.buttons["skipRecurringPayment"])
+        app.buttons["skipRecurringPayment"].tap()
+        app.buttons["confirmRecurringSkip"].firstMatch.tap()
+        waitForPaymentsRoot()
+        openPayment(named: plan)
+        XCTAssertEqual(try recurringDueDate(), Calendar.current.date(byAdding: .day, value: 7, to: today))
+        XCTAssertEqual(try overviewUSDBalance(), initialBalance)
+        assertNoTransaction(named: plan)
+
+        openReminders()
+        let toggle = app.switches["paymentRemindersEnabled"].firstMatch
+        XCTAssertTrue(toggle.isEnabled, "Notification permission must be available on this dedicated simulator.")
+        XCTAssertEqual(toggle.value as? String, "0", "Use a QA simulator with reminders initially off.")
+        toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5)).tap()
+        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        let alert = springboard.alerts.firstMatch
+        if alert.waitForExistence(timeout: 5) {
+            let contents = [alert.label] + alert.staticTexts.allElementsBoundByIndex.map(\.label)
+            XCTAssertTrue(contents.contains { $0.localizedCaseInsensitiveContains("iWallet") })
+            let allow = alert.buttons.matching(NSPredicate(format: "label IN %@", ["Allow", "Разрешить"])).firstMatch
+            XCTAssertTrue(allow.exists)
+            let permission = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+            permission.name = "Native iWallet notification permission"
+            permission.lifetime = .keepAlways
+            add(permission)
+            allow.tap()
+        }
+        let lead = app.buttons["paymentReminderLead"].firstMatch
+        XCTAssertTrue(lead.waitForExistence(timeout: 10))
+        chooseMenuOption("paymentReminderLead", named: "The day before")
+        waitForLabel(of: lead, containing: ["The day before"])
+        assertScheduledAlerts()
+        attachScreenshot("Enabled local reminders with a future scheduled alert")
+
+        app.terminate()
+        app.launch()
+        XCTAssertTrue(home.waitForExistence(timeout: 15))
+        openReminders()
+        XCTAssertEqual(toggle.value as? String, "1")
+        waitForLabel(of: lead, containing: ["The day before"])
+        assertScheduledAlerts()
+        attachScreenshot("Reminder preferences and queue after relaunch")
+        toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5)).tap()
+        XCTAssertTrue(lead.waitForNonExistence(timeout: 10))
+        XCTAssertEqual(toggle.value as? String, "0")
+        app.navigationBars["Reminders"].buttons.element(boundBy: 0).tap()
+        openPayment(named: plan)
+        reveal(app.buttons["deleteRecurringPayment"])
+        app.buttons["deleteRecurringPayment"].tap()
+        app.buttons["confirmRecurringDelete"].firstMatch.tap()
+        waitForPaymentsRoot()
+        XCTAssertTrue(paymentRow(named: plan).waitForNonExistence(timeout: 5))
+        XCTAssertEqual(try overviewUSDBalance(), initialBalance)
+        XCTAssertEqual(try forecastUSD(days: 30), initialThirty)
+    }
+
+    private func createExpenseCategory(named name: String) {
+        openCategories()
+        app.navigationBars["Categories"].buttons["Add category"].tap()
+        let field = app.textFields["categoryName"]
+        XCTAssertTrue(field.waitForExistence(timeout: 5))
+        field.tap()
+        field.typeText(name)
+        app.buttons["saveCategory"].tap()
+        XCTAssertTrue(categoryElement(containing: name).waitForExistence(timeout: 5))
+    }
+
+    private func chooseMenuOption(_ identifier: String, named name: String) {
+        let menu = app.buttons[identifier].firstMatch
+        reveal(menu)
+        menu.tap()
+        let option = app.buttons[name].firstMatch
+        XCTAssertTrue(option.waitForExistence(timeout: 5))
+        option.tap()
+    }
+
+    private func chooseUSD(inMenu identifier: String) {
+        let menu = app.buttons[identifier].firstMatch
+        reveal(menu)
+        menu.tap()
+        app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "USD")).firstMatch.tap()
+    }
+
+    private func waitForLabel(of element: XCUIElement, containing parts: [String]) {
+        let matches = NSPredicate { _, _ in
+            guard element.exists else { return false }
+            let content = [element.label, element.value as? String ?? ""].joined(separator: " ")
+            return parts.allSatisfy { content.contains($0) }
+        }
+        let expectation = XCTNSPredicateExpectation(predicate: matches, object: nil)
+        XCTAssertEqual(XCTWaiter.wait(for: [expectation], timeout: 6), .completed,
+                       "Expected \(parts) in \(element.debugDescription)")
+    }
+
+    private func forecastUSD(days: Int) throws -> NSDecimalNumber {
+        scrollHomeToTop()
+        let picker = app.segmentedControls["forecastHorizon"].firstMatch
+        reveal(picker)
+        let option = picker.buttons["\(days) days"].firstMatch
+        XCTAssertTrue(option.waitForExistence(timeout: 5))
+        option.tap()
+        let total = app.descendants(matching: .any).matching(identifier: "forecastUpcomingTotal").firstMatch
+        reveal(total)
+        return try decimalUSD(in: total)
+    }
+
+    private func openReminders() {
+        openPayments()
+        let reminders = app.buttons["paymentReminderSettings"].firstMatch
+        XCTAssertTrue(reminders.waitForExistence(timeout: 5))
+        reminders.tap()
+        XCTAssertTrue(app.navigationBars["Reminders"].waitForExistence(timeout: 8))
+    }
+
+    private func assertScheduledAlerts() {
+        let status = app.descendants(matching: .any).matching(identifier: "paymentReminderStatus").firstMatch
+        XCTAssertTrue(status.waitForExistence(timeout: 10))
+        let hasAlerts = NSPredicate { _, _ in
+            guard status.exists else { return false }
+            let texts = [status.label, status.value as? String ?? ""] + status.staticTexts.allElementsBoundByIndex.map(\.label)
+            return texts.contains { text in
+                text.split(whereSeparator: { !$0.isNumber }).contains { (Int($0) ?? 0) >= 1 }
+            }
+        }
+        XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: hasAlerts, object: nil)], timeout: 15), .completed,
+                       "A future weekly payment should produce at least one scheduled alert. \(status.debugDescription)")
+    }
+
     /// The host supplies the synthetic old-engine fixture in Documents/default.realm
     /// before launch. A normal clean-install run intentionally skips this method.
     func testLegacyMigrationReviewAndTransfer() throws {
@@ -410,13 +653,17 @@ final class WalletSmokeTests: XCTestCase {
         chooseOverviewUSD()
         let balance = app.descendants(matching: .any).matching(identifier: "overviewBalance").firstMatch
         XCTAssertTrue(balance.waitForExistence(timeout: 5))
-        let value = try XCTUnwrap(balance.value as? String)
+        return try decimalUSD(in: balance)
+    }
+
+    private func decimalUSD(in element: XCUIElement) throws -> NSDecimalNumber {
+        let value = try XCTUnwrap(element.value as? String)
         let formatter = NumberFormatter()
         formatter.locale = Locale(identifier: "en_US")
         formatter.numberStyle = .currency
         formatter.currencyCode = "USD"
         formatter.generatesDecimalNumbers = true
-        let parsed = try XCTUnwrap(formatter.number(from: value), "Unable to parse visible balance: \(value)")
+        let parsed = try XCTUnwrap(formatter.number(from: value), "Unable to parse USD amount: \(value)")
         return NSDecimalNumber(decimal: parsed.decimalValue)
     }
 

@@ -5,6 +5,76 @@
 	"objectVersion" = "56";
 	"archiveVersion" = "1";
 	"objects" = {
+		"CB9C9923B3B9F7BB5AAB3EB1" = {
+			"isa" = "PBXFileReference";
+			"path" = "PlanningPreviewTests.swift";
+			"lastKnownFileType" = "sourcecode.swift";
+			"sourceTree" = "<group>";
+		};
+		"3D27881CDF9632DC19EE0A1A" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "CB9C9923B3B9F7BB5AAB3EB1";
+		};
+		"B0E58B6C60BAD180841A3A32" = {
+			"isa" = "PBXFileReference";
+			"path" = "PaymentReminders.swift";
+			"lastKnownFileType" = "sourcecode.swift";
+			"sourceTree" = "<group>";
+		};
+		"2D0D9B24A62F3D8CAC88C799" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "B0E58B6C60BAD180841A3A32";
+		};
+		"CFE41B66845DE27F77963483" = {
+			"isa" = "PBXFileReference";
+			"path" = "PaymentReminderViews.swift";
+			"lastKnownFileType" = "sourcecode.swift";
+			"sourceTree" = "<group>";
+		};
+		"97612F9D961E415955C74EEC" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "CFE41B66845DE27F77963483";
+		};
+		"6D441E366484F183E6D0779E" = {
+			"isa" = "PBXFileReference";
+			"path" = "WalletBudgets.swift";
+			"lastKnownFileType" = "sourcecode.swift";
+			"sourceTree" = "<group>";
+		};
+		"33ED1F37A9736565D98E7F25" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "6D441E366484F183E6D0779E";
+		};
+		"940017763C732543ECD2093E" = {
+			"isa" = "PBXFileReference";
+			"path" = "WalletBudgetViews.swift";
+			"lastKnownFileType" = "sourcecode.swift";
+			"sourceTree" = "<group>";
+		};
+		"945600192319DF05AAE87D66" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "940017763C732543ECD2093E";
+		};
+		"5D398D6E7572CC7EC223D936" = {
+			"isa" = "PBXFileReference";
+			"path" = "WalletForecast.swift";
+			"lastKnownFileType" = "sourcecode.swift";
+			"sourceTree" = "<group>";
+		};
+		"2D0D928A9740E28EC48FFD21" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "5D398D6E7572CC7EC223D936";
+		};
+		"19B9DB2C0D76AD347B2E89F6" = {
+			"isa" = "PBXFileReference";
+			"path" = "WalletForecastViews.swift";
+			"lastKnownFileType" = "sourcecode.swift";
+			"sourceTree" = "<group>";
+		};
+		"D39C5CCE5475D89CCF666906" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "19B9DB2C0D76AD347B2E89F6";
+		};
 		"F1F6234F6700D90912F93F49" = {
 			"isa" = "PBXFileReference";
 			"path" = "RecurringPayments.swift";
@@ -227,6 +297,12 @@
 			"isa" = "PBXSourcesBuildPhase";
 			"buildActionMask" = "2147483647";
 			"files" = (
+				"2D0D9B24A62F3D8CAC88C799",
+				"97612F9D961E415955C74EEC",
+				"33ED1F37A9736565D98E7F25",
+				"945600192319DF05AAE87D66",
+				"2D0D928A9740E28EC48FFD21",
+				"D39C5CCE5475D89CCF666906",
 				"75EBE4CC82AF1AE24CA8EF9C",
 				"2D9ABD76E5B92DDD625A3CA9",
 				"930A77D3AB9E29C4A2E1FC40",
@@ -347,7 +423,7 @@
 				"INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad" = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				"MARKETING_VERSION" = "2.0.0";
 				"DEVELOPMENT_TEAM" = "4243BL8MP3";
-				"CURRENT_PROJECT_VERSION" = "5";
+				"CURRENT_PROJECT_VERSION" = "6";
 				"SUPPORTED_PLATFORMS" = "iphoneos iphonesimulator";
 				"INFOPLIST_KEY_LSApplicationCategoryType" = "public.app-category.finance";
 				"INFOPLIST_KEY_ITSAppUsesNonExemptEncryption" = "NO";
@@ -403,6 +479,12 @@
 			"path" = "Native";
 			"isa" = "PBXGroup";
 			"children" = (
+				"B0E58B6C60BAD180841A3A32",
+				"CFE41B66845DE27F77963483",
+				"6D441E366484F183E6D0779E",
+				"940017763C732543ECD2093E",
+				"5D398D6E7572CC7EC223D936",
+				"19B9DB2C0D76AD347B2E89F6",
 				"F1F6234F6700D90912F93F49",
 				"B011E83ABFB753A8D48EDA96",
 				"F89B6C49BA0D9D2753052D7D",
@@ -530,7 +612,7 @@
 				"INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad" = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				"MARKETING_VERSION" = "2.0.0";
 				"DEVELOPMENT_TEAM" = "4243BL8MP3";
-				"CURRENT_PROJECT_VERSION" = "5";
+				"CURRENT_PROJECT_VERSION" = "6";
 				"SUPPORTED_PLATFORMS" = "iphoneos iphonesimulator";
 				"INFOPLIST_KEY_LSApplicationCategoryType" = "public.app-category.finance";
 				"INFOPLIST_KEY_ITSAppUsesNonExemptEncryption" = "NO";
@@ -648,6 +730,7 @@
 			"path" = "Tests/WalletUITests";
 			"children" = (
 				"55A5B20B458BE3C0FBC78CF8",
+				"CB9C9923B3B9F7BB5AAB3EB1",
 			);
 			"sourceTree" = "<group>";
 		};
@@ -663,6 +746,7 @@
 			"buildActionMask" = "2147483647";
 			"files" = (
 				"BE591E13CE1EC367B71EFE4B",
+				"3D27881CDF9632DC19EE0A1A",
 			);
 			"runOnlyForDeploymentPostprocessing" = "0";
 		};

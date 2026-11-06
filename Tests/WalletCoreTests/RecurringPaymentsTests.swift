@@ -282,8 +282,8 @@ final class RecurringPaymentsTests: XCTestCase {
         try WalletStore.setRecurringPaymentActive(context: context, payment: payment, isActive: false)
         payment = try reload(payment, context: &context)
         try WalletStore.archiveCategory(context: context, category: XCTUnwrap(payment.category))
-        let original = try WalletBackup.snapshot(context: source.mainContext)
-        XCTAssertEqual(original.formatVersion, 2)
+        var original = try WalletBackup.snapshot(context: source.mainContext)
+        original.formatVersion = 2 // Exercise the original payments envelope.
         let data = try original.encodedData()
         let decoded = try WalletBackup.decode(data: data)
         XCTAssertEqual(decoded, original)
@@ -479,7 +479,7 @@ final class RecurringPaymentsTests: XCTestCase {
 
     @MainActor
     private func diskContainer(_ url: URL, allowsSave: Bool = true) throws -> ModelContainer {
-        let schema = Schema([WalletCategory.self, WalletTransaction.self, WalletMigrationReceipt.self, WalletRecurringPayment.self])
+        let schema = WalletStore.schema
         let configuration = ModelConfiguration("Test", schema: schema, url: url, allowsSave: allowsSave, cloudKitDatabase: .none)
         let container = try ModelContainer(for: schema, configurations: [configuration])
         container.mainContext.autosaveEnabled = false

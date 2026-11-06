@@ -1,6 +1,6 @@
 # iWallet — Privacy Policy / Политика конфиденциальности
 
-Updated / Обновлено: 5 November / ноября 2026
+Updated / Обновлено: 6 November / ноября 2026
 
 This policy describes version 2.0.0 of iWallet and its transitional import of older iWallet data. / Эта политика описывает версию 2.0.0 приложения iWallet и перенос данных из прежних версий iWallet.
 
@@ -8,9 +8,11 @@ This policy describes version 2.0.0 of iWallet and its transitional import of ol
 
 ### Your wallet data
 
-iWallet stores the categories, transaction amounts, currencies, dates and notes you enter in a local SwiftData database on your device. App preferences, such as your default currency, are also stored locally. You do not need to create an account or connect a bank account.
+iWallet stores your categories, transaction amounts, currencies, dates, notes, payment schedules and monthly budgets in a local SwiftData database on your device. App preferences, such as your default currency, are also stored locally. You do not need to create an account or connect a bank account.
 
 iWallet does not operate a server for your financial records and does not automatically send those records to the developer. The app does not include advertising, analytics services or cross-app tracking.
+
+Payment reminders are optional. If you enable them, iOS schedules notifications on your device. Their visible content is a generic reminder. The reminder preference and time are stored on this device.
 
 ### Importing an older wallet
 
@@ -20,7 +22,7 @@ The original legacy database is retained. The app also keeps a local copy and a 
 
 ### Files you choose to export or import
 
-You can export categories and transactions to a JSON file and choose its destination through the system file interface. You can also choose a compatible JSON file to import. The app reads that file locally.
+You can export categories, transactions, payment schedules and budgets to a JSON file and choose its destination through the system file interface. You can also choose a compatible JSON file to import. The app reads that file locally.
 
 An exported file, a copy of a legacy database or a migration report may contain your financial history. When you save or share one, the destination you select determines who can access it. The developer does not receive these files automatically. The practices of a file provider, sharing destination or system backup are governed by its own settings and policies; this policy does not promise how those services store, retain or restore data.
 
@@ -46,9 +48,11 @@ This page will be updated when the described data practices change. The date abo
 
 ### Данные кошелька
 
-iWallet хранит введённые вами категории, суммы, валюты, даты и заметки операций в локальной базе SwiftData на устройстве. Настройки приложения, например основная валюта, также сохраняются локально. Для работы не требуется создавать аккаунт или подключать банковский счёт.
+iWallet хранит категории, суммы, валюты, даты, заметки операций, расписания платежей и месячные бюджеты в локальной базе SwiftData на устройстве. Настройки приложения, например основная валюта, также сохраняются локально. Для работы не требуется создавать аккаунт или подключать банковский счёт.
 
 У iWallet нет сервера для ваших финансовых записей; приложение не отправляет их разработчику автоматически. В приложении нет рекламы, аналитических сервисов или отслеживания между приложениями.
+
+Напоминания включаются по вашему выбору. С вашего разрешения iOS планирует уведомления на устройстве. На экране появляется общий текст о платеже. Выбранное время и настройка напоминаний хранятся на этом устройстве.
 
 ### Перенос старого кошелька
 
@@ -58,7 +62,7 @@ iWallet хранит введённые вами категории, суммы,
 
 ### Экспорт и импорт файлов
 
-Вы можете экспортировать категории и операции в JSON-файл и выбрать место сохранения через системный интерфейс. Для импорта можно выбрать совместимый JSON-файл. Приложение читает его локально.
+Вы можете экспортировать категории, операции, расписания платежей и бюджеты в JSON-файл и выбрать место сохранения через системный интерфейс. Для импорта можно выбрать совместимый JSON-файл. Приложение читает его локально.
 
 Экспорт, копия старой базы и отчёт о переносе могут содержать вашу финансовую историю. Доступ к сохранённому или отправленному файлу зависит от выбранного вами места назначения. Разработчик не получает эти файлы автоматически. Работа файлового сервиса, получателя или системной резервной копии регулируется их собственными настройками и правилами; эта политика не обещает, как такие сервисы сохраняют, удерживают или восстанавливают данные.
 

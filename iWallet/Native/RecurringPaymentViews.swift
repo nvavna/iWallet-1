@@ -39,6 +39,14 @@ struct RecurringPaymentListView: View {
             }
             .navigationTitle("Payments")
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    NavigationLink {
+                        PaymentReminderSettingsView()
+                    } label: {
+                        Label("Reminders", systemImage: "bell")
+                    }
+                    .accessibilityIdentifier("paymentReminderSettings")
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("New payment", systemImage: "plus") { showsEditor = true }
                         .accessibilityIdentifier("newRecurringPayment")
