@@ -20,7 +20,7 @@ Review any rounding changes before confirming the transfer. Keep a copy of the o
 
 ### JSON backups
 
-In Overview > Settings, use Export all data to save your categories and transactions as JSON. Choose where to save the file and keep track of that location.
+Open the Settings tab and tap **Export all data**. Choose where to save the JSON file. It includes your categories, transactions, recurring payment plans and monthly budgets.
 
 Import a backup lets you review a compatible file before importing. The import adds missing records, skips identical records and stops if an existing record with the same identifier has different contents. It does not overwrite your current records. Importing an old backup therefore cannot be used to silently undo edits to matching records.
 
@@ -52,7 +52,7 @@ iWallet — приложение для ручного учёта доходов
 
 ### Резервные копии JSON
 
-Откройте настройки из экрана обзора и выберите экспорт всех данных, чтобы сохранить категории и операции в JSON-файл. Выберите место сохранения и запомните его.
+Откройте вкладку «Настройки» и нажмите **«Экспортировать все данные»**. Выберите, куда сохранить JSON-файл. В нём будут ваши категории, операции, планы регулярных платежей и месячные бюджеты.
 
 Импорт резервной копии позволяет проверить совместимый файл перед добавлением данных. Импорт добавляет отсутствующие записи, пропускает идентичные и останавливается, если запись с тем же идентификатором уже имеет другое содержимое. Текущие записи не перезаписываются. Поэтому импорт старой копии не отменяет автоматически изменения совпадающих записей.
 
