@@ -371,6 +371,128 @@ final class WalletSmokeTests: XCTestCase {
         attachScreenshot("Expense preserved after deleting its budget")
     }
 
+    func testRepeatTransactionCanBeCancelledOrSavedAsAnotherExpense() {
+        let category = "00 Repeat " + String(UUID().uuidString.prefix(8))
+        let note = "Purchase " + String(UUID().uuidString.prefix(8))
+        createTestExpense(category: category, note: note)
+        openHistory()
+        let matchingRows = app.cells.buttons.matching(NSPredicate(format: "label CONTAINS %@", note))
+        let original = matchingRows.matching(NSPredicate(format: "label CONTAINS %@", "$12.34")).firstMatch
+        XCTAssertTrue(original.waitForExistence(timeout: 5))
+
+        func repeatOriginal() {
+            original.press(forDuration: 1)
+            let repeatAction = app.buttons["Repeat transaction"].firstMatch
+            XCTAssertTrue(repeatAction.waitForExistence(timeout: 5))
+            repeatAction.tap()
+            XCTAssertTrue(app.navigationBars["New transaction"].waitForExistence(timeout: 5))
+            XCTAssertEqual(app.textFields["transactionAmount"].value as? String, "12.34")
+            waitForLabel(of: app.buttons["transactionCategory"].firstMatch, containing: [category])
+        }
+
+        repeatOriginal()
+        app.navigationBars["New transaction"].buttons["Cancel"].tap()
+        XCTAssertTrue(app.navigationBars["New transaction"].waitForNonExistence(timeout: 5))
+        XCTAssertEqual(matchingRows.count, 1)
+
+        repeatOriginal()
+        replaceText(in: app.textFields["transactionAmount"], with: "27.89")
+        app.buttons["saveTransaction"].tap()
+        XCTAssertTrue(app.navigationBars["New transaction"].waitForNonExistence(timeout: 5))
+        let copy = matchingRows.matching(NSPredicate(format: "label CONTAINS %@", "$27.89")).firstMatch
+        XCTAssertTrue(copy.waitForExistence(timeout: 5))
+        XCTAssertTrue(original.exists)
+        XCTAssertEqual(matchingRows.count, 2)
+    }
+
+    func testCopyPreviousMonthBudgetsPreservesEditedLimitOnRetry() {
+        let category = "00 Copy " + String(UUID().uuidString.prefix(8))
+        createExpenseCategory(named: category)
+        app.navigationBars["Categories"].buttons.element(boundBy: 0).tap()
+        app.buttons["settingsBudgets"].tap()
+        XCTAssertTrue(app.navigationBars["Monthly budgets"].waitForExistence(timeout: 5))
+        app.buttons["newBudget"].tap()
+        let amount = app.textFields["budgetAmount"]
+        XCTAssertTrue(amount.waitForExistence(timeout: 5))
+        chooseMenuOption("budgetCategory", named: category)
+        chooseUSD(inMenu: "budgetCurrency")
+        amount.tap()
+        amount.typeText("84.25")
+        app.buttons["saveBudget"].tap()
+        XCTAssertTrue(amount.waitForNonExistence(timeout: 5))
+        let rows = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@ AND label CONTAINS %@", "budgetRow-", category))
+        XCTAssertTrue(rows.firstMatch.waitForExistence(timeout: 5))
+        app.buttons["nextBudgetMonth"].tap()
+        XCTAssertTrue(rows.firstMatch.waitForNonExistence(timeout: 5))
+
+        let copy = app.buttons["copyPreviousBudgets"]
+        reveal(copy)
+        copy.tap()
+        XCTAssertTrue(rows.firstMatch.waitForExistence(timeout: 5))
+        waitForLabel(of: rows.firstMatch, containing: ["$84.25", "USD"])
+        rows.firstMatch.tap()
+        replaceText(in: amount, with: "99.25")
+        app.buttons["saveBudget"].tap()
+        XCTAssertTrue(amount.waitForNonExistence(timeout: 5))
+        reveal(copy)
+        copy.tap()
+        waitForLabel(of: rows.firstMatch, containing: ["$99.25", "USD"])
+        XCTAssertEqual(rows.count, 1)
+        app.buttons["previousBudgetMonth"].tap()
+        waitForLabel(of: rows.firstMatch, containing: ["$84.25", "USD"])
+    }
+
+    func testExportTransactionsToCSVFile() {
+        let suffix = String(UUID().uuidString.prefix(8))
+        let category = "00 Export " + suffix
+        createTestExpense(category: category, note: "CSV, sample " + suffix)
+        for (language, locale, settings) in [("en", "en_US", "Settings"), ("ru", "ru_RU", "Настройки")] {
+            app.terminate()
+            app.launchArguments = ["-AppleLanguages", "(\(language))", "-AppleLocale", locale]
+            app.launch()
+            let tab = app.tabBars.buttons[settings]
+            XCTAssertTrue(tab.waitForExistence(timeout: 15))
+            tab.tap()
+            let export = app.buttons["settingsExportCSV"]
+            reveal(export)
+            export.tap()
+            XCTAssertTrue(app.datePickers["csvStartDate"].waitForExistence(timeout: 5))
+            XCTAssertTrue(app.datePickers["csvEndDate"].exists)
+            let exportButton = app.buttons["exportCSV"]
+            XCTAssertEqual(exportButton.label, language == "en" ? "Save CSV" : "Сохранить CSV")
+            exportButton.tap()
+            let save = app.buttons.matching(NSPredicate(format: "label IN %@", ["Save", "Сохранить"])).firstMatch
+            XCTAssertTrue(save.waitForExistence(timeout: 45), "The Files picker must finish loading. " + app.debugDescription)
+            save.tap()
+            // Files can ask which copy to keep when exporting the same dates again.
+            let keepBoth = app.buttons.matching(NSPredicate(format: "label IN %@",
+                ["Keep Both", "Keep both", "Сохранить оба", "Оставить оба"])).firstMatch
+            if keepBoth.waitForExistence(timeout: 3) { keepBoth.tap() }
+            XCTAssertTrue(save.waitForNonExistence(timeout: 12), app.debugDescription)
+            XCTAssertTrue(exportButton.isHittable)
+        }
+    }
+
+    private func createTestExpense(category: String, note: String) {
+        createExpenseCategory(named: category)
+        goHome()
+        app.buttons["New transaction"].tap()
+        let amount = app.textFields["transactionAmount"]
+        XCTAssertTrue(amount.waitForExistence(timeout: 5))
+        amount.tap()
+        amount.typeText("12.34")
+        app.buttons["Done"].firstMatch.tap()
+        chooseTransactionUSD()
+        chooseMenuOption("transactionCategory", named: category)
+        let field = app.descendants(matching: .any).matching(identifier: "transactionNote").firstMatch
+        reveal(field)
+        field.tap()
+        field.typeText(note)
+        app.buttons["Done"].firstMatch.tap()
+        app.buttons["saveTransaction"].tap()
+        XCTAssertTrue(amount.waitForNonExistence(timeout: 5))
+    }
+
     func testWeeklyForecastAndOptInReminderSurviveRelaunch() throws {
         // Only this test authorizes OS notifications. A dedicated QA simulator
         // is required so a regular developer device keeps its permission state.

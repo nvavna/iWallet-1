@@ -4,7 +4,7 @@ Contact / Написать: [idevnva@icloud.com](mailto:idevnva@icloud.com)
 
 ## English
 
-iWallet is a manual income and expense tracker. Version 2.0.0 requires iOS 17 or later and stores your wallet locally on your device.
+iWallet is a manual income and expense tracker. Version 2.1 requires iOS 17 or later and stores your wallet locally on your device.
 
 ### Get help
 
@@ -17,6 +17,12 @@ Do not send passwords, verification codes, banking credentials or a full databas
 If iWallet finds a supported older database, it offers a local transfer into the new wallet. Confirm the currency represented by the old amounts. Some symbols, such as `$`, do not identify one currency, and the older app did not save a currency for each transaction.
 
 Review any rounding changes before confirming the transfer. Keep a copy of the original data. The original database is retained; an unsupported format or an inconsistent record can stop the transfer so it can be investigated. If an error appears, note its text and contact support. Compatibility with every historical database is not guaranteed.
+
+### Everyday tools in 2.1
+
+- In **Transactions**, touch and hold a row and choose **Repeat transaction**. The draft uses today’s date. Review the amount and category, then tap **Save**.
+- In **Settings → Monthly budgets**, select the month you want to fill and tap **Copy last month’s budgets**. Each active category keeps its limit in the original currency. Limits already set for the selected month take precedence.
+- In **Settings → Export transactions as CSV**, select the first and last day, then tap **Save CSV**. Both days are included. The file opens in spreadsheet apps such as Excel and Numbers.
 
 ### JSON backups
 
@@ -36,7 +42,7 @@ Archiving a category keeps its transactions in your history and hides the catego
 
 ## Русский
 
-iWallet — приложение для ручного учёта доходов и расходов. Версия 2.0.0 требует iOS 17 или новее и хранит кошелёк локально на устройстве.
+iWallet — приложение для ручного учёта доходов и расходов. Версия 2.1 требует iOS 17 или новее и хранит кошелёк локально на устройстве.
 
 ### Как получить помощь
 
@@ -49,6 +55,12 @@ iWallet — приложение для ручного учёта доходов
 Если iWallet найдёт поддерживаемую старую базу, приложение предложит локально перенести её в новый кошелёк. Подтвердите валюту, в которой были записаны старые суммы. Некоторые символы, например `$`, относятся к нескольким валютам, а старое приложение не хранило валюту каждой операции.
 
 Проверьте изменения округления перед подтверждением переноса. Сохраните копию исходных данных. Исходная база остаётся на месте; неподдерживаемый формат или несогласованная запись могут остановить перенос для проверки. Если появилась ошибка, запишите её текст и обратитесь в поддержку. Совместимость со всеми историческими базами не гарантируется.
+
+### Повседневные действия в версии 2.1
+
+- Во вкладке **«Операции»** нажмите и удерживайте запись, затем выберите **«Повторить операцию»**. В черновике будет сегодняшняя дата. Проверьте сумму и категорию и нажмите **«Сохранить»**.
+- В разделе **«Настройки» → «Бюджеты на месяц»** выберите нужный месяц и нажмите **«Скопировать бюджеты прошлого месяца»**. Для активных категорий переносятся лимиты в исходных валютах. Приоритет у лимита, уже заданного на выбранный месяц.
+- В разделе **«Настройки» → «Экспорт операций в CSV»** выберите первый и последний день и нажмите **«Сохранить CSV»**. В файл войдут операции за обе даты. Его можно открыть в Excel или Numbers.
 
 ### Резервные копии JSON
 

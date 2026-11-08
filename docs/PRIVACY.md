@@ -1,8 +1,8 @@
 # iWallet — Privacy Policy / Политика конфиденциальности
 
-Updated / Обновлено: 6 November / ноября 2026
+Updated / Обновлено: 8 November / ноября 2026
 
-This policy describes version 2.0.0 of iWallet and its transitional import of older iWallet data. / Эта политика описывает версию 2.0.0 приложения iWallet и перенос данных из прежних версий iWallet.
+This policy describes versions 2.0 and 2.1 of iWallet and its transitional import of older iWallet data. / Эта политика описывает версии 2.0 и 2.1 приложения iWallet и перенос данных из прежних версий iWallet.
 
 ## English
 
@@ -22,7 +22,7 @@ The original legacy database is retained. The app also keeps a local copy and a 
 
 ### Files you choose to export or import
 
-You can export categories, transactions, payment schedules and budgets to a JSON file and choose its destination through the system file interface. You can also choose a compatible JSON file to import. The app reads that file locally.
+You can export categories, transactions, payment schedules and budgets to a JSON file and choose its destination through the system file interface. In version 2.1 you can also export transactions for a selected date range to a CSV file and choose where to save it. You can choose a compatible JSON file to import. The app reads that file locally.
 
 An exported file, a copy of a legacy database or a migration report may contain your financial history. When you save or share one, the destination you select determines who can access it. The developer does not receive these files automatically. The practices of a file provider, sharing destination or system backup are governed by its own settings and policies; this policy does not promise how those services store, retain or restore data.
 
@@ -62,7 +62,7 @@ iWallet хранит категории, суммы, валюты, даты, з�
 
 ### Экспорт и импорт файлов
 
-Вы можете экспортировать категории, операции, расписания платежей и бюджеты в JSON-файл и выбрать место сохранения через системный интерфейс. Для импорта можно выбрать совместимый JSON-файл. Приложение читает его локально.
+Вы можете экспортировать категории, операции, расписания платежей и бюджеты в JSON-файл и выбрать место сохранения через системный интерфейс. В версии 2.1 можно также сохранить операции за выбранный период в CSV-файл и указать место сохранения. Для импорта можно выбрать совместимый JSON-файл. Приложение читает его локально.
 
 Экспорт, копия старой базы и отчёт о переносе могут содержать вашу финансовую историю. Доступ к сохранённому или отправленному файлу зависит от выбранного вами места назначения. Разработчик не получает эти файлы автоматически. Работа файлового сервиса, получателя или системной резервной копии регулируется их собственными настройками и правилами; эта политика не обещает, как такие сервисы сохраняют, удерживают или восстанавливают данные.
 

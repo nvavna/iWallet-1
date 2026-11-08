@@ -8,6 +8,80 @@ final class WalletBudgetTests: XCTestCase {
     private let eastern = "America/New_York"
 
     @MainActor
+    func testCopyPreviousMonthAcrossYearsPreservesExistingLimitsAndSkipsArchivedCategories() async throws {
+        let container = try WalletStore.makeContainer(inMemory: true)
+        let context = container.mainContext
+        let december = BudgetMonth(year: 2026, month: 12)
+        let january = BudgetMonth(year: 2027, month: 1)
+        let food = try category("Food", in: context)
+        let rent = try category("Rent", in: context)
+        let travel = try category("Travel", in: context)
+        try WalletStore.createBudget(context: context, category: food, month: december, currencyCode: "USD", limitMinor: 999)
+        let yen = try WalletStore.createBudget(context: context, category: food, month: december, currencyCode: "JPY",
+                                               limitMinor: 123_456, timeZoneIdentifier: "Asia/Tokyo")
+        let rentLimit = try WalletStore.createBudget(context: context, category: rent, month: december, currencyCode: "USD",
+                                                     limitMinor: 78_901, timeZoneIdentifier: eastern)
+        try WalletStore.createBudget(context: context, category: travel, month: december, currencyCode: "EUR", limitMinor: 100)
+        try WalletStore.archiveCategory(context: context, category: travel)
+        let existing = try WalletStore.createBudget(context: context, category: food, month: january, currencyCode: "USD",
+                                                    limitMinor: 42, timeZoneIdentifier: "UTC")
+        try WalletStore.createBudget(context: context, category: food, month: november, currencyCode: "EUR", limitMinor: 790)
+        let before = try WalletBackup.snapshot(context: context)
+
+        XCTAssertEqual(try WalletStore.copyPreviousBudgets(context: context, to: january),
+                       BudgetCopySummary(added: 2, existing: 1, archived: 1))
+        let after = try WalletBackup.snapshot(context: context)
+        let originalIDs = Set(before.budgets.map(\.id))
+        XCTAssertEqual(after.budgets.filter { originalIDs.contains($0.id) }, before.budgets)
+        XCTAssertEqual(after.categories, before.categories)
+        let copied = after.budgets.filter { !originalIDs.contains($0.id) }
+        XCTAssertEqual(copied.count, 2)
+        for source in [yen, rentLimit] {
+            let new = try XCTUnwrap(copied.first { $0.currencyCode == source.currencyCode && $0.categoryID == source.categoryID })
+            XCTAssertEqual(BudgetMonth(year: new.year, month: new.month), january)
+            XCTAssertEqual(new.limitMinor, source.limitMinor)
+            XCTAssertEqual(new.timeZoneIdentifier, source.timeZoneIdentifier)
+        }
+        XCTAssertEqual(existing.limitMinor, 42)
+        XCTAssertEqual(try WalletStore.copyPreviousBudgets(context: context, to: january),
+                       BudgetCopySummary(added: 0, existing: 3, archived: 1))
+        XCTAssertEqual(try WalletBackup.snapshot(context: context).budgets, after.budgets)
+    }
+
+    @MainActor
+    func testCopyWithNoSourceOrInvalidMonthLeavesWalletUnchanged() async throws {
+        let container = try WalletStore.makeContainer(inMemory: true)
+        let context = container.mainContext
+        let food = try category("Food", in: context)
+        try WalletStore.createBudget(context: context, category: food, month: november, currencyCode: "USD", limitMinor: 99)
+        let before = try WalletBackup.snapshot(context: context)
+        XCTAssertEqual(try WalletStore.copyPreviousBudgets(context: context, to: november), BudgetCopySummary())
+        for month in [BudgetMonth(year: 1, month: 1), BudgetMonth(year: 2027, month: 13)] {
+            XCTAssertThrowsError(try WalletStore.copyPreviousBudgets(context: context, to: month)) {
+                XCTAssertEqual($0 as? WalletBudgetError, .invalidMonth)
+            }
+        }
+        XCTAssertEqual(try WalletBackup.snapshot(context: context).budgets, before.budgets)
+    }
+
+    @MainActor
+    func testInvalidPriorLimitDoesNotLeaveAPartialCopy() async throws {
+        let container = try WalletStore.makeContainer(inMemory: true)
+        let context = container.mainContext
+        let food = try category("Food", in: context)
+        try WalletStore.createBudget(context: context, category: food, month: november, currencyCode: "USD", limitMinor: 99)
+        context.insert(WalletBudget(categoryID: food.id, year: november.year, month: november.month,
+                                    currencyCode: "JPY", limitMinor: -1, timeZoneIdentifier: eastern))
+        try context.save()
+        let december = BudgetMonth(year: 2026, month: 12)
+        XCTAssertThrowsError(try WalletStore.copyPreviousBudgets(context: context, to: december)) {
+            XCTAssertEqual($0 as? MoneyError, .nonPositiveAmount)
+        }
+        XCTAssertFalse(context.hasChanges)
+        XCTAssertEqual(try context.fetchCount(FetchDescriptor<WalletBudget>()), 2)
+    }
+
+    @MainActor
     func testActualSpendingMatchesCategoryCurrencyAndCivilMonthAcrossDST() async throws {
         let container = try WalletStore.makeContainer(inMemory: true)
         let context = container.mainContext

@@ -45,6 +45,74 @@ final class WalletStoreTests: XCTestCase {
     }
 
     @MainActor
+    func testRepeatPrefillsTodaysDraftAndOnlySavingCreatesASeparateTransaction() async throws {
+        let container = try WalletStore.makeContainer(inMemory: true)
+        let context = container.mainContext
+        let wage = try WalletStore.saveCategory(context: context, name: "Зарплата", icon: "banknote",
+                                                color: "colorGreen", kind: .income)
+        let bonus = try WalletStore.saveCategory(context: context, name: "Премия", icon: "gift",
+                                                 color: "colorBlue", kind: .income)
+        let previous = Date(timeIntervalSince1970: 1_700_000_000)
+        let today = Date(timeIntervalSince1970: 1_710_000_000)
+        try WalletStore.saveTransaction(context: context, amountMinor: 987_654_321, currencyCode: "EUR",
+                                        date: previous, note: "За февраль", kind: .income, category: wage)
+        let source = try XCTUnwrap(context.fetch(FetchDescriptor<WalletTransaction>()).first)
+        var draft = WalletTransactionDraft.repeating(source, on: today)
+        XCTAssertEqual(draft.date, today)
+        XCTAssertEqual(draft.currencyCode, "EUR")
+        XCTAssertEqual(try Money.parse(draft.amountText, currencyCode: draft.currencyCode), 987_654_321)
+        XCTAssertEqual(draft.kind, .income)
+        XCTAssertEqual(draft.categoryID, wage.id)
+        XCTAssertEqual(draft.note, "За февраль")
+
+        draft.amountText = "42"
+        draft.categoryID = bonus.id
+        XCTAssertFalse(context.hasChanges)
+        XCTAssertEqual(try context.fetchCount(FetchDescriptor<WalletTransaction>()), 1)
+        let category = try XCTUnwrap(context.fetch(FetchDescriptor<WalletCategory>()).first { $0.id == draft.categoryID })
+        try WalletStore.saveTransaction(context: context,
+                                        amountMinor: Money.parse(draft.amountText, currencyCode: draft.currencyCode),
+                                        currencyCode: draft.currencyCode, date: draft.date, note: draft.note,
+                                        kind: draft.kind, category: category)
+        let transactions = try context.fetch(FetchDescriptor<WalletTransaction>())
+        XCTAssertEqual(transactions.count, 2)
+        let savedCopy = try XCTUnwrap(transactions.first { $0.id != source.id })
+        XCTAssertEqual(savedCopy.amountMinor, 4200)
+        XCTAssertEqual(savedCopy.category?.id, bonus.id)
+        XCTAssertEqual(savedCopy.date, today)
+        XCTAssertEqual(savedCopy.note, "За февраль")
+        XCTAssertEqual(source.category?.id, wage.id)
+        XCTAssertEqual(source.amountMinor, 987_654_321)
+        XCTAssertEqual(source.date, previous)
+    }
+
+    @MainActor
+    func testRepeatRequiresAnActiveCategoryForArchivedAndUncategorizedHistory() async throws {
+        let container = try WalletStore.makeContainer(inMemory: true)
+        let context = container.mainContext
+        let category = try WalletStore.saveCategory(context: context, name: "Архив", icon: "house",
+                                                    color: "colorBlue", kind: .expense)
+        try WalletStore.saveTransaction(context: context, amountMinor: 341, currencyCode: "JPY",
+                                        date: .now, note: "履歴", kind: .expense, category: category)
+        try WalletStore.archiveCategory(context: context, category: category)
+        let source = try XCTUnwrap(context.fetch(FetchDescriptor<WalletTransaction>()).first)
+        let archivedDraft = WalletTransactionDraft.repeating(source)
+        XCTAssertNil(archivedDraft.categoryID)
+        XCTAssertEqual(try Money.parse(archivedDraft.amountText, currencyCode: archivedDraft.currencyCode), 341)
+        XCTAssertEqual(WalletTransactionDraft.editing(source).categoryID, category.id)
+        XCTAssertEqual(source.category?.id, category.id)
+        XCTAssertFalse(context.hasChanges)
+
+        context.delete(category)
+        try context.save()
+        XCTAssertNil(source.category)
+        let uncategorizedDraft = WalletTransactionDraft.repeating(source)
+        XCTAssertNil(uncategorizedDraft.categoryID)
+        XCTAssertEqual(uncategorizedDraft.note, "履歴")
+        XCTAssertEqual(try context.fetchCount(FetchDescriptor<WalletTransaction>()), 1)
+    }
+
+    @MainActor
     func testInvalidEditDoesNotMutateSavedTransaction() async throws {
         let container = try WalletStore.makeContainer(inMemory: true)
         let context = container.mainContext

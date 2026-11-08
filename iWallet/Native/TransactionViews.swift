@@ -105,15 +105,23 @@ struct TransactionListView: View {
                         }
                         .buttonStyle(.plain)
                         .listRowBackground(WalletTheme.surface)
+                        .swipeActions(edge: .leading, allowsFullSwipe: false) {
+                            repeatButton(for: transaction)
+                                .tint(WalletTheme.accent)
+                        }
                         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                             Button("Delete", systemImage: "trash", role: .destructive) {
                                 pendingDeletion = transaction
                             }
                         }
                         .contextMenu {
+                            repeatButton(for: transaction)
                             Button("Delete transaction", systemImage: "trash", role: .destructive) {
                                 pendingDeletion = transaction
                             }
+                        }
+                        .accessibilityAction(named: Text("Repeat transaction")) {
+                            repeatTransaction(transaction)
                         }
                         .accessibilityAction(named: Text("Delete transaction")) {
                             pendingDeletion = transaction
@@ -149,8 +157,8 @@ struct TransactionListView: View {
             }
         }
         .sheet(item: $editor) { presentation in
-            TransactionEditorView(transaction: presentation.transaction, initialCategory: initialCategory,
-                                  initialCurrencyCode: currencyCode)
+            TransactionEditorView(transaction: presentation.transaction, repeatedDraft: presentation.repeatedDraft,
+                                  initialCategory: initialCategory, initialCurrencyCode: currencyCode)
         }
         .confirmationDialog("Delete transaction?", isPresented: Binding(
             get: { pendingDeletion != nil },
@@ -179,6 +187,17 @@ struct TransactionListView: View {
             Text(errorMessage ?? "")
         }
     }
+
+    private func repeatButton(for transaction: WalletTransaction) -> some View {
+        Button("Repeat transaction", systemImage: "arrow.clockwise") {
+            repeatTransaction(transaction)
+        }
+        .accessibilityIdentifier("repeatTransaction")
+    }
+
+    private func repeatTransaction(_ transaction: WalletTransaction) {
+        editor = TransactionEditorPresentation(repeatedDraft: .repeating(transaction))
+    }
 }
 
 struct TransactionEditorView: View {
@@ -189,27 +208,24 @@ struct TransactionEditorView: View {
     @Query(sort: \WalletCategory.name) private var categories: [WalletCategory]
     private enum Field: Hashable { case amount, note }
     @FocusState private var focusedField: Field?
-    @State private var amountText = ""
-    @State private var currencyCode = "USD"
-    @State private var date = Date()
-    @State private var note = ""
-    @State private var kind: TransactionKind = .expense
-    @State private var selectedCategoryID: UUID?
-    @State private var hasLoadedDraft = false
+    @State private var draft = WalletTransactionDraft()
     @State private var showsCategoryEditor = false
     @State private var amountError: String?
     @State private var saveError: String?
-    @State private var initialDraft: DraftSnapshot?
+    @State private var initialDraft: WalletTransactionDraft?
     @State private var showsDiscardConfirmation = false
 
     let transaction: WalletTransaction?
+    let repeatedDraft: WalletTransactionDraft?
     let initialCategory: WalletCategory?
     let initialKind: TransactionKind
     let initialCurrencyCode: String?
 
-    init(transaction: WalletTransaction? = nil, initialCategory: WalletCategory? = nil,
-         initialKind: TransactionKind = .expense, initialCurrencyCode: String? = nil) {
+    init(transaction: WalletTransaction? = nil, repeatedDraft: WalletTransactionDraft? = nil,
+         initialCategory: WalletCategory? = nil, initialKind: TransactionKind = .expense,
+         initialCurrencyCode: String? = nil) {
         self.transaction = transaction
+        self.repeatedDraft = repeatedDraft
         self.initialCategory = initialCategory
         self.initialKind = initialKind
         self.initialCurrencyCode = initialCurrencyCode
@@ -217,29 +233,24 @@ struct TransactionEditorView: View {
 
     private var availableCategories: [WalletCategory] {
         categories.filter {
-            $0.kind == kind && (!$0.isArchived || $0.id == transaction?.category?.id)
+            $0.kind == draft.kind && (!$0.isArchived || $0.id == transaction?.category?.id)
         }
     }
 
     private var selectedCategory: WalletCategory? {
-        availableCategories.first { $0.id == selectedCategoryID }
-    }
-
-    private var draftSnapshot: DraftSnapshot {
-        DraftSnapshot(amountText: amountText, currencyCode: currencyCode, date: date,
-                      note: note, kind: kind, categoryID: selectedCategoryID)
+        availableCategories.first { $0.id == draft.categoryID }
     }
 
     private var hasUnsavedChanges: Bool {
         guard let initialDraft else { return false }
-        return draftSnapshot != initialDraft
+        return draft != initialDraft
     }
 
     var body: some View {
         NavigationStack {
             Form {
                 Section {
-                    Picker("Transaction type", selection: $kind) {
+                    Picker("Transaction type", selection: $draft.kind) {
                         Text(LocalizedStringKey(TransactionKind.expense.localizedName)).tag(TransactionKind.expense)
                         Text(LocalizedStringKey(TransactionKind.income.localizedName)).tag(TransactionKind.income)
                     }
@@ -254,7 +265,7 @@ struct TransactionEditorView: View {
                         ? AnyLayout(VStackLayout(alignment: .leading, spacing: 8))
                         : AnyLayout(HStackLayout(alignment: .firstTextBaseline, spacing: 12))
                     amountLayout {
-                        TextField("0", text: $amountText)
+                        TextField("0", text: $draft.amountText)
                             .font(.largeTitle.weight(.medium))
                             .monospacedDigit()
                             .keyboardType(.decimalPad)
@@ -263,7 +274,7 @@ struct TransactionEditorView: View {
                             .focused($focusedField, equals: .amount)
                             .accessibilityLabel("Amount")
                             .accessibilityIdentifier("transactionAmount")
-                        Text(currencyCode)
+                        Text(draft.currencyCode)
                             .font(.subheadline.weight(.medium))
                             .foregroundStyle(.secondary)
                     }
@@ -279,16 +290,16 @@ struct TransactionEditorView: View {
                     }
 
                     Menu {
-                        Picker("Currency", selection: $currencyCode) {
+                        Picker("Currency", selection: $draft.currencyCode) {
                             ForEach(WalletCurrency.allCases) { currency in
                                 Text(currency.displayName).tag(currency.rawValue)
                             }
-                            if WalletCurrency(rawValue: currencyCode) == nil {
-                                Text(currencyCode).tag(currencyCode)
+                            if WalletCurrency(rawValue: draft.currencyCode) == nil {
+                                Text(draft.currencyCode).tag(draft.currencyCode)
                             }
                         }
                     } label: {
-                        WalletFormMenuLabel("Currency", value: WalletCurrency(rawValue: currencyCode)?.displayName ?? currencyCode)
+                        WalletFormMenuLabel("Currency", value: WalletCurrency(rawValue: draft.currencyCode)?.displayName ?? draft.currencyCode)
                     }
                     .accessibilityIdentifier("transactionCurrency")
                 } header: {
@@ -299,7 +310,7 @@ struct TransactionEditorView: View {
 
                 Section {
                     Menu {
-                        Picker("Category", selection: $selectedCategoryID) {
+                        Picker("Category", selection: $draft.categoryID) {
                             Text("Choose a category").tag(UUID?.none)
                             ForEach(availableCategories) { category in
                                 Label(category.name, systemImage: WalletTheme.categorySymbol(category.icon))
@@ -318,21 +329,24 @@ struct TransactionEditorView: View {
                 } footer: {
                     if availableCategories.isEmpty {
                         Text("Create a category to organize this transaction.")
+                    } else if repeatedDraft != nil && selectedCategory == nil {
+                        Text("Choose an active category for the new transaction.")
                     } else if selectedCategory?.isArchived == true {
                         Text("This category is archived. It is kept here for your existing transaction.")
                     }
                 }
 
                 Section("Details") {
-                    DatePicker(selection: $date, displayedComponents: .date) {
+                    DatePicker(selection: $draft.date, displayedComponents: .date) {
                         Label("Date", systemImage: "calendar")
                     }
+                    .accessibilityIdentifier("transactionDate")
                     VStack(alignment: .leading, spacing: 8) {
                         Label("Note (optional)", systemImage: "text.alignleft")
                             .foregroundStyle(.secondary)
                             .font(.subheadline)
                             .fixedSize(horizontal: false, vertical: true)
-                        TextField("", text: $note, axis: .vertical)
+                        TextField("", text: $draft.note, axis: .vertical)
                             .focused($focusedField, equals: .note)
                             .lineLimit(1...5)
                             .textInputAutocapitalization(.sentences)
@@ -356,7 +370,7 @@ struct TransactionEditorView: View {
                         .labelStyle(.iconOnly)
                         .accessibilityIdentifier("saveTransaction")
                         .fontWeight(.semibold)
-                        .disabled(amountText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || selectedCategory == nil)
+                        .disabled(draft.amountText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || selectedCategory == nil)
                 }
                 ToolbarItemGroup(placement: .keyboard) {
                     Spacer()
@@ -364,15 +378,15 @@ struct TransactionEditorView: View {
                 }
             }
             .onAppear(perform: loadDraft)
-            .onChange(of: kind) { _, _ in
-                if selectedCategory == nil { selectedCategoryID = nil }
+            .onChange(of: draft.kind) { _, _ in
+                if selectedCategory == nil { draft.categoryID = nil }
             }
-            .onChange(of: amountText) { _, _ in amountError = nil }
-            .onChange(of: currencyCode) { _, _ in amountError = nil }
+            .onChange(of: draft.amountText) { _, _ in amountError = nil }
+            .onChange(of: draft.currencyCode) { _, _ in amountError = nil }
             .navigationDestination(isPresented: $showsCategoryEditor) {
-                CategoryEditorView(kind: kind, isPresentedModally: false) { category in
-                    kind = category.kind
-                    selectedCategoryID = category.id
+                CategoryEditorView(kind: draft.kind, isPresentedModally: false) { category in
+                    draft.kind = category.kind
+                    draft.categoryID = category.id
                 }
             }
             .confirmationDialog("Discard changes?", isPresented: $showsDiscardConfirmation,
@@ -393,24 +407,20 @@ struct TransactionEditorView: View {
     }
 
     private func loadDraft() {
-        guard !hasLoadedDraft else { return }
-        hasLoadedDraft = true
+        guard initialDraft == nil else { return }
         if let transaction {
-            kind = transaction.kind
-            currencyCode = transaction.currencyCode
-            amountText = Money.inputText(transaction.amountMinor, currencyCode: transaction.currencyCode)
-            date = transaction.date
-            note = transaction.note
-            selectedCategoryID = transaction.category?.id
+            draft = .editing(transaction)
+        } else if let repeatedDraft {
+            draft = repeatedDraft
         } else {
-            kind = initialKind
-            currencyCode = WalletCurrency(rawValue: initialCurrencyCode ?? preferredCurrencyCode)?.rawValue ?? "USD"
+            draft.kind = initialKind
+            draft.currencyCode = WalletCurrency(rawValue: initialCurrencyCode ?? preferredCurrencyCode)?.rawValue ?? "USD"
             if let initialCategory, !initialCategory.isArchived {
-                kind = initialCategory.kind
-                selectedCategoryID = initialCategory.id
+                draft.kind = initialCategory.kind
+                draft.categoryID = initialCategory.id
             }
         }
-        initialDraft = draftSnapshot
+        initialDraft = draft
     }
 
     private func cancel() {
@@ -425,7 +435,7 @@ struct TransactionEditorView: View {
     private func save() {
         let amountMinor: Int64
         do {
-            amountMinor = try Money.parse(amountText, currencyCode: currencyCode)
+            amountMinor = try Money.parse(draft.amountText, currencyCode: draft.currencyCode)
         } catch {
             amountError = error.localizedDescription
             focusedField = .amount
@@ -437,25 +447,16 @@ struct TransactionEditorView: View {
                 context: modelContext,
                 transaction: transaction,
                 amountMinor: amountMinor,
-                currencyCode: currencyCode,
-                date: date,
-                note: note.trimmingCharacters(in: .whitespacesAndNewlines),
-                kind: kind,
+                currencyCode: draft.currencyCode,
+                date: draft.date,
+                note: draft.note,
+                kind: draft.kind,
                 category: selectedCategory
             )
             dismiss()
         } catch {
             saveError = error.localizedDescription
         }
-    }
-
-    private struct DraftSnapshot: Equatable {
-        let amountText: String
-        let currencyCode: String
-        let date: Date
-        let note: String
-        let kind: TransactionKind
-        let categoryID: UUID?
     }
 }
 
@@ -527,6 +528,7 @@ struct TransactionRow: View {
 private struct TransactionEditorPresentation: Identifiable {
     let id = UUID()
     var transaction: WalletTransaction? = nil
+    var repeatedDraft: WalletTransactionDraft? = nil
 }
 
 private struct TransactionDay: Identifiable {
