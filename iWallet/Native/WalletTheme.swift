@@ -49,6 +49,44 @@ extension View {
     func walletSurface() -> some View { modifier(WalletSurface()) }
 }
 
+struct WalletEmptyListRow: View {
+    let title: LocalizedStringKey
+    let systemImage: String
+    let message: LocalizedStringKey
+    let actionTitle: LocalizedStringKey
+    let actionIdentifier: String
+    let action: () -> Void
+
+    var body: some View {
+        VStack(spacing: 16) {
+            Image(systemName: systemImage)
+                .font(.largeTitle)
+                .foregroundStyle(.secondary)
+                .accessibilityHidden(true)
+            VStack(spacing: 6) {
+                Text(title)
+                    .font(.title2.bold())
+                    .accessibilityAddTraits(.isHeader)
+                Text(message)
+                    .font(.body)
+                    .foregroundStyle(.secondary)
+            }
+            Button(action: action) {
+                Text(actionTitle)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.large)
+            .accessibilityIdentifier(actionIdentifier)
+        }
+        .multilineTextAlignment(.center)
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 24)
+        .listRowBackground(Color.clear)
+        .listRowSeparator(.hidden)
+    }
+}
+
 struct WalletFormMenuLabel: View {
     let title: LocalizedStringKey
     let value: String

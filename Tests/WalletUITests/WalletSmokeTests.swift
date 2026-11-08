@@ -822,6 +822,102 @@ final class WalletSmokeTests: XCTestCase {
     }
 }
 
+/// Exercise first-use actions without adding records to the wallet.
+@MainActor
+final class WalletEmptyStateTests: XCTestCase {
+    func testRussianEmptyStateActionsOpenAndCancelEditors() throws {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launchArguments = ["-AppleLanguages", "(ru)", "-AppleLocale", "ru_RU"]
+        app.launch()
+        defer { app.terminate() }
+
+        let cases = [
+            (tab: "Операции", heading: "Пока нет операций", action: "emptyTransactionAction",
+             label: "Добавить операцию", editor: "Новая операция", screenshot: "empty-transactions-ru"),
+            (tab: "Платежи", heading: "Пока нет платежей", action: "emptyPaymentAction",
+             label: "Новый платёж", editor: "Новый платёж", screenshot: "empty-payments-ru")
+        ]
+        for screen in cases {
+            let tab = app.tabBars.buttons[screen.tab]
+            XCTAssertTrue(tab.waitForExistence(timeout: 15))
+            tab.tap()
+            let heading = app.staticTexts[screen.heading]
+            // Saved rows display an ISO currency code in both lists. A full suite can
+            // reuse a seeded simulator; only an existing record should skip this case.
+            if !heading.waitForExistence(timeout: 5),
+               app.cells.buttons.matching(NSPredicate(format: "label MATCHES %@", "(?s).*\\b[A-Z]{3}\\b.*")).firstMatch.exists {
+                throw XCTSkip("A wallet with no transactions or payment plans is required.")
+            }
+            XCTAssertTrue(heading.exists)
+            tapEmptyAction(in: app, heading: heading, identifier: screen.action, label: screen.label,
+                           screenshot: screen.screenshot)
+            let editorBar = app.navigationBars[screen.editor]
+            XCTAssertTrue(editorBar.waitForExistence(timeout: 5))
+            editorBar.buttons["Отмена"].tap()
+            XCTAssertTrue(editorBar.waitForNonExistence(timeout: 5))
+            XCTAssertTrue(heading.waitForExistence(timeout: 5))
+        }
+    }
+
+    func testRussianEmptyIncomeCategoryOpensAndCancelsEditor() throws {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launchArguments = ["-AppleLanguages", "(ru)", "-AppleLocale", "ru_RU"]
+        app.launch()
+        defer { app.terminate() }
+
+        let settings = app.tabBars.buttons["Настройки"]
+        XCTAssertTrue(settings.waitForExistence(timeout: 15))
+        settings.tap()
+        app.buttons["settingsCategories"].tap()
+        XCTAssertTrue(app.navigationBars["Категории"].waitForExistence(timeout: 5))
+        let income = app.segmentedControls.buttons["Доход"].firstMatch
+        income.tap()
+        XCTAssertTrue(income.isSelected)
+
+        let heading = app.staticTexts["Пока нет категорий"]
+        if !heading.waitForExistence(timeout: 5) {
+            let populatedFooter = app.staticTexts["После архивирования категории все её операции останутся в истории."]
+            try XCTSkipIf(populatedFooter.exists, "Use a QA wallet with no active income categories.")
+        }
+        XCTAssertTrue(heading.exists)
+        tapEmptyAction(in: app, heading: heading, identifier: "emptyCategoryAction", label: "Добавить категорию",
+                       screenshot: "empty-income-categories-ru")
+
+        let editor = app.navigationBars["Новая категория"]
+        XCTAssertTrue(editor.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.textFields["categoryName"].exists)
+        XCTAssertTrue(app.segmentedControls.buttons["Доход"].firstMatch.isSelected)
+        editor.buttons["Отмена"].tap()
+        XCTAssertTrue(editor.waitForNonExistence(timeout: 5))
+        XCTAssertTrue(heading.waitForExistence(timeout: 5))
+    }
+
+    private func tapEmptyAction(in app: XCUIApplication, heading: XCUIElement, identifier: String,
+                                label: String, screenshot: String) {
+        let action = app.buttons[identifier].firstMatch
+        XCTAssertTrue(action.waitForExistence(timeout: 5))
+        XCTAssertEqual(action.label, label)
+        if UIApplication.shared.preferredContentSizeCategory.isAccessibilityCategory {
+            for _ in 0..<3 {
+                if action.isHittable && action.frame.maxY <= app.tabBars.firstMatch.frame.minY { break }
+                app.swipeUp()
+            }
+        }
+        XCTAssertTrue(action.isHittable)
+        let frame = action.frame
+        XCTAssertGreaterThan(frame.width, frame.height, "The empty-state button must not collapse into a vertical strip.")
+        XCTAssertGreaterThanOrEqual(frame.minY, heading.frame.maxY)
+        XCTAssertLessThanOrEqual(frame.maxY, app.tabBars.firstMatch.frame.minY)
+        let attachment = XCTAttachment(screenshot: app.screenshot())
+        attachment.name = screenshot
+        attachment.lifetime = .keepAlways
+        add(attachment)
+        action.tap()
+    }
+}
+
 /// Opt-in App Store captures seed newly created simulators through normal forms.
 /// The separate visual QA method reuses a seeded simulator without adding data.
 final class WalletAppStoreScreenshotTests: XCTestCase {

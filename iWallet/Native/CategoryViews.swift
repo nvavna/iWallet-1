@@ -40,15 +40,13 @@ struct CategoryListView: View {
             }
 
             if activeCategories.isEmpty {
-                ContentUnavailableView {
-                    Label("Make room for what matters", systemImage: "square.grid.2x2")
-                } description: {
-                    Text("Create categories that match your everyday life.")
-                } actions: {
-                    Button("Add category", systemImage: "plus") { showsEditor = true }
-                        .buttonStyle(.borderedProminent)
+                WalletEmptyListRow(
+                    title: "Make room for what matters", systemImage: "square.grid.2x2",
+                    message: "Create categories that match your everyday life.",
+                    actionTitle: "Add category", actionIdentifier: "emptyCategoryAction"
+                ) {
+                    showsEditor = true
                 }
-                .listRowBackground(Color.clear)
             } else {
                 Section {
                     ForEach(activeCategories) { category in

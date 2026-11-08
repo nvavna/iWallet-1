@@ -76,15 +76,12 @@ struct TransactionListView: View {
             if filteredTransactions.isEmpty {
                 Section {
                     if transactions.isEmpty {
-                        ContentUnavailableView {
-                            Label("Your story starts here", systemImage: "list.bullet.rectangle")
-                        } description: {
-                            Text("Add your first transaction to see your money in perspective.")
-                        } actions: {
-                            Button("Add transaction", systemImage: "plus") {
-                                editor = TransactionEditorPresentation()
-                            }
-                            .buttonStyle(.borderedProminent)
+                        WalletEmptyListRow(
+                            title: "Your story starts here", systemImage: "list.bullet.rectangle",
+                            message: "Add your first transaction to see your money in perspective.",
+                            actionTitle: "Add transaction", actionIdentifier: "emptyTransactionAction"
+                        ) {
+                            editor = TransactionEditorPresentation()
                         }
                     } else {
                         ContentUnavailableView {

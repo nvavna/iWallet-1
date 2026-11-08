@@ -10,15 +10,13 @@ struct RecurringPaymentListView: View {
             TimelineView(.periodic(from: .now, by: 60)) { timeline in
                 List {
                     if payments.isEmpty {
-                        ContentUnavailableView {
-                            Label("No payments yet", systemImage: "calendar.badge.clock")
-                        } description: {
-                            Text("Plan subscriptions and other regular expenses.")
-                        } actions: {
-                            Button("New payment", systemImage: "plus") { showsEditor = true }
-                                .buttonStyle(.borderedProminent)
+                        WalletEmptyListRow(
+                            title: "No payments yet", systemImage: "calendar.badge.clock",
+                            message: "Plan subscriptions and other regular expenses.",
+                            actionTitle: "New payment", actionIdentifier: "emptyPaymentAction"
+                        ) {
+                            showsEditor = true
                         }
-                        .listRowBackground(Color.clear)
                     } else {
                         paymentSection("Overdue", payments: payments.filter { $0.isOverdue(asOf: timeline.date) }, now: timeline.date)
                         paymentSection("Upcoming", payments: payments.filter { $0.isActive && !$0.isOverdue(asOf: timeline.date) }, now: timeline.date)
