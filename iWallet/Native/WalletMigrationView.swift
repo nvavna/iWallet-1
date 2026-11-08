@@ -109,12 +109,12 @@ struct WalletMigrationView: View {
     private func summary(_ preview: LegacyWalletMigration.Preview) -> some View {
         Group {
             Section("Ready to transfer") {
-                LabeledContent("Categories", value: String(preview.backup.categories.count))
+                LabeledContent("Categories", value: preview.backup.categories.count.formatted())
                     .accessibilityIdentifier("migrationCategoryCount")
-                    .accessibilityValue(String(preview.backup.categories.count))
-                LabeledContent("Transactions", value: String(preview.backup.transactions.count))
+                    .accessibilityValue(preview.backup.categories.count.formatted())
+                LabeledContent("Transactions", value: preview.backup.transactions.count.formatted())
                     .accessibilityIdentifier("migrationTransactionCount")
-                    .accessibilityValue(String(preview.backup.transactions.count))
+                    .accessibilityValue(preview.backup.transactions.count.formatted())
                 LabeledContent("Currency", value: currencyCode)
                 transferTotal("Income", kind: .income, preview: preview)
                 transferTotal("Expense", kind: .expense, preview: preview)
@@ -125,7 +125,7 @@ struct WalletMigrationView: View {
                     ForEach(preview.amountAdjustments.prefix(10)) { adjustment in
                         LabeledContent(adjustment.originalDecimal, value: Money.format(adjustment.amountMinor, currencyCode: currencyCode))
                     }
-                    LabeledContent("Amounts requiring rounding", value: String(preview.amountAdjustments.count))
+                    LabeledContent("Amounts requiring rounding", value: preview.amountAdjustments.count.formatted())
                     Text("The saved report contains every rounding change and the original values.")
                         .font(.footnote).foregroundStyle(.secondary)
                     Toggle("I have reviewed the rounding changes", isOn: $acceptsRounding)

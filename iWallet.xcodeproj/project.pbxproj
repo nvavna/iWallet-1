@@ -212,6 +212,15 @@
 			"developmentRegion" = "en";
 			"knownRegions" = (
 				"Base",
+				"zh-Hans",
+				"hi",
+				"es",
+				"ar",
+				"fr",
+				"bn",
+				"pt",
+				"id",
+				"ur",
 				"ru",
 				"en",
 			);
@@ -259,6 +268,69 @@
 			"path" = "WalletSettingsView.swift";
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
+			"sourceTree" = "<group>";
+		};
+		"AD5E8550471842C78A71E31A" = {
+			"path" = "zh-Hans.lproj/Localizable.strings";
+			"isa" = "PBXFileReference";
+			"name" = "zh-Hans";
+			"lastKnownFileType" = "text.plist.strings";
+			"sourceTree" = "<group>";
+		};
+		"324659552BCB47E69CBACE60" = {
+			"path" = "hi.lproj/Localizable.strings";
+			"isa" = "PBXFileReference";
+			"name" = "hi";
+			"lastKnownFileType" = "text.plist.strings";
+			"sourceTree" = "<group>";
+		};
+		"6E4F3C4A1B154048B166F614" = {
+			"path" = "es.lproj/Localizable.strings";
+			"isa" = "PBXFileReference";
+			"name" = "es";
+			"lastKnownFileType" = "text.plist.strings";
+			"sourceTree" = "<group>";
+		};
+		"DFE45F71ACDD46F88C46E50E" = {
+			"path" = "ar.lproj/Localizable.strings";
+			"isa" = "PBXFileReference";
+			"name" = "ar";
+			"lastKnownFileType" = "text.plist.strings";
+			"sourceTree" = "<group>";
+		};
+		"E49D6717E9354B59B4C4D1BA" = {
+			"path" = "fr.lproj/Localizable.strings";
+			"isa" = "PBXFileReference";
+			"name" = "fr";
+			"lastKnownFileType" = "text.plist.strings";
+			"sourceTree" = "<group>";
+		};
+		"87F826C2FA4F4FB9B675CFD2" = {
+			"path" = "bn.lproj/Localizable.strings";
+			"isa" = "PBXFileReference";
+			"name" = "bn";
+			"lastKnownFileType" = "text.plist.strings";
+			"sourceTree" = "<group>";
+		};
+		"352B8C57607E4AB5A3D80873" = {
+			"path" = "pt.lproj/Localizable.strings";
+			"isa" = "PBXFileReference";
+			"name" = "pt";
+			"lastKnownFileType" = "text.plist.strings";
+			"sourceTree" = "<group>";
+		};
+		"B5516E671E6E4FD99B09BDF0" = {
+			"path" = "id.lproj/Localizable.strings";
+			"isa" = "PBXFileReference";
+			"name" = "id";
+			"lastKnownFileType" = "text.plist.strings";
+			"sourceTree" = "<group>";
+		};
+		"BE63A4D3EEFB409FBB1449B0" = {
+			"path" = "ur.lproj/Localizable.strings";
+			"isa" = "PBXFileReference";
+			"name" = "ur";
+			"lastKnownFileType" = "text.plist.strings";
 			"sourceTree" = "<group>";
 		};
 		"0880C67129E86A6500E088DB" = {
@@ -659,6 +731,15 @@
 			"name" = "Localizable.strings";
 			"children" = (
 				"0880C66E29E8682B00E088DB",
+				"AD5E8550471842C78A71E31A",
+				"324659552BCB47E69CBACE60",
+				"6E4F3C4A1B154048B166F614",
+				"DFE45F71ACDD46F88C46E50E",
+				"E49D6717E9354B59B4C4D1BA",
+				"87F826C2FA4F4FB9B675CFD2",
+				"352B8C57607E4AB5A3D80873",
+				"B5516E671E6E4FD99B09BDF0",
+				"BE63A4D3EEFB409FBB1449B0",
 				"0880C67129E86A6500E088DB",
 			);
 			"sourceTree" = "<group>";
@@ -769,10 +850,15 @@
 			);
 			"runOnlyForDeploymentPostprocessing" = "0";
 		};
+		"152A9EDDFE7C4D2C99423A64" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "0880C66F29E8682B00E088DB";
+		};
 		"ACA91CF52197B55258C5234B" = {
 			"isa" = "PBXResourcesBuildPhase";
 			"buildActionMask" = "2147483647";
 			"files" = (
+				"152A9EDDFE7C4D2C99423A64",
 			);
 			"runOnlyForDeploymentPostprocessing" = "0";
 		};

@@ -17,7 +17,7 @@ struct WalletBudgetListView: View {
             Section {
                 HStack {
                     Button { moveMonth(-1) } label: {
-                        Label("Previous month", systemImage: "chevron.left")
+                        Label("Previous month", systemImage: "chevron.backward")
                             .frame(minWidth: 44, minHeight: 44)
                             .contentShape(Rectangle())
                     }
@@ -29,7 +29,7 @@ struct WalletBudgetListView: View {
                         .accessibilityIdentifier("budgetMonth")
                     Spacer()
                     Button { moveMonth(1) } label: {
-                        Label("Next month", systemImage: "chevron.right")
+                        Label("Next month", systemImage: "chevron.forward")
                             .frame(minWidth: 44, minHeight: 44)
                             .contentShape(Rectangle())
                     }

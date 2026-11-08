@@ -105,10 +105,10 @@ struct WalletSettingsView: View {
                 NavigationStack {
                     Form {
                         Section("Backup contents") {
-                            LabeledContent("Categories", value: String(preview.backup.categories.count))
-                            LabeledContent("Transactions", value: String(preview.backup.transactions.count))
-                            LabeledContent("Payments", value: String(preview.backup.recurringPayments.count))
-                            LabeledContent("Monthly budgets", value: String(preview.backup.budgets.count))
+                            LabeledContent("Categories", value: preview.backup.categories.count.formatted())
+                            LabeledContent("Transactions", value: preview.backup.transactions.count.formatted())
+                            LabeledContent("Payments", value: preview.backup.recurringPayments.count.formatted())
+                            LabeledContent("Monthly budgets", value: preview.backup.budgets.count.formatted())
                             LabeledContent("Created", value: preview.backup.createdAt.formatted(date: .abbreviated, time: .shortened))
                         }
                         Section {
@@ -144,7 +144,7 @@ struct WalletSettingsView: View {
                 }
             } message: {
                 if let summary = importSummary {
-                    Text(String(format: NSLocalizedString("Added %d categories, %d transactions, %d payments and %d budgets. Skipped %d identical records.", comment: "Import result"),
+                    Text(String(format: NSLocalizedString("Added %d categories, %d transactions, %d payments and %d budgets. Skipped %d identical records.", comment: "Import result"), locale: .current,
                                 summary.insertedCategories, summary.insertedTransactions, summary.insertedRecurringPayments, summary.insertedBudgets,
                                 summary.skippedCategories + summary.skippedTransactions + summary.skippedRecurringPayments + summary.skippedBudgets))
                 } else {

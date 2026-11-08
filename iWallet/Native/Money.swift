@@ -15,7 +15,7 @@ enum MoneyError: LocalizedError, Equatable {
         case .nonPositiveAmount:
             return NSLocalizedString("The amount must be greater than zero.", comment: "Amount error")
         case .tooManyFractionDigits(let count):
-            return String(format: NSLocalizedString("This currency allows %d decimal places.", comment: "Amount error"), count)
+            return String(format: NSLocalizedString("This currency allows %d decimal places.", comment: "Amount error"), locale: .current, count)
         case .amountTooLarge:
             return NSLocalizedString("This amount is too large.", comment: "Amount error")
         case .unsupportedCurrency:

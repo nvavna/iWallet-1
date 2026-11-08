@@ -265,7 +265,7 @@ struct TransactionEditorView: View {
                         ? AnyLayout(VStackLayout(alignment: .leading, spacing: 8))
                         : AnyLayout(HStackLayout(alignment: .firstTextBaseline, spacing: 12))
                     amountLayout {
-                        TextField("0", text: $draft.amountText)
+                        TextField(0.formatted(), text: $draft.amountText)
                             .font(.largeTitle.weight(.medium))
                             .monospacedDigit()
                             .keyboardType(.decimalPad)

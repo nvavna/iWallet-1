@@ -415,3 +415,8 @@
 "End date" = "Конечная дата";
 "Save CSV" = "Сохранить CSV";
 "Both dates are included. Amounts use their original currency. Expenses are negative and income is positive." = "Обе даты входят в период. Суммы указаны в исходных валютах. Расходы — отрицательные числа, доходы — положительные.";
+
+/* Composed financial values and chart accessibility labels. */
+"%@: %@" = "%@: %@";
+"%@, %@" = "%@, %@";
+"%@ · %@" = "%@ · %@";

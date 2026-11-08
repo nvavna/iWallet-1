@@ -473,6 +473,81 @@ final class WalletSmokeTests: XCTestCase {
         }
     }
 
+    func testLocalizedNavigationAndCSVInAllSupportedLanguages() throws {
+        let suffix = String(UUID().uuidString.prefix(8))
+        createTestExpense(category: "Locale QA " + suffix, note: "iWallet QA " + suffix)
+        let resources = Bundle(for: WalletSmokeTests.self)
+        let locales = [("en", "en_US"), ("ru", "ru_RU"), ("zh-Hans", "zh_CN"), ("hi", "hi_IN"),
+                       ("es", "es_ES"), ("ar", "ar_EG"), ("fr", "fr_FR"), ("bn", "bn_BD"),
+                       ("pt", "pt_BR"), ("id", "id_ID"), ("ur", "ur_PK")]
+
+        for (language, region) in locales {
+            try XCTContext.runActivity(named: language) { _ in
+                let url = try XCTUnwrap(resources.url(forResource: language, withExtension: "lproj"))
+                let strings = try XCTUnwrap(Bundle(url: url))
+                func label(_ key: String) -> String {
+                    strings.localizedString(forKey: key, value: nil, table: nil)
+                }
+
+                app.terminate()
+                app.launchArguments = ["-AppleLanguages", "(\(language))", "-AppleLocale", region]
+                app.launch()
+                let overview = app.tabBars.buttons[label("Overview")]
+                let settings = app.tabBars.buttons[label("Settings")]
+                XCTAssertTrue(overview.waitForExistence(timeout: 15))
+                XCTAssertTrue(settings.exists)
+                XCTAssertTrue(app.tabBars.buttons[label("Transactions")].exists)
+                XCTAssertTrue(app.tabBars.buttons[label("Payments")].exists)
+                let isRTL = language == "ar" || language == "ur"
+                XCTAssertEqual(overview.frame.midX > settings.frame.midX, isRTL, "Tab ordering for " + language)
+                if isRTL { attachScreenshot("Overview-" + language) }
+
+                settings.tap()
+                let link = app.buttons["settingsExportCSV"]
+                reveal(link)
+                XCTAssertEqual(link.label, label("Export transactions as CSV"))
+                link.tap()
+                XCTAssertTrue(app.datePickers["csvStartDate"].waitForExistence(timeout: 5))
+                XCTAssertTrue(app.datePickers["csvEndDate"].exists)
+                let save = app.buttons["exportCSV"]
+                XCTAssertEqual(save.label, label("Save CSV"))
+                if isRTL { attachScreenshot("Export-" + language) }
+                save.tap()
+                XCTAssertTrue(app.buttons["DOCPicker.actionButton"].firstMatch.waitForExistence(timeout: 45),
+                              "Files must receive the generated CSV for " + language)
+            }
+        }
+    }
+
+    func testBudgetMonthsNavigateRightToLeftInArabicAndUrdu() throws {
+        let resources = Bundle(for: WalletSmokeTests.self)
+        for (language, region) in [("ar", "ar_EG"), ("ur", "ur_PK")] {
+            let url = try XCTUnwrap(resources.url(forResource: language, withExtension: "lproj"))
+            let strings = try XCTUnwrap(Bundle(url: url))
+            app.terminate()
+            app.launchArguments = ["-AppleLanguages", "(\(language))", "-AppleLocale", region]
+            app.launch()
+            let settings = app.tabBars.buttons[strings.localizedString(forKey: "Settings", value: nil, table: nil)]
+            XCTAssertTrue(settings.waitForExistence(timeout: 15))
+            settings.tap()
+            app.buttons["settingsBudgets"].tap()
+            let previous = app.buttons["previousBudgetMonth"]
+            let next = app.buttons["nextBudgetMonth"]
+            XCTAssertTrue(previous.waitForExistence(timeout: 5))
+            XCTAssertGreaterThan(previous.frame.midX, next.frame.midX, language)
+            let month = app.staticTexts["budgetMonth"]
+            let initial = month.label
+            XCTAssertFalse(initial.isEmpty)
+            next.tap()
+            XCTAssertNotEqual(month.label, initial)
+            previous.tap()
+            XCTAssertEqual(month.label, initial)
+            XCTAssertEqual(app.buttons["copyPreviousBudgets"].label,
+                           strings.localizedString(forKey: "Copy last month’s budgets", value: nil, table: nil))
+            attachScreenshot("Budget-" + language)
+        }
+    }
+
     private func createTestExpense(category: String, note: String) {
         createExpenseCategory(named: category)
         goHome()
