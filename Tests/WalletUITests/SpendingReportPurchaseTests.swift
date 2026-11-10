@@ -8,13 +8,17 @@ final class SpendingReportPurchaseTests: XCTestCase {
 
     override func setUpWithError() throws {
         continueAfterFailure = false
+        app = XCUIApplication()
+        app.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        // On a new simulator Xcode installs the app on first launch. StoreKitTest
+        // needs that installation to associate its catalog with our bundle.
+        app.launch()
+        app.terminate()
         let configuration = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "SpendingReports", withExtension: "storekit"))
         session = try SKTestSession(contentsOf: configuration)
         session.resetToDefaultState()
         session.disableDialogs = true
         session.clearTransactions()
-        app = XCUIApplication()
-        app.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
         app.launch()
     }
 
@@ -64,6 +68,23 @@ final class SpendingReportPurchaseTests: XCTestCase {
         let tx = try XCTUnwrap(session.allTransactions().first(where: { $0.pendingAskToBuyConfirmation }))
         try session.approveAskToBuyTransaction(identifier: tx.identifier)
         XCTAssertTrue(app.buttons["exportSpendingReportPDF"].waitForExistence(timeout: 20), app.debugDescription)
+    }
+
+    func testExistingPurchaseOpensFromOverviewInRussian() async throws {
+        app.terminate()
+        _ = try await session.buyProduct(identifier: "com.idevnva.iwallet.spendingreports", options: [])
+        app.launchArguments = ["-AppleLanguages", "(ru)", "-AppleLocale", "ru_RU"]
+        app.launch()
+        let overview = app.tabBars.buttons["Обзор"]
+        XCTAssertTrue(overview.waitForExistence(timeout: 20))
+        overview.tap()
+        let reports = app.buttons["overviewSpendingReport"]
+        for _ in 0..<7 where !reports.isHittable { app.swipeUp() }
+        XCTAssertTrue(reports.isHittable)
+        reports.tap()
+        XCTAssertTrue(app.datePickers["reportStartDate"].waitForExistence(timeout: 15), app.debugDescription)
+        XCTAssertTrue(app.navigationBars["Отчёт о расходах"].exists)
+        XCTAssertFalse(app.buttons["buySpendingReports"].exists)
     }
 
     func testCancelledCheckoutAndEmptyRestoreLeaveReportsLocked() async throws {

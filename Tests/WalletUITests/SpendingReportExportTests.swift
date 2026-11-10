@@ -9,20 +9,43 @@ final class SpendingReportExportTests: XCTestCase {
         let device = ProcessInfo.processInfo.environment["SIMULATOR_DEVICE_NAME"] ?? ""
         try XCTSkipUnless(device.localizedCaseInsensitiveContains("QA"), "Run on a dedicated QA simulator.")
 
+        let app = XCUIApplication()
+        app.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.launch()
+        app.terminate()
+        defer { app.terminate() }
+        // On a fresh simulator XCTest installs the target at its first launch.
+        // StoreKit needs that installed target to register its local catalog.
         let configuration = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "SpendingReports", withExtension: "storekit"))
         let session = try SKTestSession(contentsOf: configuration)
         session.resetToDefaultState()
         session.disableDialogs = true
         session.clearTransactions()
-        let app = XCUIApplication()
         defer {
-            app.terminate()
             session.clearTransactions()
             session.resetToDefaultState()
         }
-        app.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
-        app.launch()
 
+        // The app chooses its StoreKit environment at launch.
+        app.launch()
+        app.tabBars.buttons["Settings"].tap()
+        app.buttons["settingsSpendingReport"].tap()
+        let purchase = app.buttons["buySpendingReports"]
+        for _ in 0..<3 where !purchase.waitForExistence(timeout: 6) {
+            let retry = app.buttons["Try again"]
+            if retry.exists { retry.tap() }
+        }
+        XCTAssertTrue(purchase.waitForExistence(timeout: 10), app.debugDescription)
+        attach(app, "01-offer")
+        app.buttons["openSampleSpendingReport"].tap()
+        XCTAssertTrue(app.staticTexts["This report uses example expenses."].waitForExistence(timeout: 5))
+        let savePDF = app.buttons["exportSpendingReportPDF"]
+        XCTAssertFalse(savePDF.exists)
+        XCTAssertFalse(app.datePickers["reportStartDate"].exists)
+        attach(app, "02-sample")
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+
+        app.tabBars.buttons["Overview"].tap()
         let newExpense = app.buttons["quickAddExpense"]
         XCTAssertTrue(newExpense.waitForExistence(timeout: 20))
         newExpense.tap()
@@ -39,17 +62,7 @@ final class SpendingReportExportTests: XCTestCase {
         XCTAssertTrue(amount.waitForNonExistence(timeout: 10))
 
         app.tabBars.buttons["Settings"].tap()
-        app.buttons["settingsSpendingReport"].tap()
-        let purchase = app.buttons["buySpendingReports"]
-        XCTAssertTrue(purchase.waitForExistence(timeout: 20))
-        attach(app, "01-offer")
-        app.buttons["openSampleSpendingReport"].tap()
-        XCTAssertTrue(app.staticTexts["sampleReportNotice"].waitForExistence(timeout: 5))
-        let savePDF = app.buttons["exportSpendingReportPDF"]
-        XCTAssertFalse(savePDF.exists)
-        XCTAssertFalse(app.datePickers["reportStartDate"].exists)
-        attach(app, "02-sample")
-        app.navigationBars.buttons.element(boundBy: 0).tap()
+        if !purchase.exists { app.buttons["settingsSpendingReport"].tap() }
         purchase.tap()
         XCTAssertTrue(app.datePickers["reportStartDate"].waitForExistence(timeout: 20))
         XCTAssertTrue(app.datePickers["reportEndDate"].exists)

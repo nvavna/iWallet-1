@@ -7,8 +7,8 @@
       "familyShareable" : false,
       "internalID" : "A99A7C71",
       "localizations" : [
-        { "description" : "Compare spending over custom dates and save PDF reports.", "displayName" : "Spending reports", "locale" : "en_US" },
-        { "description" : "Сравнивайте расходы за выбранные даты и сохраняйте отчёты в PDF.", "displayName" : "Отчёты о расходах", "locale" : "ru" }
+        { "description" : "Compare spending by date and save a PDF.", "displayName" : "Spending reports", "locale" : "en_US" },
+        { "description" : "Сравнивайте расходы и сохраняйте отчёт в PDF.", "displayName" : "Отчёты о расходах", "locale" : "ru" }
       ],
       "productID" : "com.idevnva.iwallet.spendingreports",
       "referenceName" : "Spending reports",
