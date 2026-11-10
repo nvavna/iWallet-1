@@ -403,7 +403,7 @@ struct RecurringPaymentEditorView: View {
                         .accessibilityIdentifier("paymentSubscription")
                 }
                 Section {
-                    TextField("0", text: $amountText)
+                    TextField(0.formatted(), text: $amountText)
                         .font(.largeTitle.weight(.medium)).monospacedDigit()
                         .keyboardType(.decimalPad)
                         .textInputAutocapitalization(.never).autocorrectionDisabled()

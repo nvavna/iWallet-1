@@ -120,6 +120,21 @@ final class MoneyTests: XCTestCase {
         XCTAssertEqual(try Money.parse("۱٬۲۳۴٫۵۶", currencyCode: "EGP", locale: Locale(identifier: "fa_IR")), 123_456)
     }
 
+    func testEditableAmountsRoundTripInEverySupportedLanguage() throws {
+        for identifier in ["en_US", "ru_RU", "zh_CN", "hi_IN", "es_ES", "ar_EG",
+                           "fr_FR", "bn_BD", "pt_BR", "pt_PT", "id_ID", "ur_PK"] {
+            let locale = Locale(identifier: identifier)
+            for value: Int64 in [1, 123_456, Money.maximumAmountMinor - 1] {
+                for currency in ["USD", "JPY"] {
+                    let input = Money.inputText(value, currencyCode: currency, locale: locale)
+                    XCTAssertEqual(try Money.parse(input, currencyCode: currency, locale: locale), value, identifier)
+                }
+            }
+        }
+        XCTAssertEqual(try Money.parse("১২,৩৪,৫৬৭.৮৯", currencyCode: "USD",
+                                       locale: Locale(identifier: "bn_BD")), 123_456_789)
+    }
+
     func testUnicodeNumericSymbolsAreNotDecimalDigits() {
         for input in ["Ⅻ", "²", "½", "①", "1²", "1.½", "1️⃣"] {
             XCTAssertThrowsError(try Money.parse(input, currencyCode: "USD", locale: us), input)

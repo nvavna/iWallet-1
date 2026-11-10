@@ -44,6 +44,12 @@ struct WalletSettingsView: View {
                     Text("Used for new transactions. Existing amounts keep their original currency; no conversion is performed.")
                 }
                 Section {
+                    NavigationLink {
+                        WalletCSVExportView()
+                    } label: {
+                        Label("Export transactions as CSV", systemImage: "tablecells")
+                    }
+                    .accessibilityIdentifier("settingsExportCSV")
                     Button(action: prepareExport) { Label("Export all data", systemImage: "square.and.arrow.up") }
                     Button { showingImporter = true } label: { Label("Import a backup", systemImage: "square.and.arrow.down") }
                         .disabled(isReading)
@@ -99,10 +105,10 @@ struct WalletSettingsView: View {
                 NavigationStack {
                     Form {
                         Section("Backup contents") {
-                            LabeledContent("Categories", value: String(preview.backup.categories.count))
-                            LabeledContent("Transactions", value: String(preview.backup.transactions.count))
-                            LabeledContent("Payments", value: String(preview.backup.recurringPayments.count))
-                            LabeledContent("Monthly budgets", value: String(preview.backup.budgets.count))
+                            LabeledContent("Categories", value: preview.backup.categories.count.formatted())
+                            LabeledContent("Transactions", value: preview.backup.transactions.count.formatted())
+                            LabeledContent("Payments", value: preview.backup.recurringPayments.count.formatted())
+                            LabeledContent("Monthly budgets", value: preview.backup.budgets.count.formatted())
                             LabeledContent("Created", value: preview.backup.createdAt.formatted(date: .abbreviated, time: .shortened))
                         }
                         Section {
@@ -138,7 +144,7 @@ struct WalletSettingsView: View {
                 }
             } message: {
                 if let summary = importSummary {
-                    Text(String(format: NSLocalizedString("Added %d categories, %d transactions, %d payments and %d budgets. Skipped %d identical records.", comment: "Import result"),
+                    Text(String(format: NSLocalizedString("Added %d categories, %d transactions, %d payments and %d budgets. Skipped %d identical records.", comment: "Import result"), locale: .current,
                                 summary.insertedCategories, summary.insertedTransactions, summary.insertedRecurringPayments, summary.insertedBudgets,
                                 summary.skippedCategories + summary.skippedTransactions + summary.skippedRecurringPayments + summary.skippedBudgets))
                 } else {
@@ -245,8 +251,93 @@ private struct ImportPreview: Identifiable {
     let backup: WalletBackup
 }
 
+private struct WalletCSVExportView: View {
+    @Environment(\.modelContext) private var context
+    @Environment(\.calendar) private var calendar
+    @Environment(\.timeZone) private var timeZone
+    @Environment(\.locale) private var locale
+    @State private var startDate = Calendar.current.dateInterval(of: .month, for: .now)?.start ?? .now
+    @State private var endDate = Date.now
+    @State private var isPreparing = false
+    @State private var csv: WalletTransactionCSV?
+    @State private var showingExporter = false
+    @State private var errorMessage: String?
+
+    var body: some View {
+        Form {
+            Section {
+                DatePicker("Start date", selection: $startDate, displayedComponents: .date)
+                    .accessibilityIdentifier("csvStartDate")
+                    .onChange(of: startDate) { _, start in
+                        if calendar.compare(start, to: endDate, toGranularity: .day) == .orderedDescending {
+                            endDate = start
+                        }
+                    }
+                DatePicker("End date", selection: $endDate, in: calendar.startOfDay(for: startDate)...,
+                           displayedComponents: .date)
+                    .accessibilityIdentifier("csvEndDate")
+            } header: { Text("Period") } footer: {
+                Text("Both dates are included. Amounts use their original currency. Expenses are negative and income is positive.")
+            }
+            Section {
+                Button { isPreparing = true } label: {
+                    HStack {
+                        Label("Save CSV", systemImage: "square.and.arrow.up")
+                        if isPreparing { Spacer(); ProgressView() }
+                    }
+                }
+                .accessibilityIdentifier("exportCSV")
+            }
+        }
+        .disabled(isPreparing)
+        .navigationTitle("Export transactions as CSV")
+        .navigationBarTitleDisplayMode(.inline)
+        .task(id: isPreparing) {
+            guard isPreparing else { return }
+            await prepareExport()
+        }
+        .fileExporter(isPresented: $showingExporter, document: csv.map { WalletExportDocument(data: $0.data) },
+                      contentType: .commaSeparatedText, defaultFilename: csv?.filename) { result in
+            csv = nil
+            if case .failure(let error) = result { errorMessage = error.localizedDescription }
+        }
+        .alert(errorMessage ?? "", isPresented: Binding(get: { errorMessage != nil }, set: { if !$0 { errorMessage = nil } })) {
+            Button("OK", role: .cancel) {}
+        }
+    }
+
+    @MainActor
+    private func prepareExport() async {
+        let container = context.container
+        var exportCalendar = calendar
+        exportCalendar.timeZone = timeZone
+        let worker = Task.detached(priority: .userInitiated) { [startDate, endDate, locale, exportCalendar] in
+            try WalletTransactionCSV.export(context: ModelContext(container), from: startDate, through: endDate,
+                                            calendar: exportCalendar, locale: locale)
+        }
+        defer { isPreparing = false }
+        do {
+            let result = try await withTaskCancellationHandler {
+                try await worker.value
+            } onCancel: {
+                worker.cancel()
+            }
+            try Task.checkCancellation()
+            if let result {
+                csv = result
+                showingExporter = true
+            } else {
+                errorMessage = String(localized: "No transactions in this period")
+            }
+        } catch is CancellationError {
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+}
+
 private struct WalletExportDocument: FileDocument {
-    static var readableContentTypes: [UTType] { [.json] }
+    static var readableContentTypes: [UTType] { [.json, .commaSeparatedText] }
     var data: Data
 
     init(data: Data) { self.data = data }

@@ -3,22 +3,25 @@ import SwiftData
 
 struct WalletBudgetListView: View {
     @Environment(\.locale) private var locale
+    @Environment(\.modelContext) private var context
     @AppStorage("preferredCurrencyCode") private var currencyCode = WalletDefaults.currencyCode
     @Query(sort: \WalletCategory.name) private var categories: [WalletCategory]
     @Query(sort: \WalletBudget.currencyCode) private var budgets: [WalletBudget]
     @State private var month = BudgetMonth(containing: .now)
     @State private var editor: BudgetEditorRoute?
+    @State private var copyResult: String?
+    @State private var copyError: String?
 
     var body: some View {
         List {
             Section {
                 HStack {
                     Button { moveMonth(-1) } label: {
-                        Label("Previous month", systemImage: "chevron.left")
+                        Label("Previous month", systemImage: "chevron.backward")
                             .frame(minWidth: 44, minHeight: 44)
                             .contentShape(Rectangle())
                     }
-                        .disabled(month.year == 1 && month.month == 1)
+                        .disabled(month.advanced(by: -1) == nil)
                         .accessibilityIdentifier("previousBudgetMonth")
                     Spacer()
                     Text(month.displayName(locale: locale)).font(.headline)
@@ -26,15 +29,24 @@ struct WalletBudgetListView: View {
                         .accessibilityIdentifier("budgetMonth")
                     Spacer()
                     Button { moveMonth(1) } label: {
-                        Label("Next month", systemImage: "chevron.right")
+                        Label("Next month", systemImage: "chevron.forward")
                             .frame(minWidth: 44, minHeight: 44)
                             .contentShape(Rectangle())
                     }
-                        .disabled(month.year == 9999 && month.month == 12)
+                        .disabled(month.advanced(by: 1) == nil)
                         .accessibilityIdentifier("nextBudgetMonth")
                 }
                 .labelStyle(.iconOnly)
                 .buttonStyle(.borderless)
+                Button(action: copyPreviousBudgets) {
+                    Label("Copy last month’s budgets", systemImage: "doc.on.doc")
+                }
+                .disabled(month.advanced(by: -1) == nil)
+                .accessibilityIdentifier("copyPreviousBudgets")
+            } footer: {
+                if let copyResult {
+                    Text(copyResult).accessibilityIdentifier("budgetCopyResult")
+                }
             }
             let visible = budgets.filter { $0.year == month.year && $0.month == month.month }
             if visible.isEmpty {
@@ -71,12 +83,40 @@ struct WalletBudgetListView: View {
         .sheet(item: $editor) { route in
             BudgetEditor(budget: route.budget, month: month, categories: categories, currency: currencyCode)
         }
+        .alert("Unable to complete the operation", isPresented: Binding(
+            get: { copyError != nil }, set: { _ in copyError = nil }
+        )) {
+            Button("OK", role: .cancel) {}
+        } message: { Text(copyError ?? "") }
     }
 
     private func moveMonth(_ delta: Int) {
-        let index = (month.year - 1) * 12 + month.month - 1 + delta
-        guard (0..<(9999 * 12)).contains(index) else { return }
-        month = BudgetMonth(year: index / 12 + 1, month: index % 12 + 1)
+        guard let nextMonth = month.advanced(by: delta) else { return }
+        month = nextMonth
+        copyResult = nil
+    }
+
+    private func copyPreviousBudgets() {
+        do {
+            let result = try WalletStore.copyPreviousBudgets(context: context, to: month)
+            var messages: [String] = []
+            if result.added > 0 {
+                messages.append(String(localized: "Budgets added: \(result.added).", locale: locale))
+            }
+            if result.existing > 0 {
+                messages.append(String(localized: "Limits already set: \(result.existing).", locale: locale))
+            }
+            if result.archived > 0 {
+                messages.append(String(localized: "Skipped budgets in archived categories: \(result.archived).", locale: locale))
+            }
+            let message = messages.isEmpty ? String(localized: "No budgets were set last month.", locale: locale)
+                                           : messages.joined(separator: " ")
+            copyResult = message
+            AccessibilityNotification.Announcement(message).post()
+        } catch {
+            copyResult = nil
+            copyError = error.localizedDescription
+        }
     }
 }
 

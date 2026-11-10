@@ -402,3 +402,21 @@
 "A scheduled payment is due today." = "Сегодня день запланированного платежа.";
 "A scheduled payment is due tomorrow." = "Завтра день запланированного платежа.";
 "Check the next payment date and reminder time for your active plans." = "Проверьте ближайшую дату активного платежа и выбранное время напоминания.";
+
+/* Transaction history, monthly budgets and CSV export. */
+"Repeat transaction" = "Повторить операцию";
+"Copy last month’s budgets" = "Скопировать бюджеты прошлого месяца";
+"No budgets were set last month." = "В прошлом месяце не было бюджетов.";
+"Budgets added: %lld." = "Добавлено бюджетов: %lld.";
+"Limits already set: %lld." = "Уже задано лимитов: %lld.";
+"Skipped budgets in archived categories: %lld." = "Пропущено бюджетов в архивных категориях: %lld.";
+"Export transactions as CSV" = "Экспорт операций в CSV";
+"Start date" = "Начальная дата";
+"End date" = "Конечная дата";
+"Save CSV" = "Сохранить CSV";
+"Both dates are included. Amounts use their original currency. Expenses are negative and income is positive." = "Обе даты входят в период. Суммы указаны в исходных валютах. Расходы — отрицательные числа, доходы — положительные.";
+
+/* Composed financial values and chart accessibility labels. */
+"%@: %@" = "%@: %@";
+"%@, %@" = "%@, %@";
+"%@ · %@" = "%@ · %@";

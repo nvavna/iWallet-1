@@ -68,6 +68,31 @@ final class WalletTransaction {
     }
 }
 
+/// Editable values are kept outside SwiftData until the user saves the form.
+struct WalletTransactionDraft: Equatable {
+    var amountText = ""
+    var currencyCode = "USD"
+    var date = Date()
+    var note = ""
+    var kind: TransactionKind = .expense
+    var categoryID: UUID?
+
+    static func editing(_ transaction: WalletTransaction) -> Self {
+        Self(amountText: Money.inputText(transaction.amountMinor, currencyCode: transaction.currencyCode),
+             currencyCode: transaction.currencyCode, date: transaction.date, note: transaction.note,
+             kind: transaction.kind, categoryID: transaction.category?.id)
+    }
+
+    static func repeating(_ transaction: WalletTransaction, on date: Date = .now) -> Self {
+        var copy = editing(transaction)
+        copy.date = date
+        if let category = transaction.category, category.isArchived || category.kind != copy.kind {
+            copy.categoryID = nil
+        }
+        return copy
+    }
+}
+
 @Model
 final class WalletMigrationReceipt {
     @Attribute(.unique) var id: String
