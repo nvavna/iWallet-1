@@ -1,10 +1,10 @@
 # iWallet
 
-Личный учёт доходов и расходов на **SwiftUI + SwiftData**, iOS 17+. Проект восстанавливает [первое приложение iWallet](https://github.com/iWalletTeam/iWallet), сохраняя историю разработки и Bundle ID `com.idevnva.iwallet`.
+iWallet помогает вести доходы и расходы на iPhone, следить за бюджетом по категориям и видеть предстоящие платежи. Записи хранятся на устройстве. Требуется iOS 17 или новее.
 
-**Версия 2.1.0 (сборка 9)** обновляет обзор кошелька, историю и форму операции. С главного экрана можно добавить расход или доход и открыть недавнюю операцию. Версия также поддерживает повтор операций, копирование бюджетов прошлого месяца и CSV-экспорт за выбранные даты. [Как пользоваться новыми функциями](docs/SUPPORT.md)
+[Скачать iWallet в App Store](https://apps.apple.com/app/apple-store/id6447585809?pt=126245738&ct=github-project&mt=8) · [Руководство и поддержка](docs/SUPPORT.md#русский)
 
-Версия 2.0.0 добавила локальные напоминания, прогноз регулярных платежей на 7 или 30 календарных дней и месячные бюджеты расходных категорий. Настройки напоминаний доступны по колокольчику в «Платежах», бюджеты — в «Настройках» и под списком расходов в «Обзоре».
+Track spending on your iPhone, set a monthly grocery budget and see which bills are due in the next seven days. [Download on the App Store](https://apps.apple.com/app/apple-store/id6447585809?pt=126245738&ct=github-project&mt=8) · [Support in English](docs/SUPPORT.md#english)
 
 ## Возможности
 
@@ -58,7 +58,7 @@ Scripts/verify-localizations.py --app build/DerivedData/Build/Products/Debug-iph
 
 ## Выпуск
 
-6 ноября 2026 года Apple приняла подписанную сборку 2.0.0 (6) и начала обработку. Результат загрузки записан в `/tmp/iwallet-build6-upload.log`. Для установки на iPhone предстоит подтвердить готовность в TestFlight. Последняя сверка черновика магазина была 5 ноября, в нём был выбран build 2. Перед выпуском остаются проверка на iPhone, минимальной iOS 17, VoiceOver и сверка Privacy Report.
+На 10 ноября 2026 года в App Store доступна версия **2.0.0** с бюджетами, прогнозом платежей и локальными напоминаниями. Версия **2.1.0 (9)** с обновлённым интерфейсом отправлена на проверку Apple. Сборка **2.2.0 (10)** с отчётами за выбранные даты и сохранением PDF прошла обработку в TestFlight. [Изменения интерфейса](https://github.com/nvavna/iWallet-1/pull/3) · [Отчёты о расходах](https://github.com/nvavna/iWallet-1/pull/4)
 
 - [Ход восстановления и доказательства предыдущих сборок](docs/RESTORATION.md)
 - [Протокол переноса Realm](docs/LEGACY-MIGRATION.md)
@@ -66,4 +66,4 @@ Scripts/verify-localizations.py --app build/DerivedData/Build/Products/Debug-iph
 - [Договор дизайна и проверки доступности](docs/DESIGN.md)
 - [Воспроизведение снимков](docs/APPSTORE-SCREENSHOTS.md)
 
-Исходная версия 1.1.8 сохранена в Git (`b521ad4`); рабочая ветка — `restoration/foundation`.
+Проект продолжает [первое приложение iWallet](https://github.com/iWalletTeam/iWallet) и использует его Bundle ID `com.idevnva.iwallet`. Версия 1.1.8 сохранена в Git (`b521ad4`). Актуальный код на SwiftUI и SwiftData находится в ветке `main`.
