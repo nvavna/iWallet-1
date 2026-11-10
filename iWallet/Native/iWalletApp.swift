@@ -52,8 +52,12 @@ private struct WalletBootstrapView: View {
                 ContentUnavailableView {
                     Label("Unable to open your wallet", systemImage: "externaldrive.badge.exclamationmark")
                 } description: {
-                    Text("Your data has not been reset. Free up space on your device and try again.")
-                    Text(failure).font(.caption)
+                    Text("When you retry, iWallet uses the wallet data on this device.")
+                    Text(verbatim: failure)
+                        .font(.subheadline)
+                        .foregroundStyle(WalletTheme.secondaryInk)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .textSelection(.enabled)
                 } actions: {
                     Button("Try again", action: openWallet)
                         .buttonStyle(.borderedProminent)
@@ -97,13 +101,19 @@ private struct WalletBootstrapView: View {
 
 private struct WalletRootView: View {
     @Binding var selection: WalletDestination
+    @State private var historyRevision = 0
 
     var body: some View {
         TabView(selection: $selection) {
-            WalletHomeView(showPayments: { selection = .payments })
-                .tabItem { Label("Overview", systemImage: "chart.pie") }
+            WalletHomeView(showTransactions: {
+                // “See all” opens the full ledger even after an earlier search.
+                historyRevision += 1
+                selection = .transactions
+            }, showPayments: { selection = .payments })
+                .tabItem { Label("Overview", systemImage: "wallet.pass") }
                 .tag(WalletDestination.overview)
             TransactionListView(isPresentedModally: false)
+                .id(historyRevision)
                 .tabItem { Label("Transactions", systemImage: "list.bullet.rectangle") }
                 .tag(WalletDestination.transactions)
             RecurringPaymentListView()

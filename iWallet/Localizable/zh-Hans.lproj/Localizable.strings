@@ -206,7 +206,7 @@
 "You control your exports" = "导出文件由你掌控";
 "Your categories, amounts and notes are saved locally. iWallet does not send them to a server." = "你的类别、金额和备注都保存在本机上。iWallet 不会将这些数据发送到服务器。";
 "Your data" = "你的数据";
-"Your data has not been reset. Free up space on your device and try again." = "你的数据没有被重置。请释放设备上的储存空间，然后重试。";
+"When you retry, iWallet uses the wallet data on this device." = "重试时，iWallet 会使用这台设备上保存的钱包数据。";
 "Your finances stay on your device" = "你的财务数据只保存在你的设备上";
 "Your previous wallet is safe" = "你的旧钱包仍然安全";
 "Your story starts here" = "还没有交易";
@@ -420,3 +420,7 @@
 "%@: %@" = "%@：%@";
 "%@, %@" = "%@，%@";
 "%@ · %@" = "%@ · %@";
+
+"Add expense" = "添加支出";
+
+"Add income" = "添加收入";

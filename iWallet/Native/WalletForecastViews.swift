@@ -22,12 +22,23 @@ struct WalletForecastCard: View {
                                     currencyCode: currencyCode, horizon: horizon, now: now)
         }
         return VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("Upcoming payments").font(.headline).accessibilityAddTraits(.isHeader)
-                Spacer(minLength: 8)
-                Button("All", action: showPayments)
+            let layout = dynamicTypeSize.isAccessibilitySize
+                ? AnyLayout(VStackLayout(alignment: .leading, spacing: 0))
+                : AnyLayout(HStackLayout(alignment: .firstTextBaseline, spacing: 8))
+            layout {
+                Text("Upcoming payments")
+                    .font(.headline).accessibilityAddTraits(.isHeader)
+                if !dynamicTypeSize.isAccessibilitySize { Spacer(minLength: 0) }
+                Button(action: showPayments) {
+                    HStack(spacing: 4) {
+                        Text("All")
+                        Image(systemName: "chevron.forward")
+                            .font(.caption2.bold()).accessibilityHidden(true)
+                    }
+                    .font(.subheadline.weight(.medium))
                     .frame(minWidth: 44, minHeight: 44)
-                    .accessibilityLabel("All payments")
+                }
+                .accessibilityLabel("All payments")
             }
             Picker("Forecast period", selection: $horizonDays) {
                 Text("7 days").tag(WalletForecast.Horizon.sevenDays.rawValue)
@@ -35,20 +46,21 @@ struct WalletForecastCard: View {
                 Text("30 days").tag(WalletForecast.Horizon.thirtyDays.rawValue)
                     .accessibilityIdentifier("forecast30Days")
             }
-            .pickerStyle(.segmented)
+            .walletChoiceStyle()
             .accessibilityIdentifier("forecastHorizon")
 
             switch result {
             case .success(let forecast):
-                total("Scheduled total", amount: forecast.upcomingMinor, identifier: "forecastUpcomingTotal")
+                total("Scheduled total", amount: forecast.upcomingMinor,
+                      color: WalletTheme.ink, identifier: "forecastUpcomingTotal")
                 if !forecast.overdue.isEmpty {
-                    total("Overdue", amount: forecast.overdueMinor, identifier: "forecastOverdueTotal")
+                    total("Overdue", amount: forecast.overdueMinor,
+                          color: WalletTheme.expense, identifier: "forecastOverdueTotal")
                 }
-                Text("Includes today in each payment’s time zone.")
-                    .font(.caption).foregroundStyle(.secondary)
+                Divider()
                 if forecast.upcoming.isEmpty {
                     Text("No payments scheduled in this period.")
-                        .font(.subheadline).foregroundStyle(.secondary)
+                        .font(.subheadline).foregroundStyle(WalletTheme.secondaryInk)
                 } else {
                     scheduledDates(forecast.upcoming, payments: byID)
                 }
@@ -57,16 +69,20 @@ struct WalletForecastCard: View {
                     DisclosureGroup(isExpanded: $showsOverdueDates) {
                         LazyVStack(alignment: .leading, spacing: 8) {
                             Text("One open date per overdue plan. Later scheduled dates appear in the forecast.")
-                                .font(.caption).foregroundStyle(.secondary)
+                                .font(.caption).foregroundStyle(WalletTheme.secondaryInk)
                             ForEach(forecast.overdue) { occurrence in
                                 Divider()
                                 occurrenceRow(occurrence, payment: byID[occurrence.planID])
                             }
                         }
                     } label: {
-                        Text("Overdue dates").font(.subheadline)
+                        Text("Overdue dates").font(.subheadline.weight(.medium)).frame(minHeight: 44)
                     }
                     .accessibilityIdentifier("forecastOverdueOccurrences")
+                }
+                if !active.isEmpty {
+                    Text("Includes today in each payment’s time zone.")
+                        .font(.caption).foregroundStyle(WalletTheme.secondaryInk)
                 }
             case .failure(let error):
                 Label("Unable to calculate forecast", systemImage: "exclamationmark.triangle")
@@ -79,15 +95,18 @@ struct WalletForecastCard: View {
         .accessibilityIdentifier("upcomingPayments")
     }
 
-    private func total(_ title: LocalizedStringKey, amount: Int64, identifier: String) -> some View {
+    private func total(_ title: LocalizedStringKey, amount: Int64, color: Color, identifier: String) -> some View {
         let formatted = Money.format(amount, currencyCode: currencyCode, locale: locale)
         let layout = dynamicTypeSize.isAccessibilitySize
             ? AnyLayout(VStackLayout(alignment: .leading, spacing: 4))
             : AnyLayout(HStackLayout(alignment: .firstTextBaseline, spacing: 12))
         return layout {
-            Text(title).font(.subheadline.weight(.medium))
+            Text(title).font(.subheadline).foregroundStyle(WalletTheme.secondaryInk)
             if !dynamicTypeSize.isAccessibilitySize { Spacer(minLength: 0) }
-            Text(formatted).font(.headline).monospacedDigit()
+            Text(formatted)
+                .font(.title3.weight(.semibold)).monospacedDigit()
+                .foregroundStyle(color)
+                .fixedSize(horizontal: false, vertical: true)
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(title))
@@ -109,7 +128,7 @@ struct WalletForecastCard: View {
                         }
                     }
                 } label: {
-                    Text("Scheduled dates").font(.subheadline)
+                    Text("Scheduled dates").font(.subheadline.weight(.medium)).frame(minHeight: 44)
                 }
                 .accessibilityIdentifier("forecastOccurrences")
             }
@@ -122,26 +141,38 @@ struct WalletForecastCard: View {
             NavigationLink {
                 RecurringPaymentDetailView(payment: payment)
             } label: {
-                rowContent(occurrence, navigates: true)
+                rowContent(occurrence, payment: payment, navigates: true)
             }
             .buttonStyle(.plain)
         } else {
-            rowContent(occurrence, navigates: false)
+            rowContent(occurrence, payment: payment, navigates: false)
         }
     }
 
-    private func rowContent(_ occurrence: WalletForecast.Occurrence, navigates: Bool) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(occurrence.name).font(.subheadline.weight(.medium))
-            Text(Money.format(occurrence.amountMinor, currencyCode: currencyCode, locale: locale))
-                .font(.subheadline).monospacedDigit()
-            HStack {
-                Text(displayDate(occurrence)).font(.caption).foregroundStyle(.secondary)
-                Spacer(minLength: 4)
-                if navigates {
-                    Image(systemName: "chevron.forward").font(.caption.weight(.semibold))
-                        .foregroundStyle(.tertiary).accessibilityHidden(true)
+    private func rowContent(_ occurrence: WalletForecast.Occurrence, payment: WalletRecurringPayment?,
+                            navigates: Bool) -> some View {
+        let layout = dynamicTypeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(alignment: .leading, spacing: 4))
+            : AnyLayout(HStackLayout(alignment: .center, spacing: 8))
+        return HStack(alignment: .center, spacing: 10) {
+            if !dynamicTypeSize.isAccessibilitySize {
+                CategoryBadge(category: payment?.category, size: 32)
+                    .accessibilityHidden(true)
+            }
+            layout {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(occurrence.name).font(.subheadline.weight(.medium))
+                    Text(displayDate(occurrence)).font(.caption).foregroundStyle(WalletTheme.secondaryInk)
                 }
+                if !dynamicTypeSize.isAccessibilitySize { Spacer(minLength: 0) }
+                Text(Money.format(occurrence.amountMinor, currencyCode: currencyCode, locale: locale))
+                    .font(.subheadline.weight(.semibold)).monospacedDigit()
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            if navigates {
+                Image(systemName: "chevron.forward").font(.caption2.weight(.semibold))
+                    .foregroundStyle(WalletTheme.secondaryInk).accessibilityHidden(true)
             }
         }
         .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)

@@ -206,7 +206,7 @@
 "You control your exports" = "You control your exports";
 "Your categories, amounts and notes are saved locally. iWallet does not send them to a server." = "Your categories, amounts and notes are saved locally. iWallet does not send them to a server.";
 "Your data" = "Your data";
-"Your data has not been reset. Free up space on your device and try again." = "Your data has not been reset. Free up space on your device and try again.";
+"When you retry, iWallet uses the wallet data on this device." = "When you retry, iWallet uses the wallet data on this device.";
 "Your finances stay on your device" = "Your finances stay on your device";
 "Your previous wallet is safe" = "Your previous wallet is safe";
 "Your story starts here" = "Your story starts here";
@@ -372,7 +372,7 @@
 "This budget is no longer available." = "This budget is no longer available.";
 "This category already has a budget for this month and currency." = "This category already has a budget for this month and currency.";
 "The backup contains an invalid record." = "The backup contains an invalid record.";
-"Added %d categories, %d transactions, %d payments and %d budgets. Skipped %d identical records." = "Added %d categories, %d transactions, %d payments and %d budgets. Skipped %d identical records.";
+"Added %d categories, %d transactions, %d payments and %d budgets. Skipped %d identical records." = "Categories added: %d\nTransactions added: %d\nPayments added: %d\nBudgets added: %d\nDuplicates skipped: %d";
 "Your categories, transactions, budgets and payment schedules are saved locally. iWallet does not send them to a server." = "Your categories, transactions, budgets and payment schedules are saved locally. iWallet does not send them to a server.";
 "All payments" = "All payments";
 "Forecast period" = "Forecast period";
@@ -420,3 +420,7 @@
 "%@: %@" = "%@: %@";
 "%@, %@" = "%@, %@";
 "%@ · %@" = "%@ · %@";
+
+"Add expense" = "Add expense";
+
+"Add income" = "Add income";

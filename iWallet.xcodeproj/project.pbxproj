@@ -506,7 +506,7 @@
 				"INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad" = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				"MARKETING_VERSION" = "2.1.0";
 				"DEVELOPMENT_TEAM" = "4243BL8MP3";
-				"CURRENT_PROJECT_VERSION" = "8";
+				"CURRENT_PROJECT_VERSION" = "9";
 				"SUPPORTED_PLATFORMS" = "iphoneos iphonesimulator";
 				"INFOPLIST_KEY_LSApplicationCategoryType" = "public.app-category.finance";
 				"INFOPLIST_KEY_ITSAppUsesNonExemptEncryption" = "NO";
@@ -696,7 +696,7 @@
 				"INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad" = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				"MARKETING_VERSION" = "2.1.0";
 				"DEVELOPMENT_TEAM" = "4243BL8MP3";
-				"CURRENT_PROJECT_VERSION" = "8";
+				"CURRENT_PROJECT_VERSION" = "9";
 				"SUPPORTED_PLATFORMS" = "iphoneos iphonesimulator";
 				"INFOPLIST_KEY_LSApplicationCategoryType" = "public.app-category.finance";
 				"INFOPLIST_KEY_ITSAppUsesNonExemptEncryption" = "NO";
