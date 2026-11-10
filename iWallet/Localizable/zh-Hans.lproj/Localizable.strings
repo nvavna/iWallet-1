@@ -432,6 +432,7 @@
 "Save PDF" = "保存 PDF";
 "Sample report" = "示例报告";
 "This report uses example expenses." = "本报告使用示例支出数据。";
+"Example expense dates" = "示例支出的日期";
 "No expenses in either period." = "这两个时段均无支出。";
 "Compare spending for any dates, see totals by category, and save a PDF." = "自选日期比较支出，查看各类别合计，并保存为 PDF。";
 "One-time purchase" = "一次性购买";

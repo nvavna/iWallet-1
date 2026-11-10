@@ -26,7 +26,9 @@ Review any rounding changes before confirming the transfer. Keep a copy of the o
 
 ### Spending reports planned for 2.2
 
-In the planned 2.2 release, open **Settings → Spending report** to preview a sample with example expenses. **Unlock reports** will open Apple’s one-time purchase flow. With access, choose your dates to compare spending by category with the preceding period of the same length. **Save PDF** will generate the report on your device and let you choose a destination. **Settings → Export transactions as CSV** will remain free.
+In the planned 2.2 release, open **Settings → Spending report → Sample report**. The free example starts on October 10 and ends on November 9. Change either date to see how category totals and the comparison with the preceding period change.
+
+**Unlock reports** opens Apple’s one-time purchase flow. After purchase, you can choose any dates for the expenses in your wallet. Use **Save PDF** to save the report on your device. **Settings → Export transactions as CSV** remains free.
 
 After reinstalling iWallet or switching devices, sign in to the App Store with the Apple Account used for the purchase. If the report is locked, open **Settings → Spending report → Restore purchases**. This restores access to reports. To recover your wallet entries, import your saved JSON backup. [Apple’s guide to restoring in-app purchases](https://support.apple.com/en-us/108096)
 
@@ -70,7 +72,9 @@ iWallet — приложение для ручного учёта доходов
 
 ### Отчёты о расходах в готовящейся версии 2.2
 
-В версии 2.2 в разделе **«Настройки» → «Отчёт о расходах»** можно будет посмотреть пример с вымышленными расходами. Кнопка **«Открыть доступ к отчётам»** откроет окно разовой покупки Apple. После покупки можно будет выбрать даты и сравнить расходы по категориям с предыдущим периодом такой же длины. Кнопка **«Сохранить PDF»** сформирует отчёт на устройстве и позволит выбрать место сохранения. Экспорт операций в CSV через настройки останется бесплатным.
+В готовящейся версии 2.2 откройте **«Настройки» → «Отчёт о расходах» → «Пример отчёта»**. Бесплатный пример показывает вымышленные расходы с 10 октября по 9 ноября. Измените любую из дат, чтобы увидеть, как изменятся суммы по категориям и сравнение с предыдущим периодом той же длины.
+
+Кнопка **«Открыть доступ к отчётам»** откроет окно разовой покупки Apple. После покупки можно выбрать любые даты для расходов своего кошелька и нажать **«Сохранить PDF»**, чтобы сохранить отчёт на устройстве. Экспорт операций в CSV через настройки остаётся бесплатным.
 
 После переустановки iWallet или смены устройства войдите в App Store с Аккаунтом Apple, с которого была совершена покупка. Если отчёт заблокирован, откройте **«Настройки» → «Отчёт о расходах» → «Восстановить покупки»**. Это восстановит доступ к отчётам. Чтобы вернуть записи кошелька, импортируйте сохранённую резервную копию JSON. [Как восстановить покупку через Apple](https://support.apple.com/ru-ru/108096)
 

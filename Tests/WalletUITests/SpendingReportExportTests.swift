@@ -41,7 +41,8 @@ final class SpendingReportExportTests: XCTestCase {
         XCTAssertTrue(app.staticTexts["This report uses example expenses."].waitForExistence(timeout: 5))
         let savePDF = app.buttons["exportSpendingReportPDF"]
         XCTAssertFalse(savePDF.exists)
-        XCTAssertFalse(app.datePickers["reportStartDate"].exists)
+        XCTAssertTrue(app.datePickers["reportStartDate"].exists)
+        XCTAssertTrue(app.datePickers["reportEndDate"].exists)
         attach(app, "02-sample")
         app.navigationBars.buttons.element(boundBy: 0).tap()
 

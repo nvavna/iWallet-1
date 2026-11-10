@@ -9,7 +9,7 @@ final class SpendingReportPurchaseTests: XCTestCase {
     override func setUpWithError() throws {
         continueAfterFailure = false
         app = XCUIApplication()
-        app.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US", "-preferredCurrencyCode", "USD"]
         // On a new simulator Xcode installs the app on first launch. StoreKitTest
         // needs that installation to associate its catalog with our bundle.
         app.launch()
@@ -45,7 +45,27 @@ final class SpendingReportPurchaseTests: XCTestCase {
 
         app.buttons["openSampleSpendingReport"].tap()
         XCTAssertTrue(app.staticTexts["This report uses example expenses."].waitForExistence(timeout: 5))
+        let total = app.staticTexts["reportSelectedTotal"]
+        let previous = app.staticTexts["reportPreviousTotal"]
+        XCTAssertEqual(total.label, "Selected period, $99.00")
+        XCTAssertEqual(previous.label, "Previous period, $100.00")
+        XCTAssertTrue(app.datePickers["reportStartDate"].exists)
+        attachSample("Sample pay period")
+        app.datePickers["reportEndDate"].tap()
+        let november8 = app.buttons.matching(NSPredicate(format: "label CONTAINS[c] %@", "November 8")).firstMatch
+        XCTAssertTrue(november8.waitForExistence(timeout: 5), app.debugDescription)
+        november8.tap()
+        if november8.exists {
+            // The compact picker can stay open after selecting a day.
+            let title = app.navigationBars["Sample report"]
+            title.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+            XCTAssertTrue(november8.waitForNonExistence(timeout: 5))
+        }
+        XCTAssertEqual(total.label, "Selected period, $81.00")
+        XCTAssertEqual(previous.label, "Previous period, $28.00")
         XCTAssertFalse(app.buttons["exportSpendingReportPDF"].exists)
+        XCTAssertFalse(buy.exists)
+        attachSample("Sample after changing end date")
         app.navigationBars.buttons.element(boundBy: 0).tap()
         XCTAssertTrue(unavailable.waitForExistence(timeout: 15))
 
@@ -55,6 +75,13 @@ final class SpendingReportPurchaseTests: XCTestCase {
         XCTAssertTrue(buy.label.contains("4.99"), buy.label)
         XCTAssertFalse(unavailable.exists)
         XCTAssertTrue(session.allTransactions().isEmpty)
+    }
+
+    private func attachSample(_ name: String) {
+        let sample = XCTAttachment(screenshot: app.screenshot())
+        sample.name = name
+        sample.lifetime = .keepAlways
+        add(sample)
     }
 
     func testPurchasePersistsOnRelaunchAndRefundLocksReport() throws {
