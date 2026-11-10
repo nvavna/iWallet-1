@@ -206,7 +206,7 @@
 "You control your exports" = "এক্সপোর্ট করা ফাইল আপনার নিয়ন্ত্রণে";
 "Your categories, amounts and notes are saved locally. iWallet does not send them to a server." = "আপনার বিভাগ, পরিমাণ ও নোট এই ডিভাইসেই সেভ করা হয়। iWallet এগুলি কোনও সার্ভারে পাঠায় না।";
 "Your data" = "আপনার ডেটা";
-"Your data has not been reset. Free up space on your device and try again." = "আপনার ডেটা রিসেট হয়নি। ডিভাইসে কিছু জায়গা খালি করে আবার চেষ্টা করুন।";
+"When you retry, iWallet uses the wallet data on this device." = "আপনি আবার চেষ্টা করলে iWallet এই ডিভাইসে থাকা ওয়ালেটের ডেটা ব্যবহার করবে।";
 "Your finances stay on your device" = "আপনার আর্থিক তথ্য আপনার ডিভাইসেই থাকে";
 "Your previous wallet is safe" = "আপনার আগের ওয়ালেট সুরক্ষিত আছে";
 "Your story starts here" = "এখনও কোনও লেনদেন নেই";
@@ -420,3 +420,7 @@
 "%@: %@" = "%@: %@";
 "%@, %@" = "%@, %@";
 "%@ · %@" = "%@ · %@";
+
+"Add expense" = "খরচ যোগ করুন";
+
+"Add income" = "আয় যোগ করুন";

@@ -34,7 +34,7 @@ struct CategoryListView: View {
                     Text(LocalizedStringKey(TransactionKind.expense.localizedName)).tag(TransactionKind.expense)
                     Text(LocalizedStringKey(TransactionKind.income.localizedName)).tag(TransactionKind.income)
                 }
-                .pickerStyle(.segmented)
+                .walletChoiceStyle()
                 .listRowInsets(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0))
                 .listRowBackground(Color.clear)
             }
@@ -51,10 +51,11 @@ struct CategoryListView: View {
                 Section {
                     ForEach(activeCategories) { category in
                         HStack(spacing: 12) {
-                            CategoryBadge(category: category)
+                            CategoryBadge(category: category, size: 36)
                                 .accessibilityHidden(true)
                             Text(category.name)
-                                .font(.body)
+                                .font(.body.weight(.medium))
+                                .foregroundStyle(WalletTheme.ink)
                                 .fixedSize(horizontal: false, vertical: true)
                             Spacer(minLength: 0)
                         }
@@ -65,7 +66,7 @@ struct CategoryListView: View {
                             Button("Archive", systemImage: "archivebox") {
                                 pendingArchive = category
                             }
-                            .tint(.orange)
+                            .tint(WalletTheme.expense)
                         }
                         .contextMenu {
                             Button("Archive category", systemImage: "archivebox") {
@@ -183,39 +184,31 @@ struct CategoryEditorView: View {
         Form {
             Section {
                 HStack(spacing: 12) {
-                    CategorySymbolBadge(symbol: icon, color: color, size: 44)
+                    CategorySymbolBadge(symbol: icon, color: color, size: 48)
                         .accessibilityHidden(true)
                     VStack(alignment: .leading, spacing: 4) {
-                        if name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                            Text("Category name")
-                                .foregroundStyle(.secondary)
-                        } else {
-                            Text(name)
+                        TextField("Category name", text: $name,
+                                  prompt: Text("Category name").foregroundColor(WalletTheme.secondaryInk))
+                            .font(.title3.weight(.semibold))
+                            .textInputAutocapitalization(.sentences)
+                            .submitLabel(.done)
+                            .accessibilityIdentifier("categoryName")
+                        if !allowKindSelection {
+                            Text(LocalizedStringKey(kind.localizedName))
+                                .font(.caption).foregroundStyle(WalletTheme.secondaryInk)
                         }
-                        Text(LocalizedStringKey(kind.localizedName))
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
                     }
-                    .fixedSize(horizontal: false, vertical: true)
-                    Spacer(minLength: 0)
                 }
-                .padding(.vertical, 4)
-                .accessibilityElement(children: .combine)
-            }
-
-            Section {
-                TextField("Category name", text: $name)
-                    .accessibilityIdentifier("categoryName")
-                    .textInputAutocapitalization(.sentences)
-                    .submitLabel(.done)
+                .padding(.vertical, 6)
                 if allowKindSelection {
                     Picker("Category type", selection: $kind) {
                         Text(LocalizedStringKey(TransactionKind.expense.localizedName)).tag(TransactionKind.expense)
                         Text(LocalizedStringKey(TransactionKind.income.localizedName)).tag(TransactionKind.income)
                     }
-                    .pickerStyle(.segmented)
+                    .walletChoiceStyle()
                 }
             }
+            .listRowBackground(WalletTheme.surface)
 
             Section {
                 LazyVGrid(columns: columns, spacing: 12) {
@@ -226,14 +219,14 @@ struct CategoryEditorView: View {
                             Image(systemName: choice.symbol)
                                 .font(.system(size: 22, weight: .semibold))
                                 .symbolRenderingMode(.hierarchical)
-                                .foregroundStyle(icon == choice.symbol ? WalletTheme.categoryColor(color) : Color.secondary)
+                                .foregroundStyle(icon == choice.symbol ? WalletTheme.categoryColor(color) : WalletTheme.secondaryInk)
                                 .frame(width: 48, height: 48)
                                 .background(icon == choice.symbol ? WalletTheme.categoryColor(color).opacity(0.12) : Color.clear,
                                             in: RoundedRectangle(cornerRadius: 12))
                                 .overlay {
                                     RoundedRectangle(cornerRadius: 12)
-                                        .strokeBorder(icon == choice.symbol ? Color.primary : Color.secondary.opacity(0.18),
-                                                      lineWidth: icon == choice.symbol ? 2 : 1)
+                                        .strokeBorder(icon == choice.symbol ? WalletTheme.categoryColor(color) : WalletTheme.hairline,
+                                                      lineWidth: icon == choice.symbol ? 2 : 0.75)
                                 }
                                 .overlay(alignment: .topTrailing) {
                                     if icon == choice.symbol {
@@ -254,6 +247,7 @@ struct CategoryEditorView: View {
             } footer: {
                 Text(LocalizedStringKey(selectedIconTitle))
             }
+            .listRowBackground(WalletTheme.surface)
 
             Section {
                 LazyVGrid(columns: columns, spacing: 12) {
@@ -268,7 +262,7 @@ struct CategoryEditorView: View {
                                 .contentShape(Rectangle())
                                 .overlay {
                                     RoundedRectangle(cornerRadius: 12)
-                                        .strokeBorder(color == choice.asset ? Color.primary : Color.clear, lineWidth: 2)
+                                        .strokeBorder(color == choice.asset ? WalletTheme.categoryColor(choice.asset) : Color.clear, lineWidth: 2)
                                 }
                                 .overlay(alignment: .topTrailing) {
                                     if color == choice.asset {
@@ -288,6 +282,7 @@ struct CategoryEditorView: View {
             } footer: {
                 Text(LocalizedStringKey(selectedColorTitle))
             }
+            .listRowBackground(WalletTheme.surface)
         }
         .scrollContentBackground(.hidden)
         .background(WalletTheme.background)
@@ -327,7 +322,7 @@ struct CategoryEditorView: View {
             .font(.system(size: 10, weight: .bold))
             .foregroundStyle(WalletTheme.surface)
             .frame(width: 18, height: 18)
-            .background(Color.primary, in: Circle())
+            .background(WalletTheme.ink, in: Circle())
             .accessibilityHidden(true)
     }
 
@@ -380,8 +375,8 @@ private struct CategorySymbolBadge: View {
             .symbolRenderingMode(.hierarchical)
             .foregroundStyle(WalletTheme.categoryColor(color))
             .frame(width: size, height: size)
-            .background(WalletTheme.categoryColor(color).opacity(0.12),
-                        in: RoundedRectangle(cornerRadius: 9))
+            .background(WalletTheme.categoryColor(color).opacity(0.11),
+                        in: RoundedRectangle(cornerRadius: size * 0.29, style: .continuous))
     }
 }
 

@@ -34,15 +34,23 @@ struct WalletSettingsView: View {
                     }
                     .accessibilityIdentifier("settingsBudgets")
                 }
+                .listRowBackground(WalletTheme.surface)
                 Section {
-                    Picker("Default currency", selection: $currency) {
-                        ForEach(WalletCurrency.allCases) { item in
-                            Text(item.displayName).tag(item.rawValue)
+                    Menu {
+                        Picker("Default currency", selection: $currency) {
+                            ForEach(WalletCurrency.allCases) { item in
+                                Text(item.displayName).tag(item.rawValue)
+                            }
                         }
+                    } label: {
+                        WalletFormMenuLabel("Default currency",
+                                            value: WalletCurrency(rawValue: currency)?.displayName ?? currency)
                     }
+                    .accessibilityIdentifier("settingsDefaultCurrency")
                 } footer: {
                     Text("Used for new transactions. Existing amounts keep their original currency; no conversion is performed.")
                 }
+                .listRowBackground(WalletTheme.surface)
                 Section {
                     NavigationLink {
                         WalletCSVExportView()
@@ -54,11 +62,12 @@ struct WalletSettingsView: View {
                     Button { showingImporter = true } label: { Label("Import a backup", systemImage: "square.and.arrow.down") }
                         .disabled(isReading)
                     if isReading { ProgressView("Reading your backup") }
-                    NavigationLink { privacyView } label: { Label("Privacy", systemImage: "hand.raised") }
                 } header: { Text("Your data") } footer: {
                     Text("Keep a JSON backup somewhere safe. Import adds missing records, skips identical records and stops if existing data conflicts.")
                 }
+                .listRowBackground(WalletTheme.surface)
                 Section {
+                    NavigationLink { privacyView } label: { Label("Privacy", systemImage: "hand.raised") }
                     Link(destination: URL(string: "mailto:idevnva@icloud.com")!) {
                         Label("Contact support", systemImage: "envelope")
                     }
@@ -70,6 +79,7 @@ struct WalletSettingsView: View {
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding()
                         }
+                        .background(WalletTheme.background)
                         .navigationTitle("Licenses")
                         .navigationBarTitleDisplayMode(.inline)
                     } label: {
@@ -77,13 +87,13 @@ struct WalletSettingsView: View {
                     }
                     LabeledContent("Version", value: version)
                     LabeledContent("Storage", value: String(localized: "On this device"))
-                } header: { Text("About iWallet") } footer: {
-                    Text("A clear view of your everyday finances.")
-                }
+                } header: { Text("About iWallet") }
+                .listRowBackground(WalletTheme.surface)
             }
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(isPresentedModally ? .inline : .large)
             .symbolRenderingMode(.hierarchical)
+            .labelStyle(SettingsRowLabelStyle())
             .scrollContentBackground(.hidden)
             .background(WalletTheme.background)
             .toolbar {
@@ -124,6 +134,8 @@ struct WalletSettingsView: View {
                             .listRowInsets(EdgeInsets())
                         }
                     }
+                    .scrollContentBackground(.hidden)
+                    .background(WalletTheme.background)
                     .navigationTitle("Review backup")
                     .navigationBarTitleDisplayMode(.inline)
                     .toolbar {
@@ -181,6 +193,8 @@ struct WalletSettingsView: View {
         .navigationTitle("Privacy")
         .navigationBarTitleDisplayMode(.inline)
         .listStyle(.insetGrouped)
+        .scrollContentBackground(.hidden)
+        .background(WalletTheme.background)
     }
 
     private var version: String {
@@ -246,6 +260,23 @@ struct WalletSettingsView: View {
     }
 }
 
+private struct SettingsRowLabelStyle: LabelStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        HStack(spacing: 12) {
+            configuration.icon
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(WalletTheme.accent)
+                .frame(width: 32, height: 32)
+                .background(WalletTheme.accent.opacity(0.10), in: RoundedRectangle(cornerRadius: 10))
+                .accessibilityHidden(true)
+            configuration.title
+                .foregroundStyle(WalletTheme.ink)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .frame(minHeight: 44)
+    }
+}
+
 private struct ImportPreview: Identifiable {
     let id = UUID()
     let backup: WalletBackup
@@ -290,6 +321,8 @@ private struct WalletCSVExportView: View {
             }
         }
         .disabled(isPreparing)
+        .scrollContentBackground(.hidden)
+        .background(WalletTheme.background)
         .navigationTitle("Export transactions as CSV")
         .navigationBarTitleDisplayMode(.inline)
         .task(id: isPreparing) {

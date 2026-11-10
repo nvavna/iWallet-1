@@ -206,7 +206,7 @@
 "You control your exports" = "أنت تتحكم في ملفاتك المُصدَّرة";
 "Your categories, amounts and notes are saved locally. iWallet does not send them to a server." = "تُحفظ فئاتك ومبالغك وملاحظاتك محليًا. ولا يرسلها iWallet إلى أي خادم.";
 "Your data" = "بياناتك";
-"Your data has not been reset. Free up space on your device and try again." = "لم تُمسح بياناتك. وفّر مساحة على جهازك ثم أعد المحاولة.";
+"When you retry, iWallet uses the wallet data on this device." = "عند إعادة المحاولة، يستخدم iWallet بيانات المحفظة المحفوظة على هذا الجهاز.";
 "Your finances stay on your device" = "تبقى بياناتك المالية على جهازك";
 "Your previous wallet is safe" = "محفظتك السابقة في أمان";
 "Your story starts here" = "لا توجد معاملات بعد";
@@ -420,3 +420,7 @@
 "%@: %@" = "%@: %@";
 "%@, %@" = "%@، %@";
 "%@ · %@" = "%@ · %@";
+
+"Add expense" = "إضافة مصروف";
+
+"Add income" = "إضافة دخل";

@@ -21,13 +21,6 @@ struct RecurringPaymentListView: View {
                         paymentSection("Overdue", payments: payments.filter { $0.isOverdue(asOf: timeline.date) }, now: timeline.date)
                         paymentSection("Upcoming", payments: payments.filter { $0.isActive && !$0.isOverdue(asOf: timeline.date) }, now: timeline.date)
                         paymentSection("Paused", payments: payments.filter { !$0.isActive }, now: timeline.date)
-                        Section {
-                            Text("Expenses are recorded only when you mark a payment as paid.")
-                                .font(.footnote)
-                                .foregroundStyle(.secondary)
-                                .fixedSize(horizontal: false, vertical: true)
-                        }
-                        .listRowBackground(Color.clear)
                     }
                 }
                 .accessibilityIdentifier("recurringPaymentsList")
@@ -64,6 +57,7 @@ struct RecurringPaymentListView: View {
                     } label: {
                         RecurringPaymentRow(payment: payment, now: now)
                     }
+                    .listRowBackground(WalletTheme.surface)
                 }
             }
         }
@@ -72,62 +66,82 @@ struct RecurringPaymentListView: View {
 
 private struct RecurringPaymentRow: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.locale) private var locale
     let payment: WalletRecurringPayment
     let now: Date
 
     private var scheduleDescription: String {
         [payment.isSubscription ? String(localized: "Subscription") : nil,
-         payment.cadence.localizedName, payment.currencyCode].compactMap { $0 }.joined(separator: " · ")
+         payment.cadence.localizedName].compactMap { $0 }.joined(separator: " · ")
     }
 
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
-            CategoryBadge(category: payment.category).accessibilityHidden(true)
-            VStack(alignment: .leading, spacing: 6) {
-                if dynamicTypeSize.isAccessibilitySize {
-                    titleAndAmount
-                } else {
-                    ViewThatFits(in: .horizontal) {
-                        HStack(alignment: .firstTextBaseline, spacing: 12) {
-                            Text(payment.name).font(.body.weight(.medium)).fixedSize()
-                            Spacer(minLength: 0)
-                            amount.fixedSize()
-                        }
-                        titleAndAmount
-                    }
-                }
-                Text(scheduleDescription).font(.caption).foregroundStyle(.secondary)
+        HStack(spacing: 12) {
+            if !dynamicTypeSize.isAccessibilitySize {
                 if payment.isActive {
-                    HStack(alignment: .firstTextBaseline, spacing: 6) {
-                        Image(systemName: payment.isOverdue(asOf: now) ? "exclamationmark.circle" : "calendar")
-                            .accessibilityHidden(true)
-                        if payment.isDueToday(asOf: now) {
-                            Text("Due today")
-                        } else {
-                            Text(RecurringPaymentPresentation.date(payment.nextDueDate, for: payment))
-                        }
-                    }
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    dateTile
+                } else {
+                    CategoryBadge(category: payment.category, size: 44).accessibilityHidden(true)
                 }
             }
-            .fixedSize(horizontal: false, vertical: true)
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .top, spacing: 12) {
+                    schedule.fixedSize(horizontal: true, vertical: false)
+                    Spacer(minLength: 0)
+                    amount(alignment: .trailing).fixedSize(horizontal: true, vertical: false)
+                }
+                VStack(alignment: .leading, spacing: 6) {
+                    schedule
+                    amount(alignment: .leading)
+                }
+            }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding(.vertical, 6)
+        .fixedSize(horizontal: false, vertical: true)
+        .padding(.vertical, 7)
         .accessibilityElement(children: .combine)
     }
 
-    private var amount: some View {
-        Text(Money.format(payment.amountMinor, currencyCode: payment.currencyCode))
-            .font(.body.weight(.semibold)).monospacedDigit()
+    private var schedule: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(payment.name).font(.headline).foregroundStyle(WalletTheme.ink)
+            Text(scheduleDescription).font(.caption).foregroundStyle(WalletTheme.secondaryInk)
+            if payment.isActive && payment.isDueToday(asOf: now) {
+                Text("Due today").font(.caption.weight(.semibold)).foregroundStyle(WalletTheme.accent)
+            }
+            if payment.isActive && dynamicTypeSize.isAccessibilitySize {
+                Text(RecurringPaymentPresentation.date(payment.nextDueDate, for: payment))
+                    .font(.subheadline).foregroundStyle(WalletTheme.secondaryInk)
+            }
+        }
     }
 
-    private var titleAndAmount: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(payment.name).font(.body.weight(.medium))
-            amount
+    private func amount(alignment: HorizontalAlignment) -> some View {
+        VStack(alignment: alignment, spacing: 4) {
+            Text(Money.format(payment.amountMinor, currencyCode: payment.currencyCode))
+                .font(.body.weight(.semibold)).monospacedDigit().foregroundStyle(WalletTheme.ink)
+            Text(verbatim: payment.currencyCode).font(.caption).foregroundStyle(WalletTheme.secondaryInk)
         }
+    }
+
+    private var dateTile: some View {
+        let date = payment.nextDueDate
+        let style = Date.FormatStyle(locale: locale, calendar: payment.calendar, timeZone: payment.timeZone)
+        let isThisYear = payment.calendar.isDate(date, equalTo: now, toGranularity: .year)
+        let tint = payment.isOverdue(asOf: now) ? WalletTheme.expense : WalletTheme.accent
+        return VStack(spacing: 1) {
+            Text(date, format: style.month(.abbreviated))
+                .font(.caption2.weight(.semibold))
+            Text(date, format: style.day()).font(.title3.bold()).monospacedDigit()
+            if !isThisYear { Text(date, format: style.year()).font(.caption2) }
+        }
+        .foregroundStyle(tint)
+        .padding(.horizontal, 6)
+        .padding(.vertical, 5)
+        .frame(minWidth: 48)
+        .background(tint.opacity(0.10), in: RoundedRectangle(cornerRadius: 12))
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(RecurringPaymentPresentation.date(date, for: payment))
     }
 }
 
@@ -154,19 +168,30 @@ struct RecurringPaymentDetailView: View {
     var body: some View {
         List {
             Section {
-                VStack(alignment: .leading, spacing: 12) {
-                    Text(payment.name).font(.title2.weight(.semibold))
-                    Text(Money.format(payment.amountMinor, currencyCode: payment.currencyCode))
-                        .font(.largeTitle.weight(.semibold)).monospacedDigit()
-                    Text(payment.currencyCode).font(.subheadline).foregroundStyle(.secondary)
-                    if payment.isSubscription {
-                        Label("Subscription", systemImage: "repeat")
-                            .font(.subheadline).foregroundStyle(.secondary)
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack(spacing: 10) {
+                        CategoryBadge(category: payment.category, size: 32).accessibilityHidden(true)
+                        Text(payment.name).font(.headline)
                     }
+                    Text(Money.format(payment.amountMinor, currencyCode: payment.currencyCode))
+                        .font(.system(.largeTitle, design: .rounded, weight: .semibold)).monospacedDigit()
+                    HStack(spacing: 10) {
+                        Text(verbatim: payment.currencyCode)
+                        if payment.isSubscription { Label("Subscription", systemImage: "repeat") }
+                    }
+                    .font(.subheadline).foregroundStyle(WalletTheme.secondaryInk)
                 }
+                .foregroundStyle(WalletTheme.ink)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.vertical, 8)
+                if payment.isActive {
+                    Button("Mark as paid", systemImage: "checkmark.circle") { requestConfirmation(.paid) }
+                        .font(.headline)
+                        .disabled(!hasActiveCategory || isWorking)
+                        .accessibilityIdentifier("markRecurringPaid")
+                }
             }
+            .listRowBackground(WalletTheme.surface)
             Section("Schedule") {
                 RecurringPaymentValueRow("Repeat", value: payment.cadence.localizedName)
                 RecurringPaymentValueRow("Next payment", value: RecurringPaymentPresentation.date(payment.nextDueDate, for: payment))
@@ -175,6 +200,7 @@ struct RecurringPaymentDetailView: View {
                 RecurringPaymentValueRow("Time zone", value: payment.timeZone.localizedName(for: .generic, locale: .current) ?? payment.timeZoneIdentifier)
                 statusLabel.accessibilityIdentifier("recurringPaymentStatus")
             }
+            .listRowBackground(WalletTheme.surface)
             Section("Category") {
                 HStack(spacing: 12) {
                     CategoryBadge(category: payment.category).accessibilityHidden(true)
@@ -188,11 +214,9 @@ struct RecurringPaymentDetailView: View {
                     Button("Edit payment") { showsEditor = true }
                 }
             }
+            .listRowBackground(WalletTheme.surface)
             Section {
                 if payment.isActive {
-                    Button("Mark as paid", systemImage: "checkmark.circle") { requestConfirmation(.paid) }
-                        .disabled(!hasActiveCategory || isWorking)
-                        .accessibilityIdentifier("markRecurringPaid")
                     Button("Skip this payment", systemImage: "forward.end") { requestConfirmation(.skip) }
                         .disabled(isWorking)
                         .accessibilityIdentifier("skipRecurringPayment")
@@ -207,11 +231,13 @@ struct RecurringPaymentDetailView: View {
             } footer: {
                 Text("Expenses are recorded only when you mark a payment as paid.")
             }
+            .listRowBackground(WalletTheme.surface)
             Section {
                 Button("Delete payment", systemImage: "trash", role: .destructive) { requestConfirmation(.delete) }
                     .disabled(isWorking)
                     .accessibilityIdentifier("deleteRecurringPayment")
             }
+            .listRowBackground(WalletTheme.surface)
         }
         .accessibilityIdentifier("recurringPaymentDetail")
         .listStyle(.insetGrouped)
@@ -267,7 +293,7 @@ struct RecurringPaymentDetailView: View {
         if !payment.isActive {
             Label("Paused", systemImage: "pause.circle")
         } else if payment.isOverdue(asOf: now) {
-            Label("Overdue", systemImage: "exclamationmark.circle")
+            Label("Overdue", systemImage: "exclamationmark.circle").foregroundStyle(WalletTheme.expense)
         } else if payment.isDueToday(asOf: now) {
             Label("Due today", systemImage: "clock")
         } else {
@@ -395,16 +421,21 @@ struct RecurringPaymentEditorView: View {
         NavigationStack {
             Form {
                 Section("Name") {
-                    TextField("Name", text: $name)
+                    TextField("Name", text: $name,
+                              prompt: Text("Name").foregroundColor(WalletTheme.secondaryInk))
+                        .font(.title3.weight(.semibold))
                         .textInputAutocapitalization(.sentences)
                         .focused($focusedField, equals: .name)
                         .accessibilityIdentifier("paymentName")
                     Toggle("Subscription", isOn: $isSubscription)
                         .accessibilityIdentifier("paymentSubscription")
                 }
+                .listRowBackground(WalletTheme.surface)
                 Section {
-                    TextField(0.formatted(), text: $amountText)
-                        .font(.largeTitle.weight(.medium)).monospacedDigit()
+                    TextField(0.formatted(), text: $amountText,
+                              prompt: Text(0.formatted()).foregroundColor(WalletTheme.secondaryInk))
+                        .font(.system(.largeTitle, design: .rounded, weight: .semibold)).monospacedDigit()
+                        .foregroundStyle(WalletTheme.ink)
                         .keyboardType(.decimalPad)
                         .textInputAutocapitalization(.never).autocorrectionDisabled()
                         .focused($focusedField, equals: .amount)
@@ -429,8 +460,11 @@ struct RecurringPaymentEditorView: View {
                 } header: {
                     Text("Amount")
                 } footer: {
-                    Text("Changing the currency keeps the entered amount. No conversion is performed.")
+                    if let initialDraft, currencyCode != initialDraft.currency {
+                        Text("Changing the currency keeps the entered amount. No conversion is performed.")
+                    }
                 }
+                .listRowBackground(WalletTheme.surface)
                 Section {
                     Menu {
                         Picker("Category", selection: $categoryID) {
@@ -448,11 +482,12 @@ struct RecurringPaymentEditorView: View {
                         focusedField = nil
                         showsCategoryEditor = true
                     }
-                } header: {
-                    Text("Category")
                 } footer: {
-                    Text("Choose an active expense category before recording this payment.")
+                    if selectedCategory == nil {
+                        Text("Choose an active expense category before recording this payment.")
+                    }
                 }
+                .listRowBackground(WalletTheme.surface)
                 Section {
                     Menu {
                         Picker("Repeat", selection: $cadence) {
@@ -464,19 +499,16 @@ struct RecurringPaymentEditorView: View {
                         WalletFormMenuLabel("Repeat", value: cadence.localizedName)
                     }
                     .accessibilityIdentifier("paymentCadence")
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Next payment").font(.subheadline).foregroundStyle(.secondary)
-                        DatePicker("Next payment", selection: $nextDueDate, displayedComponents: .date)
-                            .labelsHidden()
-                            .environment(\.calendar, calendar)
-                            .environment(\.timeZone, timeZone)
-                            .accessibilityIdentifier("paymentDate")
-                    }
+                    DatePicker("Next payment", selection: $nextDueDate, displayedComponents: .date)
+                        .environment(\.calendar, calendar)
+                        .environment(\.timeZone, timeZone)
+                        .accessibilityIdentifier("paymentDate")
                 } header: {
                     Text("Schedule")
                 } footer: {
                     Text("Expenses are recorded only when you mark a payment as paid.")
                 }
+                .listRowBackground(WalletTheme.surface)
             }
             .scrollContentBackground(.hidden)
             .background(WalletTheme.background)
@@ -589,9 +621,16 @@ private struct RecurringPaymentValueRow: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(title).font(.subheadline).foregroundStyle(.secondary)
-            Text(value)
+        ViewThatFits(in: .horizontal) {
+            HStack(alignment: .firstTextBaseline, spacing: 10) {
+                Text(title).foregroundStyle(WalletTheme.secondaryInk).fixedSize()
+                Spacer(minLength: 0)
+                Text(value).fontWeight(.medium).fixedSize()
+            }
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title).font(.subheadline).foregroundStyle(WalletTheme.secondaryInk)
+                Text(value).fontWeight(.medium)
+            }
         }
         .fixedSize(horizontal: false, vertical: true)
         .accessibilityElement(children: .combine)

@@ -206,7 +206,7 @@
 "You control your exports" = "Вы решаете, кому передать данные";
 "Your categories, amounts and notes are saved locally. iWallet does not send them to a server." = "Категории, суммы и заметки хранятся на устройстве. iWallet не отправляет их на сервер.";
 "Your data" = "Ваши данные";
-"Your data has not been reset. Free up space on your device and try again." = "Ваши данные не сброшены. Освободите место на устройстве и попробуйте снова.";
+"When you retry, iWallet uses the wallet data on this device." = "При повторной попытке iWallet использует данные кошелька с этого устройства.";
 "Your finances stay on your device" = "Ваши финансовые данные — на вашем устройстве";
 "Your previous wallet is safe" = "Прежние данные сохранены";
 "Your story starts here" = "Пока нет операций";
@@ -420,3 +420,7 @@
 "%@: %@" = "%@: %@";
 "%@, %@" = "%@, %@";
 "%@ · %@" = "%@ · %@";
+
+"Add expense" = "Добавить расход";
+
+"Add income" = "Добавить доход";

@@ -263,3 +263,145 @@ final class PlanningPreviewTests: XCTestCase {
         NSError(domain: "PlanningPreviewTests", code: 1, userInfo: [NSLocalizedDescriptionKey: message])
     }
 }
+
+/// Round-trips a real Files export on the isolated simulator that just ran the schema 15 migration.
+@MainActor
+final class WalletBackupRoundTripTests: XCTestCase {
+    func testExportReviewCancelAndRestoreMissingTransaction() throws {
+        guard ProcessInfo.processInfo.environment["IWALLET_BACKUP_QA"] == "1" else {
+            throw XCTSkip("Requires the dedicated simulator with the synthetic schema 15 wallet.")
+        }
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.launch()
+        defer { app.terminate() }
+
+        let settings = app.tabBars.buttons["Settings"]
+        let transactions = app.tabBars.buttons["Transactions"]
+        let target = app.buttons.matching(NSPredicate(format: "label CONTAINS %@ AND label CONTAINS %@",
+                                                       "Milk / молоко", "$12.34")).firstMatch
+        XCTAssertTrue(transactions.waitForExistence(timeout: 15))
+        transactions.tap()
+        reveal(target, in: app)
+        XCTAssertTrue(target.isHittable, "Use the migrated, synthetic test wallet.")
+
+        settings.tap()
+        let export = app.buttons["Export all data"]
+        reveal(export, in: app)
+        export.tap()
+        let save = app.buttons.matching(NSPredicate(format: "label IN %@", ["Save", "Сохранить"])).firstMatch
+        XCTAssertTrue(save.waitForExistence(timeout: 45), app.debugDescription)
+        attach(app, name: "01-system-json-export")
+        save.tap()
+        let keepBoth = app.buttons.matching(NSPredicate(format: "label IN %@", ["Keep Both", "Keep both", "Сохранить оба", "Оставить оба"])).firstMatch
+        if keepBoth.waitForExistence(timeout: 3) { keepBoth.tap() }
+        XCTAssertTrue(save.waitForNonExistence(timeout: 15))
+
+        transactions.tap()
+        reveal(target, in: app)
+        target.swipeLeft()
+        let delete = app.buttons["Delete"].firstMatch
+        XCTAssertTrue(delete.waitForExistence(timeout: 8))
+        delete.tap()
+        XCTAssertTrue(app.staticTexts["Delete transaction?"].waitForExistence(timeout: 5))
+        app.buttons["Delete transaction"].firstMatch.tap()
+        XCTAssertTrue(target.waitForNonExistence(timeout: 8))
+
+        func reviewBackup() {
+            selectFixtureFile(in: app)
+            XCTAssertTrue(app.navigationBars["Review backup"].waitForExistence(timeout: 12), app.debugDescription)
+            XCTAssertTrue(app.buttons["Import backup"].exists)
+        }
+
+        settings.tap()
+        reviewBackup()
+        attach(app, name: "02-review-backup")
+        app.navigationBars["Review backup"].buttons["Cancel"].tap()
+        transactions.tap()
+        XCTAssertFalse(target.exists, "Cancelling the preview must leave the missing transaction absent.")
+
+        settings.tap()
+        reviewBackup()
+        app.buttons["Import backup"].tap()
+        let summary = app.alerts["Backup imported"]
+        XCTAssertTrue(summary.waitForExistence(timeout: 12), app.debugDescription)
+        let inserted = summary.staticTexts.matching(NSPredicate(format: "label CONTAINS %@ AND label CONTAINS %@",
+            "Transactions added: 1", "Duplicates skipped: 23")).firstMatch
+        XCTAssertTrue(inserted.exists, summary.debugDescription)
+        attach(app, name: "03-merge-result")
+        summary.buttons["Done"].tap()
+        transactions.tap()
+        XCTAssertTrue(target.waitForExistence(timeout: 8))
+
+        settings.tap()
+        reviewBackup()
+        app.buttons["Import backup"].tap()
+        XCTAssertTrue(summary.waitForExistence(timeout: 12))
+        let skipped = summary.staticTexts.matching(NSPredicate(format: "label CONTAINS %@ AND label CONTAINS %@",
+            "Transactions added: 0", "Duplicates skipped: 24")).firstMatch
+        XCTAssertTrue(skipped.exists, summary.debugDescription)
+        attach(app, name: "04-repeat-import")
+        summary.buttons["Done"].tap()
+    }
+
+    /// The host substitutes invalid bytes in the dedicated simulator's synthetic export for this test.
+    func testInvalidJSONReportsAnErrorWithoutChangingHistory() throws {
+        guard ProcessInfo.processInfo.environment["IWALLET_INVALID_JSON_QA"] == "1" else {
+            throw XCTSkip("Requires the deliberately malformed file on the dedicated backup QA simulator.")
+        }
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.launch()
+        defer { app.terminate() }
+        let settings = app.tabBars.buttons["Settings"]
+        XCTAssertTrue(settings.waitForExistence(timeout: 15))
+        settings.tap()
+        selectFixtureFile(in: app)
+        let error = app.alerts["Unable to complete the operation"]
+        XCTAssertTrue(error.waitForExistence(timeout: 12), app.debugDescription)
+        XCTAssertTrue(error.staticTexts["This file is not a valid iWallet backup."].exists)
+        XCTAssertFalse(app.navigationBars["Review backup"].exists)
+        attach(app, name: "05-invalid-json")
+        error.buttons["OK"].tap()
+        app.tabBars.buttons["Transactions"].tap()
+        let expense = app.buttons.matching(NSPredicate(format: "label CONTAINS %@ AND label CONTAINS %@",
+                                                        "Milk / молоко", "$12.34")).firstMatch
+        reveal(expense, in: app)
+    }
+
+    private func selectFixtureFile(in app: XCUIApplication) {
+        let backupName = "iWallet-backup-" + Date.now.formatted(.iso8601.year().month().day().dateSeparator(.dash))
+        let action = app.buttons["Import a backup"]
+        reveal(action, in: app)
+        action.tap()
+        let file = app.descendants(matching: .any).matching(NSPredicate(format: "label BEGINSWITH[c] %@", backupName)).firstMatch
+        if !file.waitForExistence(timeout: 6) {
+            let recents = app.buttons.matching(NSPredicate(format: "label IN %@", ["Recents", "Недавние"])).firstMatch
+            if recents.exists && recents.isHittable { recents.tap() }
+        }
+        XCTAssertTrue(file.waitForExistence(timeout: 15), app.debugDescription)
+        file.tap()
+        let open = app.buttons.matching(NSPredicate(format: "label IN %@", ["Open", "Открыть"])).firstMatch
+        if open.waitForExistence(timeout: 2) && open.isEnabled { open.tap() }
+    }
+
+    private func reveal(_ item: XCUIElement, in app: XCUIApplication) {
+        for _ in 0..<8 {
+            // An offscreen row can be hittable through the floating tab bar on iOS 27.
+            if item.exists && item.isHittable && item.frame.maxY <= app.tabBars.firstMatch.frame.minY {
+                return
+            }
+            app.swipeUp()
+        }
+        XCTFail("Control did not fully clear the tab bar: \(item)")
+    }
+
+    private func attach(_ app: XCUIApplication, name: String) {
+        let attachment = XCTAttachment(screenshot: app.screenshot())
+        attachment.lifetime = .keepAlways
+        attachment.name = name
+        add(attachment)
+    }
+}

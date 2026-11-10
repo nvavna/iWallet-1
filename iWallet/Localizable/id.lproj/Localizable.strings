@@ -206,7 +206,7 @@
 "You control your exports" = "Anda menentukan tujuan ekspor";
 "Your categories, amounts and notes are saved locally. iWallet does not send them to a server." = "Kategori, jumlah, dan catatan Anda disimpan di perangkat ini. iWallet tidak mengirimkannya ke server.";
 "Your data" = "Data Anda";
-"Your data has not been reset. Free up space on your device and try again." = "Data Anda tidak dihapus. Kosongkan ruang penyimpanan di perangkat lalu coba lagi.";
+"When you retry, iWallet uses the wallet data on this device." = "Saat Anda mencoba lagi, iWallet akan menggunakan data dompet yang tersimpan di perangkat ini.";
 "Your finances stay on your device" = "Data keuangan tetap di perangkat Anda";
 "Your previous wallet is safe" = "Dompet lama Anda tetap aman";
 "Your story starts here" = "Belum ada transaksi";
@@ -420,3 +420,7 @@
 "%@: %@" = "%@: %@";
 "%@, %@" = "%@, %@";
 "%@ · %@" = "%@ · %@";
+
+"Add expense" = "Tambah pengeluaran";
+
+"Add income" = "Tambah pemasukan";

@@ -40,7 +40,7 @@ final class WalletSmokeTests: XCTestCase {
         attachScreenshot("Categories with the new category")
 
         goHome()
-        app.buttons["New transaction"].tap()
+        app.buttons["quickAddExpense"].tap()
         let amount = app.textFields["transactionAmount"]
         XCTAssertTrue(amount.waitForExistence(timeout: 5))
         amount.tap()
@@ -61,7 +61,21 @@ final class WalletSmokeTests: XCTestCase {
 
         XCTAssertTrue(home.waitForExistence(timeout: 5))
         chooseOverviewUSD()
-        let homeRow = element(containing: categoryName, and: "$12.34")
+        let recent = home.buttons.matching(NSPredicate(format: "label CONTAINS %@", note)).firstMatch
+        XCTAssertTrue(recent.waitForExistence(timeout: 5))
+        recent.tap()
+        let editBar = app.navigationBars["Edit transaction"]
+        XCTAssertTrue(editBar.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.segmentedControls["transactionType"].buttons["Expense"].isSelected)
+        editBar.buttons["Cancel"].tap()
+        XCTAssertTrue(editBar.waitForNonExistence(timeout: 5))
+
+        app.buttons["showTransactionHistory"].tap()
+        XCTAssertTrue(app.tabBars.buttons["Transactions"].isSelected)
+        XCTAssertTrue(element(containing: note, and: "$12.34").waitForExistence(timeout: 5))
+        goHome()
+
+        let homeRow = overviewCategory(named: categoryName, amount: "$12.34")
         reveal(homeRow)
         XCTAssertTrue(homeRow.exists, "The category's expense total must appear on the overview.")
         attachScreenshot("Overview after recording an expense")
@@ -89,7 +103,7 @@ final class WalletSmokeTests: XCTestCase {
         XCTAssertTrue(element(containing: note, and: "$23.45").waitForExistence(timeout: 5))
 
         goHome()
-        let updatedHomeRow = element(containing: categoryName, and: "$23.45")
+        let updatedHomeRow = overviewCategory(named: categoryName, amount: "$23.45")
         reveal(updatedHomeRow)
         XCTAssertTrue(updatedHomeRow.exists, "The overview must reflect the saved edit.")
 
@@ -116,6 +130,20 @@ final class WalletSmokeTests: XCTestCase {
         attachScreenshot("History after archiving and relaunch")
     }
 
+    func testIncomeShortcutUsesOverviewCurrency() {
+        XCTAssertTrue(home.waitForExistence(timeout: 10))
+        let currency = app.buttons["Display currency"].value as? String
+        XCTAssertNotNil(currency)
+        app.buttons["quickAddIncome"].tap()
+        let editor = app.navigationBars["New transaction"]
+        XCTAssertTrue(editor.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.segmentedControls["transactionType"].buttons["Income"].isSelected)
+        XCTAssertEqual(app.buttons["transactionCurrency"].value as? String, currency)
+        XCTAssertFalse(app.buttons["saveTransaction"].isEnabled)
+        editor.buttons["Cancel"].tap()
+        XCTAssertTrue(editor.waitForNonExistence(timeout: 5))
+    }
+
     func testTransactionDraftCancelKeepsInputUntilExplicitDiscard() throws {
         XCTAssertTrue(home.waitForExistence(timeout: 15), "Use a dedicated simulator without a pending legacy import.")
         let suffix = String(UUID().uuidString.prefix(8))
@@ -132,7 +160,7 @@ final class WalletSmokeTests: XCTestCase {
         XCTAssertTrue(categoryElement(containing: categoryName).waitForExistence(timeout: 5))
 
         goHome()
-        app.buttons["New transaction"].tap()
+        app.buttons["quickAddExpense"].tap()
         let amount = app.textFields["transactionAmount"]
         XCTAssertTrue(amount.waitForExistence(timeout: 5))
         amount.tap()
@@ -308,7 +336,7 @@ final class WalletSmokeTests: XCTestCase {
         createExpenseCategory(named: name)
 
         goHome()
-        app.buttons["New transaction"].tap()
+        app.buttons["quickAddExpense"].tap()
         let amount = app.textFields["transactionAmount"]
         XCTAssertTrue(amount.waitForExistence(timeout: 5))
         let expense = app.segmentedControls.buttons["Expense"].firstMatch
@@ -551,7 +579,7 @@ final class WalletSmokeTests: XCTestCase {
     private func createTestExpense(category: String, note: String) {
         createExpenseCategory(named: category)
         goHome()
-        app.buttons["New transaction"].tap()
+        app.buttons["quickAddExpense"].tap()
         let amount = app.textFields["transactionAmount"]
         XCTAssertTrue(amount.waitForExistence(timeout: 5))
         amount.tap()
@@ -775,6 +803,11 @@ final class WalletSmokeTests: XCTestCase {
         app.launch()
         XCTAssertTrue(home.waitForExistence(timeout: 15))
         XCTAssertFalse(app.navigationBars["Your history"].exists, "The persisted receipt must prevent a second import.")
+    }
+
+    private func overviewCategory(named name: String, amount: String) -> XCUIElement {
+        app.buttons.matching(identifier: "overviewCategoryTotal")
+            .matching(NSPredicate(format: "label CONTAINS %@ AND label CONTAINS %@", name, amount)).firstMatch
     }
 
     private var home: XCUIElement { app.scrollViews["walletHome"] }
@@ -1129,6 +1162,141 @@ final class WalletAppStoreScreenshotTests: XCTestCase {
         try capture(language: "ru", seedWallet: false, attachmentPrefix: "QA")
     }
 
+    /// Exercise nested screens on the existing synthetic wallet without changing its records.
+    @MainActor
+    func testRussianSecondaryScreens() throws {
+        guard ProcessInfo.processInfo.environment["IWALLET_CAPTURE_APP_STORE"] == "1" else {
+            throw XCTSkip("Use the dedicated, populated Russian preview simulator.")
+        }
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launchArguments = ["-AppleLanguages", "(ru)", "-AppleLocale", "ru_RU"]
+        app.launch()
+        defer { app.terminate() }
+
+        func capture(_ name: String) {
+            captureAttachment(app, name: "Details-ru-" + name)
+        }
+
+        func close(_ title: String) {
+            let bar = app.navigationBars[title]
+            XCTAssertTrue(bar.waitForExistence(timeout: 5))
+            bar.buttons["Отмена"].tap()
+            XCTAssertTrue(bar.waitForNonExistence(timeout: 5))
+        }
+
+        func back(_ title: String) {
+            let bar = app.navigationBars[title]
+            XCTAssertTrue(bar.waitForExistence(timeout: 5))
+            bar.buttons.element(boundBy: 0).tap()
+            XCTAssertTrue(bar.waitForNonExistence(timeout: 5))
+        }
+
+        selectTab(app, title: "Платежи")
+        app.buttons["newRecurringPayment"].tap()
+        XCTAssertTrue(app.textFields["paymentName"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["saveRecurringPayment"].isEnabled)
+        capture("01-new-payment")
+        reveal(app.datePickers["paymentDate"], in: app)
+        capture("02-payment-schedule")
+        close("Новый платёж")
+
+        let music = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Музыка")).firstMatch
+        XCTAssertTrue(music.waitForExistence(timeout: 5))
+        music.tap()
+        XCTAssertTrue(app.buttons["markRecurringPaid"].waitForExistence(timeout: 5))
+        capture("03-payment-detail")
+        app.buttons["editRecurringPayment"].tap()
+        let name = app.textFields["paymentName"]
+        XCTAssertTrue(name.waitForExistence(timeout: 5))
+        XCTAssertEqual(name.value as? String, "Музыка")
+        capture("04-edit-payment")
+        close("Изменить платёж")
+        back("Платёж")
+        app.buttons["paymentReminderSettings"].tap()
+        XCTAssertTrue(app.switches["paymentRemindersEnabled"].waitForExistence(timeout: 5))
+        capture("05-reminders")
+
+        selectTab(app, title: "Настройки")
+        app.buttons["settingsCategories"].tap()
+        app.navigationBars["Категории"].buttons["Добавить категорию"].tap()
+        XCTAssertTrue(app.textFields["categoryName"].waitForExistence(timeout: 5))
+        capture("00-category-name")
+        close("Новая категория")
+        back("Категории")
+
+        app.buttons["settingsBudgets"].tap()
+        XCTAssertTrue(app.buttons["nextBudgetMonth"].waitForExistence(timeout: 5))
+        capture("06-budgets")
+        app.buttons["newBudget"].tap()
+        XCTAssertTrue(app.textFields["budgetAmount"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["saveBudget"].isEnabled)
+        capture("07-new-budget")
+        close("Новый бюджет")
+        back("Бюджеты на месяц")
+
+        let csv = app.buttons["settingsExportCSV"]
+        reveal(csv, in: app)
+        csv.tap()
+        XCTAssertTrue(app.datePickers["csvStartDate"].waitForExistence(timeout: 5))
+        capture("08-csv")
+        back("Экспорт операций в CSV")
+
+        let privacy = app.buttons["Конфиденциальность"]
+        reveal(privacy, in: app)
+        privacy.tap()
+        XCTAssertTrue(app.navigationBars["Конфиденциальность"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Без отслеживания"].exists)
+        capture("09-privacy")
+        back("Конфиденциальность")
+        let licenses = app.buttons["Лицензии"]
+        reveal(licenses, in: app)
+        licenses.tap()
+        XCTAssertTrue(app.navigationBars["Лицензии"].waitForExistence(timeout: 5))
+        let license = app.descendants(matching: .any).matching(NSPredicate(format: "label CONTAINS[c] %@", "Realm")).firstMatch
+        XCTAssertTrue(license.exists)
+        capture("10-licenses")
+    }
+
+    @MainActor
+    func testRussianBudgetEditorAndDatePicker() throws {
+        guard ProcessInfo.processInfo.environment["IWALLET_CAPTURE_APP_STORE"] == "1" else {
+            throw XCTSkip("Use the Russian preview wallet with a budget in the current month.")
+        }
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launchArguments = ["-AppleLanguages", "(ru)", "-AppleLocale", "ru_RU"]
+        app.launch()
+        defer { app.terminate() }
+        selectTab(app, title: "Настройки")
+        app.buttons["settingsBudgets"].tap()
+        let budget = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "budgetRow-")).firstMatch
+        reveal(budget, in: app)
+        let original = budget.label
+        budget.tap()
+        let amount = app.textFields["budgetAmount"]
+        XCTAssertTrue(amount.waitForExistence(timeout: 5))
+        XCTAssertFalse((amount.value as? String ?? "").isEmpty)
+        XCTAssertTrue(app.buttons["deleteBudget"].exists)
+        captureAttachment(app, name: "Details-ru-11-edit-budget")
+        app.buttons["Отмена"].firstMatch.tap()
+        XCTAssertTrue(budget.waitForExistence(timeout: 5))
+        XCTAssertEqual(budget.label, original)
+        app.navigationBars["Бюджеты на месяц"].buttons.element(boundBy: 0).tap()
+        let csv = app.buttons["settingsExportCSV"]
+        reveal(csv, in: app)
+        csv.tap()
+        let start = app.datePickers["csvStartDate"]
+        XCTAssertTrue(start.waitForExistence(timeout: 5))
+        let collapsedCount = app.descendants(matching: .any).count
+        start.tap()
+        let calendarIsOpen = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
+            app.descendants(matching: .any).count >= collapsedCount + 20
+        }, object: nil)
+        XCTAssertEqual(XCTWaiter.wait(for: [calendarIsOpen], timeout: 5), .completed)
+        captureAttachment(app, name: "Details-ru-12-csv-calendar")
+    }
+
     private func capture(language: String, seedWallet: Bool, attachmentPrefix: String) throws {
         guard ProcessInfo.processInfo.environment["IWALLET_CAPTURE_APP_STORE"] == "1" else {
             throw XCTSkip("Opt-in screenshots: use Scripts/capture-app-store-screenshots.py on fresh simulators, or explicitly enable visual QA on a seeded dedicated simulator.")
@@ -1141,7 +1309,6 @@ final class WalletAppStoreScreenshotTests: XCTestCase {
         defer { app.terminate() }
         let overview = russian ? "Обзор" : "Overview"
         let transactions = russian ? "Операции" : "Transactions"
-        let add = russian ? "Новая операция" : "New transaction"
         let done = russian ? "Готово" : "Done"
         let currencyCode = russian ? "RUB" : "USD"
         let home = app.scrollViews["walletHome"]
@@ -1182,10 +1349,10 @@ final class WalletAppStoreScreenshotTests: XCTestCase {
         ]
         if seedWallet {
             for (income, category, amount, note) in rows {
-                app.buttons[add].tap()
+                app.buttons[income ? "quickAddIncome" : "quickAddExpense"].tap()
                 let amountField = app.textFields["transactionAmount"]
                 XCTAssertTrue(amountField.waitForExistence(timeout: 5))
-                if income { app.segmentedControls["transactionType"].buttons[russian ? "Доход" : "Income"].tap() }
+                XCTAssertTrue(app.segmentedControls["transactionType"].buttons[income ? (russian ? "Доход" : "Income") : (russian ? "Расход" : "Expense")].isSelected)
                 amountField.tap()
                 amountField.typeText(amount)
                 app.buttons[done].firstMatch.tap()
@@ -1239,7 +1406,7 @@ final class WalletAppStoreScreenshotTests: XCTestCase {
         screenshot(app, name: "\(prefix)-03-categories")
 
         selectTab(app, title: overview)
-        app.buttons[newTransaction].tap()
+        app.buttons["quickAddExpense"].tap()
         let amount = app.textFields["transactionAmount"]
         XCTAssertTrue(amount.waitForExistence(timeout: 5))
         XCTAssertFalse(app.buttons["saveTransaction"].isEnabled)

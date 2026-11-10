@@ -10,16 +10,26 @@ struct PaymentReminderSettingsView: View {
     var body: some View {
         Form {
             Section {
-                Toggle("Payment reminders", isOn: Binding(
+                Toggle(isOn: Binding(
                     get: { reminders.preferences.isEnabled },
                     set: { enabled in Task { await reminders.setEnabled(enabled, context: context) } }
-                ))
+                )) {
+                    HStack(spacing: 12) {
+                        Image(systemName: "bell.badge")
+                            .foregroundStyle(WalletTheme.accent)
+                            .frame(width: 36, height: 36)
+                            .background(WalletTheme.accent.opacity(0.10), in: RoundedRectangle(cornerRadius: 11))
+                            .accessibilityHidden(true)
+                        Text("Payment reminders").font(.headline)
+                    }
+                }
                 .disabled(reminders.isRequestingPermission ||
                           (reminders.permission == .denied && !reminders.preferences.isEnabled))
                 .accessibilityIdentifier("paymentRemindersEnabled")
             } footer: {
                 Text("Notifications hide payment names and amounts. Tap a reminder to open Payments.")
             }
+            .listRowBackground(WalletTheme.surface)
             if reminders.permission == .denied {
                 Section {
                     Text("Notifications are turned off in iOS Settings.")
@@ -42,14 +52,10 @@ struct PaymentReminderSettingsView: View {
                             ? String(localized: "On the due date") : String(localized: "The day before"))
                     }
                     .accessibilityIdentifier("paymentReminderLead")
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("Reminder time").font(.subheadline).foregroundStyle(.secondary)
-                        DatePicker("Reminder time", selection: timeBinding, displayedComponents: .hourAndMinute)
-                            .labelsHidden()
-                            .environment(\.calendar, Self.clock)
-                            .environment(\.timeZone, Self.clock.timeZone)
-                            .accessibilityIdentifier("paymentReminderTime")
-                    }
+                    DatePicker("Reminder time", selection: timeBinding, displayedComponents: .hourAndMinute)
+                        .environment(\.calendar, Self.clock)
+                        .environment(\.timeZone, Self.clock.timeZone)
+                        .accessibilityIdentifier("paymentReminderTime")
                 } footer: {
                     Text("Times follow each payment’s time zone. A reminder whose time has passed is skipped.")
                 }
@@ -73,6 +79,8 @@ struct PaymentReminderSettingsView: View {
                 } header: { Text("Unable to update reminders") }
             }
         }
+        .scrollContentBackground(.hidden)
+        .background(WalletTheme.background)
         .navigationTitle("Reminders")
         .navigationBarTitleDisplayMode(.inline)
         .task { await reminders.refresh(context: context) }

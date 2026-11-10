@@ -24,7 +24,9 @@ struct WalletBudgetListView: View {
                         .disabled(month.advanced(by: -1) == nil)
                         .accessibilityIdentifier("previousBudgetMonth")
                     Spacer()
-                    Text(month.displayName(locale: locale)).font(.headline)
+                    Text(month.displayName(locale: locale))
+                        .font(.system(.title3, design: .rounded, weight: .semibold))
+                        .foregroundStyle(WalletTheme.ink)
                         .multilineTextAlignment(.center)
                         .accessibilityIdentifier("budgetMonth")
                     Spacer()
@@ -38,9 +40,12 @@ struct WalletBudgetListView: View {
                 }
                 .labelStyle(.iconOnly)
                 .buttonStyle(.borderless)
+                .listRowBackground(WalletTheme.surface)
                 Button(action: copyPreviousBudgets) {
                     Label("Copy last month’s budgets", systemImage: "doc.on.doc")
                 }
+                .font(.subheadline.weight(.medium))
+                .listRowBackground(WalletTheme.surface)
                 .disabled(month.advanced(by: -1) == nil)
                 .accessibilityIdentifier("copyPreviousBudgets")
             } footer: {
@@ -50,9 +55,11 @@ struct WalletBudgetListView: View {
             }
             let visible = budgets.filter { $0.year == month.year && $0.month == month.month }
             if visible.isEmpty {
-                ContentUnavailableView("No budgets this month", systemImage: "gauge.with.dots.needle.50percent",
-                                       description: Text("Set a spending limit for a category."))
-                    .listRowBackground(Color.clear)
+                WalletEmptyListRow(
+                    title: "No budgets this month", systemImage: "gauge.with.dots.needle.50percent",
+                    message: "Set a spending limit for a category.",
+                    actionTitle: "New budget", actionIdentifier: "emptyBudgetAction"
+                ) { editor = BudgetEditorRoute(budget: nil) }
             } else {
                 let byID = Dictionary(uniqueKeysWithValues: categories.map { ($0.id, $0) })
                 Section {
@@ -67,11 +74,15 @@ struct WalletBudgetListView: View {
                         }
                         .buttonStyle(.plain)
                         .accessibilityIdentifier("budgetRow-\(budget.id.uuidString)")
+                        .listRowBackground(WalletTheme.surface)
                     }
                 }
             }
         }
         .accessibilityIdentifier("budgetList")
+        .listStyle(.insetGrouped)
+        .scrollContentBackground(.hidden)
+        .background(WalletTheme.background)
         .navigationTitle("Monthly budgets")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -138,49 +149,55 @@ private extension BudgetMonth {
 }
 
 private struct BudgetRow: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     let budget: WalletBudget
     let category: WalletCategory?
 
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
-            CategoryBadge(category: category).accessibilityHidden(true)
-            VStack(alignment: .leading, spacing: 6) {
-                Text(category?.name ?? String(localized: "Uncategorized")).font(.headline)
-                if category?.isArchived == true { Text("Archived").font(.caption).foregroundStyle(.secondary) }
-                Text(verbatim: budget.currencyCode).font(.caption).foregroundStyle(.secondary)
-                if let progress = try? budget.progress(transactions: category?.transactions ?? []) {
-                    amount("Budget limit", budget.limitMinor)
-                    amount("Spent", progress.spentMinor)
-                    ProgressView(value: min(1, Double(progress.spentMinor) / Double(budget.limitMinor)))
-                        .tint(progress.remainingMinor < 0 ? .orange : WalletTheme.accent)
-                        .accessibilityHidden(true)
-                    amount(progress.remainingMinor < 0 ? "Over budget" : "Remaining",
-                           abs(progress.remainingMinor)).fontWeight(.semibold)
-                } else {
-                    Text("Unable to calculate this total.").foregroundStyle(.secondary)
+        VStack(alignment: .leading, spacing: 13) {
+            HStack(spacing: 10) {
+                CategoryBadge(category: category, size: 38).accessibilityHidden(true)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(category?.name ?? String(localized: "Uncategorized")).font(.headline)
+                    if category?.isArchived == true { Text("Archived").font(.caption) }
+                    Text(verbatim: budget.currencyCode).font(.caption).foregroundStyle(WalletTheme.secondaryInk)
                 }
+                Spacer()
+                Image(systemName: "chevron.forward").font(.caption.weight(.semibold))
+                    .foregroundStyle(WalletTheme.secondaryInk).accessibilityHidden(true)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .fixedSize(horizontal: false, vertical: true)
+            if let progress = try? budget.progress(transactions: category?.transactions ?? []) {
+                let over = progress.remainingMinor < 0
+                amount(over ? "Over budget" : "Remaining", abs(progress.remainingMinor),
+                       font: .system(.title2, design: .rounded, weight: .semibold))
+                    .foregroundStyle(over ? WalletTheme.expense : WalletTheme.income)
+                ProgressView(value: min(1, Double(progress.spentMinor) / Double(budget.limitMinor)))
+                    .tint(over ? WalletTheme.expense : WalletTheme.accent)
+                    .accessibilityHidden(true)
+                let layout = dynamicTypeSize.isAccessibilitySize
+                    ? AnyLayout(VStackLayout(alignment: .leading, spacing: 8))
+                    : AnyLayout(HStackLayout(alignment: .top, spacing: 12))
+                layout {
+                    amount("Spent", progress.spentMinor)
+                    amount("Budget limit", budget.limitMinor)
+                }
+            } else {
+                Text("Unable to calculate this total.").foregroundStyle(WalletTheme.secondaryInk)
+            }
         }
-        .padding(.vertical, 5)
+        .foregroundStyle(WalletTheme.ink)
+        .fixedSize(horizontal: false, vertical: true)
+        .padding(.vertical, 8)
         .contentShape(Rectangle())
         .accessibilityElement(children: .combine)
     }
 
-    private func amount(_ title: LocalizedStringKey, _ value: Int64) -> some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(alignment: .firstTextBaseline) {
-                Text(title).foregroundStyle(.secondary).fixedSize()
-                Spacer(minLength: 8)
-                Text(Money.format(value, currencyCode: budget.currencyCode)).monospacedDigit().fixedSize()
-            }
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title).foregroundStyle(.secondary)
-                Text(Money.format(value, currencyCode: budget.currencyCode)).monospacedDigit()
-            }
+    private func amount(_ title: LocalizedStringKey, _ value: Int64, font: Font = .subheadline.weight(.semibold)) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(title).font(.caption).foregroundStyle(WalletTheme.secondaryInk)
+            Text(Money.format(value, currencyCode: budget.currencyCode)).font(font).monospacedDigit()
         }
-        .font(.subheadline)
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
@@ -223,6 +240,20 @@ private struct BudgetEditor: View {
     var body: some View {
         NavigationStack {
             Form {
+                Section("Budget limit") {
+                    TextField("Amount", text: $amount,
+                              prompt: Text("Amount").foregroundColor(WalletTheme.secondaryInk))
+                        .font(.system(.largeTitle, design: .rounded, weight: .semibold))
+                        .monospacedDigit()
+                        .foregroundStyle(WalletTheme.ink)
+                        .keyboardType(.decimalPad)
+                        .focused($editingAmount)
+                        .accessibilityIdentifier("budgetAmount")
+                    if !amount.isEmpty, case .failure(let failure) = parsed {
+                        Text(failure.localizedDescription).font(.footnote).foregroundStyle(WalletTheme.expense)
+                    }
+                }
+                .listRowBackground(WalletTheme.surface)
                 Section {
                     LabeledContent("Month", value: month.displayName(locale: locale))
                     if budget != nil {
@@ -253,21 +284,15 @@ private struct BudgetEditor: View {
                         }
                     }
                 }
-                Section("Budget limit") {
-                    TextField("Amount", text: $amount)
-                        .font(.title2.monospacedDigit())
-                        .keyboardType(.decimalPad)
-                        .focused($editingAmount)
-                        .accessibilityIdentifier("budgetAmount")
-                    if !amount.isEmpty, case .failure(let failure) = parsed {
-                        Text(failure.localizedDescription).font(.footnote).foregroundStyle(.secondary)
-                    }
-                }
+                .listRowBackground(WalletTheme.surface)
                 if budget != nil {
                     Button("Delete budget", role: .destructive) { delete = true }
                         .accessibilityIdentifier("deleteBudget")
                 }
             }
+            .scrollContentBackground(.hidden)
+            .background(WalletTheme.background)
+            .scrollDismissesKeyboard(.interactively)
             .navigationTitle(budget == nil ? String(localized: "New budget") : String(localized: "Edit budget"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
