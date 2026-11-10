@@ -56,6 +56,16 @@ struct WalletHomeView: View {
                         upcomingSection
                     }
                     NavigationLink {
+                        SpendingReportDestination(currencyCode: currency)
+                    } label: {
+                        HStack {
+                            Label("Spending report", systemImage: "doc.text.magnifyingglass")
+                            Spacer()
+                            Image(systemName: "chevron.forward").font(.caption).accessibilityHidden(true)
+                        }.frame(minHeight: 44)
+                    }
+                    .accessibilityIdentifier("overviewSpendingReport")
+                    NavigationLink {
                         WalletBudgetListView()
                     } label: {
                         HStack {

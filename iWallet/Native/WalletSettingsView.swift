@@ -33,6 +33,12 @@ struct WalletSettingsView: View {
                         Label("Monthly budgets", systemImage: "gauge.with.dots.needle.50percent")
                     }
                     .accessibilityIdentifier("settingsBudgets")
+                    NavigationLink {
+                        SpendingReportDestination(currencyCode: currency)
+                    } label: {
+                        Label("Spending report", systemImage: "doc.text.magnifyingglass")
+                    }
+                    .accessibilityIdentifier("settingsSpendingReport")
                 }
                 .listRowBackground(WalletTheme.surface)
                 Section {

@@ -424,3 +424,23 @@
 "Add expense" = "Añadir gasto";
 
 "Add income" = "Añadir ingreso";
+
+/* Spending reports and purchases. */
+"Spending report" = "Informe de gastos";
+"Selected period" = "Periodo seleccionado";
+"Previous period" = "Periodo anterior";
+"Change in spending" = "Variación de los gastos";
+"Save PDF" = "Guardar PDF";
+"Sample report" = "Informe de ejemplo";
+"This report uses example expenses." = "Este informe utiliza gastos de ejemplo.";
+"No expenses in either period." = "No hay gastos en ninguno de los dos periodos.";
+"Compare spending for any dates, see totals by category, and save a PDF." = "Elige las fechas para comparar tus gastos, ver los totales por categoría y guardar el informe en PDF.";
+"One-time purchase" = "Compra única";
+"Unlock reports" = "Desbloquear informes";
+"Restore purchases" = "Restaurar compras";
+"The App Store price is unavailable." = "El precio del App Store no está disponible.";
+"Your purchase is awaiting approval." = "Tu compra está pendiente de aprobación.";
+"The purchase could not be verified." = "No se ha podido verificar la compra.";
+"The purchase could not be completed." = "No se ha podido completar la compra.";
+"No previous purchase was found." = "No se ha encontrado ninguna compra anterior.";
+"Purchases could not be restored." = "No se han podido restaurar las compras.";

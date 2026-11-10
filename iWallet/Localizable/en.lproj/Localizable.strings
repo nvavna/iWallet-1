@@ -424,3 +424,22 @@
 "Add expense" = "Add expense";
 
 "Add income" = "Add income";
+
+"Spending report" = "Spending report";
+"Selected period" = "Selected period";
+"Previous period" = "Previous period";
+"Change in spending" = "Change in spending";
+"Save PDF" = "Save PDF";
+"Sample report" = "Sample report";
+"This report uses example expenses." = "This report uses example expenses.";
+"No expenses in either period." = "No expenses in either period.";
+"Compare spending for any dates, see totals by category, and save a PDF." = "Compare spending for any dates, see totals by category, and save a PDF.";
+"One-time purchase" = "One-time purchase";
+"Unlock reports" = "Unlock reports";
+"Restore purchases" = "Restore purchases";
+"The App Store price is unavailable." = "The App Store price is unavailable.";
+"Your purchase is awaiting approval." = "Your purchase is awaiting approval.";
+"The purchase could not be verified." = "The purchase could not be verified.";
+"The purchase could not be completed." = "The purchase could not be completed.";
+"No previous purchase was found." = "No previous purchase was found.";
+"Purchases could not be restored." = "Purchases could not be restored.";

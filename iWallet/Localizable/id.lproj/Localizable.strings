@@ -424,3 +424,22 @@
 "Add expense" = "Tambah pengeluaran";
 
 "Add income" = "Tambah pemasukan";
+
+"Spending report" = "Laporan pengeluaran";
+"Selected period" = "Periode pilihan";
+"Previous period" = "Periode sebelumnya";
+"Change in spending" = "Perubahan pengeluaran";
+"Save PDF" = "Simpan PDF";
+"Sample report" = "Contoh laporan";
+"This report uses example expenses." = "Laporan ini menggunakan contoh pengeluaran.";
+"No expenses in either period." = "Tidak ada pengeluaran pada kedua periode.";
+"Compare spending for any dates, see totals by category, and save a PDF." = "Bandingkan pengeluaran untuk rentang tanggal pilihan, lihat total per kategori, dan simpan sebagai PDF.";
+"One-time purchase" = "Pembelian satu kali";
+"Unlock reports" = "Buka akses laporan";
+"Restore purchases" = "Pulihkan pembelian";
+"The App Store price is unavailable." = "Harga dari App Store belum tersedia.";
+"Your purchase is awaiting approval." = "Pembelian Anda menunggu persetujuan.";
+"The purchase could not be verified." = "Pembelian tidak dapat diverifikasi.";
+"The purchase could not be completed." = "Pembelian tidak dapat diselesaikan.";
+"No previous purchase was found." = "Pembelian sebelumnya tidak ditemukan.";
+"Purchases could not be restored." = "Pembelian tidak dapat dipulihkan.";

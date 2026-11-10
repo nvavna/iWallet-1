@@ -424,3 +424,23 @@
 "Add expense" = "إضافة مصروف";
 
 "Add income" = "إضافة دخل";
+
+/* Spending reports and purchases. */
+"Spending report" = "تقرير الإنفاق";
+"Selected period" = "الفترة المحددة";
+"Previous period" = "الفترة السابقة";
+"Change in spending" = "التغير في الإنفاق";
+"Save PDF" = "حفظ ملف PDF";
+"Sample report" = "نموذج تقرير";
+"This report uses example expenses." = "يعرض هذا التقرير أمثلة على المصروفات.";
+"No expenses in either period." = "لا توجد مصروفات في أي من الفترتين.";
+"Compare spending for any dates, see totals by category, and save a PDF." = "قارن الإنفاق لأي فترة تختارها، واطّلع على إجمالي كل فئة، واحفظ التقرير بصيغة PDF.";
+"One-time purchase" = "شراء لمرة واحدة";
+"Unlock reports" = "فتح التقارير";
+"Restore purchases" = "استعادة المشتريات";
+"The App Store price is unavailable." = "السعر غير متاح في App Store.";
+"Your purchase is awaiting approval." = "عملية الشراء بانتظار الموافقة.";
+"The purchase could not be verified." = "تعذّر التحقق من عملية الشراء.";
+"The purchase could not be completed." = "تعذّر إكمال عملية الشراء.";
+"No previous purchase was found." = "لم يتم العثور على عملية شراء سابقة.";
+"Purchases could not be restored." = "تعذّرت استعادة المشتريات.";
