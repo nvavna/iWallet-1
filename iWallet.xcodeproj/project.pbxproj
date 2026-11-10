@@ -115,6 +115,66 @@
 			"isa" = "PBXBuildFile";
 			"fileRef" = "F89B6C49BA0D9D2753052D7D";
 		};
+		"C8EA6114B0213E039E02D762" = {
+			"isa" = "PBXFileReference";
+			"path" = "SpendingReportView.swift";
+			"lastKnownFileType" = "sourcecode.swift";
+			"sourceTree" = "<group>";
+		};
+		"CB54BD31DD4A486B236DC0F4" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "C8EA6114B0213E039E02D762";
+		};
+		"877C0403126FDD66E3B958A8" = {
+			"isa" = "PBXFileReference";
+			"path" = "SpendingReportPDF.swift";
+			"lastKnownFileType" = "sourcecode.swift";
+			"sourceTree" = "<group>";
+		};
+		"0718A9939F3B972165F82A27" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "877C0403126FDD66E3B958A8";
+		};
+		"E65A4B5B32CE69F472B39D9D" = {
+			"isa" = "PBXFileReference";
+			"path" = "ReportAccess.swift";
+			"lastKnownFileType" = "sourcecode.swift";
+			"sourceTree" = "<group>";
+		};
+		"0E6FB309DAF02C6F29BEAE91" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "E65A4B5B32CE69F472B39D9D";
+		};
+		"DF4926E99F59ECD5B9350EBE" = {
+			"isa" = "PBXFileReference";
+			"path" = "SpendingReports.storekit";
+			"lastKnownFileType" = "text";
+			"sourceTree" = "<group>";
+		};
+		"4D5DB6A77BC2C21FE682166C" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "DF4926E99F59ECD5B9350EBE";
+		};
+		"BB60B6CAB5117F634C1778E3" = {
+			"isa" = "PBXFileReference";
+			"path" = "SpendingReportPurchaseTests.swift";
+			"lastKnownFileType" = "sourcecode.swift";
+			"sourceTree" = "<group>";
+		};
+		"2827636A7814BF82C43EB68A" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "BB60B6CAB5117F634C1778E3";
+		};
+		"BE5E17FD6CE9B3225D45CD12" = {
+			"isa" = "PBXFileReference";
+			"path" = "SpendingReportExportTests.swift";
+			"lastKnownFileType" = "sourcecode.swift";
+			"sourceTree" = "<group>";
+		};
+		"942181449EDAE9AC81B11D3B" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "BE5E17FD6CE9B3225D45CD12";
+		};
 		"D41C84318BDCED1C77C76759" = {
 			"isa" = "PBXFileReference";
 			"path" = "WalletAnalyticsViews.swift";
@@ -390,6 +450,9 @@
 				"2D9ABD76E5B92DDD625A3CA9",
 				"930A77D3AB9E29C4A2E1FC40",
 				"FBE9CC476E36576B303E5FE7",
+				"0E6FB309DAF02C6F29BEAE91",
+				"0718A9939F3B972165F82A27",
+				"CB54BD31DD4A486B236DC0F4",
 				"5296095B1EEE05DC8BF1606A",
 				"8B07E6D169A4CEF8E025FD39",
 				"FB4F0C84EE771E6AFE5B7BCD",
@@ -504,9 +567,9 @@
 			"isa" = "XCBuildConfiguration";
 			"buildSettings" = {
 				"INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad" = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				"MARKETING_VERSION" = "2.1.0";
+				"MARKETING_VERSION" = "2.2.0";
 				"DEVELOPMENT_TEAM" = "4243BL8MP3";
-				"CURRENT_PROJECT_VERSION" = "9";
+				"CURRENT_PROJECT_VERSION" = "10";
 				"SUPPORTED_PLATFORMS" = "iphoneos iphonesimulator";
 				"INFOPLIST_KEY_LSApplicationCategoryType" = "public.app-category.finance";
 				"INFOPLIST_KEY_ITSAppUsesNonExemptEncryption" = "NO";
@@ -573,6 +636,9 @@
 				"B011E83ABFB753A8D48EDA96",
 				"F89B6C49BA0D9D2753052D7D",
 				"D41C84318BDCED1C77C76759",
+				"E65A4B5B32CE69F472B39D9D",
+				"877C0403126FDD66E3B958A8",
+				"C8EA6114B0213E039E02D762",
 				"AF971BEAA298D7E0FAD93111",
 				"823B7724940DF522A80AA396",
 				"E2D34980A71C66F03B0C8C32",
@@ -694,9 +760,9 @@
 			"isa" = "XCBuildConfiguration";
 			"buildSettings" = {
 				"INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad" = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				"MARKETING_VERSION" = "2.1.0";
+				"MARKETING_VERSION" = "2.2.0";
 				"DEVELOPMENT_TEAM" = "4243BL8MP3";
-				"CURRENT_PROJECT_VERSION" = "9";
+				"CURRENT_PROJECT_VERSION" = "10";
 				"SUPPORTED_PLATFORMS" = "iphoneos iphonesimulator";
 				"INFOPLIST_KEY_LSApplicationCategoryType" = "public.app-category.finance";
 				"INFOPLIST_KEY_ITSAppUsesNonExemptEncryption" = "NO";
@@ -823,6 +889,9 @@
 			"path" = "Tests/WalletUITests";
 			"children" = (
 				"55A5B20B458BE3C0FBC78CF8",
+				"BB60B6CAB5117F634C1778E3",
+				"BE5E17FD6CE9B3225D45CD12",
+				"DF4926E99F59ECD5B9350EBE",
 				"CB9C9923B3B9F7BB5AAB3EB1",
 			);
 			"sourceTree" = "<group>";
@@ -839,6 +908,8 @@
 			"buildActionMask" = "2147483647";
 			"files" = (
 				"BE591E13CE1EC367B71EFE4B",
+				"2827636A7814BF82C43EB68A",
+				"942181449EDAE9AC81B11D3B",
 				"3D27881CDF9632DC19EE0A1A",
 			);
 			"runOnlyForDeploymentPostprocessing" = "0";
@@ -859,6 +930,7 @@
 			"buildActionMask" = "2147483647";
 			"files" = (
 				"152A9EDDFE7C4D2C99423A64",
+				"4D5DB6A77BC2C21FE682166C",
 			);
 			"runOnlyForDeploymentPostprocessing" = "0";
 		};

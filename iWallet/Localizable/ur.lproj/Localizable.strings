@@ -424,3 +424,23 @@
 "Add expense" = "خرچ شامل کریں";
 
 "Add income" = "آمدنی شامل کریں";
+
+/* Spending reports and purchases. */
+"Spending report" = "اخراجات کی رپورٹ";
+"Selected period" = "منتخب مدت";
+"Previous period" = "پچھلی مدت";
+"Change in spending" = "اخراجات میں تبدیلی";
+"Save PDF" = "PDF محفوظ کریں";
+"Sample report" = "نمونہ رپورٹ";
+"This report uses example expenses." = "اس رپورٹ میں اخراجات کی مثالیں دکھائی گئی ہیں۔";
+"No expenses in either period." = "دونوں مدتوں میں کوئی خرچ درج نہیں ہے۔";
+"Compare spending for any dates, see totals by category, and save a PDF." = "اپنی پسند کی تاریخوں کے لیے اخراجات کا موازنہ کریں، ہر زمرے کا کل خرچ دیکھیں اور PDF محفوظ کریں۔";
+"One-time purchase" = "ایک بار کی خریداری";
+"Unlock reports" = "رپورٹیں ان لاک کریں";
+"Restore purchases" = "خریداریاں بحال کریں";
+"The App Store price is unavailable." = "App Store پر قیمت دستیاب نہیں ہے۔";
+"Your purchase is awaiting approval." = "آپ کی خریداری منظوری کی منتظر ہے۔";
+"The purchase could not be verified." = "خریداری کی تصدیق نہیں ہو سکی۔";
+"The purchase could not be completed." = "خریداری مکمل نہیں ہو سکی۔";
+"No previous purchase was found." = "کوئی پچھلی خریداری نہیں ملی۔";
+"Purchases could not be restored." = "خریداریاں بحال نہیں ہو سکیں۔";

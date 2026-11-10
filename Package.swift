@@ -11,7 +11,7 @@ let package = Package(
     ],
     targets: [
         .target(name: "WalletCore", dependencies: [.product(name: "RealmSwift", package: "realm-swift")], path: "iWallet/Native",
-                exclude: ["PaymentReminderViews.swift", "WalletBudgetViews.swift", "WalletForecastViews.swift",
+                exclude: ["ReportAccess.swift", "SpendingReportView.swift", "SpendingReportPDF.swift", "PaymentReminderViews.swift", "WalletBudgetViews.swift", "WalletForecastViews.swift",
                           "RecurringPaymentViews.swift", "WalletAnalyticsViews.swift", "CategoryViews.swift", "TransactionViews.swift", "WalletHomeView.swift",
                           "WalletSettingsView.swift", "WalletMigrationView.swift", "WalletTheme.swift", "iWalletApp.swift", "PrivacyInfo.xcprivacy", "ThirdPartyNotices.txt"],
                 sources: ["WalletTransactionCSV.swift", "PaymentReminders.swift", "WalletBudgets.swift", "WalletForecast.swift",

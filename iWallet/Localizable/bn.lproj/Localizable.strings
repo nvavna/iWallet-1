@@ -424,3 +424,23 @@
 "Add expense" = "খরচ যোগ করুন";
 
 "Add income" = "আয় যোগ করুন";
+
+/* Spending reports and purchases. */
+"Spending report" = "খরচের রিপোর্ট";
+"Selected period" = "নির্বাচিত সময়সীমা";
+"Previous period" = "আগের সময়সীমা";
+"Change in spending" = "খরচের পরিবর্তন";
+"Save PDF" = "PDF সেভ করুন";
+"Sample report" = "নমুনা রিপোর্ট";
+"This report uses example expenses." = "এই রিপোর্টে উদাহরণ হিসেবে কিছু খরচ দেখানো হয়েছে।";
+"No expenses in either period." = "কোনো সময়সীমাতেই কোনো খরচ নেই।";
+"Compare spending for any dates, see totals by category, and save a PDF." = "পছন্দমতো তারিখ বেছে খরচ তুলনা করুন, প্রতিটি বিভাগের মোট খরচ দেখুন এবং PDF সেভ করুন।";
+"One-time purchase" = "এককালীন কেনাকাটা";
+"Unlock reports" = "রিপোর্ট আনলক করুন";
+"Restore purchases" = "কেনাকাটা পুনরুদ্ধার করুন";
+"The App Store price is unavailable." = "App Store-এ দাম পাওয়া যাচ্ছে না।";
+"Your purchase is awaiting approval." = "আপনার কেনাকাটা অনুমোদনের অপেক্ষায় আছে।";
+"The purchase could not be verified." = "কেনাকাটা যাচাই করা যায়নি।";
+"The purchase could not be completed." = "কেনাকাটা সম্পন্ন করা যায়নি।";
+"No previous purchase was found." = "আগের কোনো কেনাকাটা পাওয়া যায়নি।";
+"Purchases could not be restored." = "কেনাকাটা পুনরুদ্ধার করা যায়নি।";

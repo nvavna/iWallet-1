@@ -3,11 +3,19 @@ import SwiftData
 
 @main
 struct iWalletApp: App {
+    @StateObject private var reportAccess = ReportAccess()
+    @Environment(\.scenePhase) private var phase
+
     init() { PaymentReminders.installNotificationDelegate() }
 
     var body: some Scene {
         WindowGroup {
             WalletBootstrapView()
+                .environmentObject(reportAccess)
+                .task { await reportAccess.observeTransactions() }
+                .task(id: phase) {
+                    if phase == .active { await reportAccess.refreshEntitlement() }
+                }
                 .tint(WalletTheme.accent)
         }
     }

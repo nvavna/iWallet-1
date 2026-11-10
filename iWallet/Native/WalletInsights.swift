@@ -275,3 +275,76 @@ enum WalletInsights {
         return Comparison(interval: interval, previousMinor: previousMinor, changeMinor: change, percentChange: percentage)
     }
 }
+
+extension WalletInsights {
+    struct SpendingReport {
+        struct Category: Identifiable {
+            let id: CategoryID
+            let name: String
+            let currentMinor: Int64
+            let previousMinor: Int64
+        }
+
+        let currencyCode: String
+        /// Both intervals include their start and exclude their end.
+        let interval: DateInterval
+        let previousInterval: DateInterval
+        let totalMinor: Int64
+        let previousTotalMinor: Int64
+        let count: Int
+        let categories: [Category]
+    }
+
+    /// The times on the two selected dates are ignored. The comparison immediately
+    /// precedes the selection and spans the same number of local calendar days.
+    static func spendingReportIntervals(start: Date, end: Date, calendar: Calendar) throws
+        -> (selected: DateInterval, previous: DateInterval) {
+        guard WalletDateRange.contains(start), WalletDateRange.contains(end),
+              let firstDay = calendar.dateInterval(of: .day, for: start),
+              let lastDay = calendar.dateInterval(of: .day, for: end),
+              firstDay.start <= lastDay.start else { throw WalletStoreError.invalidDate }
+
+        // The last second also works when the first day's midnight was skipped by DST.
+        let lastSecond = lastDay.end.addingTimeInterval(-1)
+        guard let elapsedDays = calendar.dateComponents([.day], from: firstDay.start, to: lastSecond).day,
+              let priorDate = calendar.date(byAdding: .day, value: -(elapsedDays + 1), to: firstDay.start),
+              priorDate < firstDay.start else { throw WalletStoreError.invalidDate }
+        // For a comparison thousands of years BCE, Foundation may clamp startOfDay
+        // forward. A day's start can never be later than a date on that day.
+        let previousStart = min(calendar.startOfDay(for: priorDate), priorDate)
+        return (DateInterval(start: firstDay.start, end: lastDay.end),
+                DateInterval(start: previousStart, end: firstDay.start))
+    }
+
+    static func spendingReport(entries: [Entry], currencyCode: String, start: Date, end: Date,
+                               calendar: Calendar) throws -> SpendingReport {
+        guard WalletCurrency(rawValue: currencyCode) != nil else { throw MoneyError.unsupportedCurrency }
+        let (interval, previousInterval) = try spendingReportIntervals(start: start, end: end, calendar: calendar)
+        var current: [Entry] = []
+        var previous: [Entry] = []
+        for entry in entries where entry.currencyCode == currencyCode && entry.kind == .expense {
+            guard WalletDateRange.contains(entry.date) else { throw WalletStoreError.invalidDate }
+            guard entry.amountMinor > 0 else { throw MoneyError.nonPositiveAmount }
+            if contains(entry.date, in: interval) {
+                current.append(entry)
+            } else if contains(entry.date, in: previousInterval) {
+                previous.append(entry)
+            }
+        }
+
+        let currentCategories = try categoryTotals(current)
+        let previousCategories = try categoryTotals(previous)
+        let previousByID = Dictionary(uniqueKeysWithValues: previousCategories.map { ($0.id, $0.amountMinor) })
+        let currentIDs = Set(currentCategories.map(\.id))
+        let categories = currentCategories.map {
+            SpendingReport.Category(id: $0.id, name: $0.name, currentMinor: $0.amountMinor,
+                                    previousMinor: previousByID[$0.id] ?? 0)
+        } + previousCategories.filter { !currentIDs.contains($0.id) }.map {
+            SpendingReport.Category(id: $0.id, name: $0.name, currentMinor: 0, previousMinor: $0.amountMinor)
+        }
+        return SpendingReport(currencyCode: currencyCode, interval: interval, previousInterval: previousInterval,
+                              totalMinor: try Money.sum(currentCategories.map(\.amountMinor)),
+                              previousTotalMinor: try Money.sum(previousCategories.map(\.amountMinor)),
+                              count: current.count, categories: categories)
+    }
+}

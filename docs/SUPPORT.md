@@ -24,6 +24,12 @@ Review any rounding changes before confirming the transfer. Keep a copy of the o
 - In **Settings → Monthly budgets**, select the month you want to fill and tap **Copy last month’s budgets**. Each active category keeps its limit in the original currency. Limits already set for the selected month take precedence.
 - In **Settings → Export transactions as CSV**, select the first and last day, then tap **Save CSV**. Both days are included. The file opens in spreadsheet apps such as Excel and Numbers.
 
+### Spending reports planned for 2.2
+
+In the planned 2.2 release, open **Settings → Spending report** to preview a sample with example expenses. **Unlock reports** will open Apple’s one-time purchase flow. With access, choose your dates to compare spending by category with the preceding period of the same length. **Save PDF** will generate the report on your device and let you choose a destination. **Settings → Export transactions as CSV** will remain free.
+
+After reinstalling iWallet or switching devices, sign in to the App Store with the Apple Account used for the purchase. If the report is locked, open **Settings → Spending report → Restore purchases**. This restores access to reports. To recover your wallet entries, import your saved JSON backup. [Apple’s guide to restoring in-app purchases](https://support.apple.com/en-us/108096)
+
 ### JSON backups
 
 Open the Settings tab and tap **Export all data**. Choose where to save the JSON file. It includes your categories, transactions, recurring payment plans and monthly budgets.
@@ -38,7 +44,7 @@ The default currency applies to new transactions. Existing transactions keep the
 
 Archiving a category keeps its transactions in your history and hides the category when creating new entries. Deleting a transaction removes it from the active wallet, but does not remove copies from previously saved exports or retained legacy migration files.
 
-[Privacy policy](https://github.com/nvavna/iWallet-1/blob/restoration/foundation/docs/PRIVACY.md)
+[Privacy policy](./PRIVACY.md)
 
 ## Русский
 
@@ -62,6 +68,12 @@ iWallet — приложение для ручного учёта доходов
 - В разделе **«Настройки» → «Бюджеты на месяц»** выберите нужный месяц и нажмите **«Скопировать бюджеты прошлого месяца»**. Для активных категорий переносятся лимиты в исходных валютах. Приоритет у лимита, уже заданного на выбранный месяц.
 - В разделе **«Настройки» → «Экспорт операций в CSV»** выберите первый и последний день и нажмите **«Сохранить CSV»**. В файл войдут операции за обе даты. Его можно открыть в Excel или Numbers.
 
+### Отчёты о расходах в готовящейся версии 2.2
+
+В версии 2.2 в разделе **«Настройки» → «Отчёт о расходах»** можно будет посмотреть пример с вымышленными расходами. Кнопка **«Открыть доступ к отчётам»** откроет окно разовой покупки Apple. После покупки можно будет выбрать даты и сравнить расходы по категориям с предыдущим периодом такой же длины. Кнопка **«Сохранить PDF»** сформирует отчёт на устройстве и позволит выбрать место сохранения. Экспорт операций в CSV через настройки останется бесплатным.
+
+После переустановки iWallet или смены устройства войдите в App Store с Аккаунтом Apple, с которого была совершена покупка. Если отчёт заблокирован, откройте **«Настройки» → «Отчёт о расходах» → «Восстановить покупки»**. Это восстановит доступ к отчётам. Чтобы вернуть записи кошелька, импортируйте сохранённую резервную копию JSON. [Как восстановить покупку через Apple](https://support.apple.com/ru-ru/108096)
+
 ### Резервные копии JSON
 
 Откройте вкладку «Настройки» и нажмите **«Экспортировать все данные»**. Выберите, куда сохранить JSON-файл. В нём будут ваши категории, операции, планы регулярных платежей и месячные бюджеты.
@@ -76,4 +88,4 @@ iWallet — приложение для ручного учёта доходов
 
 Архивирование категории сохраняет её операции в истории и скрывает категорию при создании новых записей. Удаление операции убирает её из действующего кошелька, но не удаляет копии из ранее сохранённых экспортов и оставленных файлов миграции.
 
-[Политика конфиденциальности](https://github.com/nvavna/iWallet-1/blob/restoration/foundation/docs/PRIVACY.md)
+[Политика конфиденциальности](./PRIVACY.md)

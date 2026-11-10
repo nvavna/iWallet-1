@@ -424,3 +424,22 @@
 "Add expense" = "Добавить расход";
 
 "Add income" = "Добавить доход";
+
+"Spending report" = "Отчёт о расходах";
+"Selected period" = "Выбранный период";
+"Previous period" = "Предыдущий период";
+"Change in spending" = "Изменение расходов";
+"Save PDF" = "Сохранить PDF";
+"Sample report" = "Пример отчёта";
+"This report uses example expenses." = "В этом отчёте показаны вымышленные расходы.";
+"No expenses in either period." = "За оба периода расходов нет.";
+"Compare spending for any dates, see totals by category, and save a PDF." = "Выберите любые даты, сравните расходы по категориям и сохраните отчёт в PDF.";
+"One-time purchase" = "Разовая покупка";
+"Unlock reports" = "Открыть доступ к отчётам";
+"Restore purchases" = "Восстановить покупки";
+"The App Store price is unavailable." = "Не удалось получить цену из App Store.";
+"Your purchase is awaiting approval." = "Покупка ожидает одобрения.";
+"The purchase could not be verified." = "Не удалось подтвердить подлинность покупки.";
+"The purchase could not be completed." = "Не удалось завершить покупку.";
+"No previous purchase was found." = "Прежних покупок не найдено.";
+"Purchases could not be restored." = "Не удалось восстановить покупки.";

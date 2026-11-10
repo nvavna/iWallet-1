@@ -1,0 +1,21 @@
+{
+  "identifier" : "47C659AF-F009-4642-A330-214CC1869194",
+  "nonRenewingSubscriptions" : [],
+  "products" : [
+    {
+      "displayPrice" : "4.99",
+      "familyShareable" : false,
+      "internalID" : "A99A7C71",
+      "localizations" : [
+        { "description" : "Compare spending over custom dates and save PDF reports.", "displayName" : "Spending reports", "locale" : "en_US" },
+        { "description" : "Сравнивайте расходы за выбранные даты и сохраняйте отчёты в PDF.", "displayName" : "Отчёты о расходах", "locale" : "ru" }
+      ],
+      "productID" : "com.idevnva.iwallet.spendingreports",
+      "referenceName" : "Spending reports",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : { "_applicationInternalID" : "6447585809", "_locale" : "en_US", "_storefront" : "USA" },
+  "subscriptionGroups" : [],
+  "version" : { "major" : 3, "minor" : 0 }
+}

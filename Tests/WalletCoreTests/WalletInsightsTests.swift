@@ -240,3 +240,148 @@ final class WalletInsightsTests: XCTestCase {
         XCTAssertEqual(snapshot.expenseCategories.first?.id, .category(category.id))
     }
 }
+
+extension WalletInsightsTests {
+    func testReportIncludesOnlyExpensesInSelectedCurrencyAndUsesHalfOpenBoundaries() throws {
+        let previousStart = date(2024, 2, 26, 0)
+        let start = date(2024, 2, 28, 0)
+        let end = date(2024, 3, 1, 0)
+        let report = try WalletInsights.spendingReport(entries: [
+            entry(1, previousStart.addingTimeInterval(-0.001)), entry(2, previousStart),
+            entry(4, start.addingTimeInterval(-0.001)), entry(8, start),
+            entry(16, end.addingTimeInterval(-0.001)), entry(32, end),
+            entry(64, previousStart, kind: .income), entry(128, start, kind: .income),
+            entry(256, previousStart, currency: "EUR"), entry(512, start, currency: "EUR")
+        ], currencyCode: "USD", start: date(2024, 2, 28, 23), end: date(2024, 2, 29, 1), calendar: utc)
+
+        XCTAssertEqual(report.currencyCode, "USD")
+        XCTAssertEqual(report.interval, DateInterval(start: start, end: end))
+        XCTAssertEqual(report.previousInterval, DateInterval(start: previousStart, end: start))
+        XCTAssertEqual(report.count, 2)
+        XCTAssertEqual(report.totalMinor, 24)
+        XCTAssertEqual(report.previousTotalMinor, 6)
+        XCTAssertEqual(report.categories.map(\.id), [.uncategorized])
+    }
+
+    func testReportUsesCalendarDaysForBothChangesOfDST() throws {
+        var calendar = utc
+        calendar.timeZone = try XCTUnwrap(TimeZone(identifier: "America/New_York"))
+        for (month, day, hours) in [(3, 8, 23), (11, 1, 25)] {
+            let dayStart = date(2026, month, day, 0, calendar: calendar)
+            let nextDay = date(2026, month, day + 1, 0, calendar: calendar)
+            let entries = [entry(1, dayStart), entry(2, nextDay.addingTimeInterval(-1)), entry(4, nextDay)]
+            let report = try WalletInsights.spendingReport(entries: entries, currencyCode: "USD",
+                start: date(2026, month, day, 23, calendar: calendar), end: dayStart, calendar: calendar)
+            XCTAssertEqual(report.interval, DateInterval(start: dayStart, end: nextDay))
+            XCTAssertEqual(report.interval.duration, Double(hours * 3_600))
+            XCTAssertEqual(report.previousInterval.duration, 24 * 3_600)
+            XCTAssertEqual(report.totalMinor, 3)
+
+            let following = try WalletInsights.spendingReport(entries: entries, currencyCode: "USD",
+                                                                start: nextDay, end: nextDay, calendar: calendar)
+            XCTAssertEqual(following.previousInterval, report.interval)
+            XCTAssertEqual(following.previousTotalMinor, 3)
+            XCTAssertEqual(following.totalMinor, 4)
+        }
+    }
+
+    func testReportHandlesDayWhoseMidnightWasSkipped() throws {
+        var calendar = utc
+        calendar.timeZone = try XCTUnwrap(TimeZone(identifier: "America/Sao_Paulo"))
+        let start = date(2018, 11, 4, calendar: calendar)
+        let end = date(2018, 11, 5, calendar: calendar)
+        let report = try WalletInsights.spendingReport(entries: [], currencyCode: "USD",
+                                                        start: start, end: end, calendar: calendar)
+        XCTAssertEqual(report.interval.start, date(2018, 11, 4, 1, calendar: calendar))
+        XCTAssertEqual(report.interval.end, date(2018, 11, 6, 0, calendar: calendar))
+        XCTAssertEqual(report.previousInterval.start, date(2018, 11, 2, 0, calendar: calendar))
+        XCTAssertEqual(report.previousInterval.end, report.interval.start)
+    }
+
+    func testReportAcrossEntireSupportedDateRangeKeepsEqualPreviousPeriodInUTC() throws {
+        let first = Date(timeIntervalSince1970: -62_135_596_800)
+        let last = Date(timeIntervalSince1970: 253_402_300_799)
+        let report = try WalletInsights.spendingReport(entries: [entry(3, first), entry(5, last)],
+                                                        currencyCode: "USD", start: first, end: last, calendar: utc)
+        XCTAssertEqual(report.interval.start, first)
+        XCTAssertEqual(report.interval.end, last.addingTimeInterval(1))
+        XCTAssertEqual(report.interval.duration, report.previousInterval.duration)
+        XCTAssertEqual(report.previousInterval.end, first)
+        XCTAssertEqual(report.totalMinor, 8)
+        XCTAssertEqual(report.previousTotalMinor, 0)
+    }
+
+    func testReportPreservesCategoryIdentityAndPreviousOnlyRows() throws {
+        let a = UUID(uuidString: "00000000-0000-0000-0000-000000000001")!
+        let b = UUID(uuidString: "00000000-0000-0000-0000-000000000002")!
+        let c = UUID(uuidString: "00000000-0000-0000-0000-000000000003")!
+        let day = date(2026, 1, 1), priorDay = date(2025, 12, 31)
+        let entries = [entry(12, day, category: b, name: "Same"), entry(7, day, category: a, name: "Same"),
+                       entry(5, day, category: a, name: "Same"), entry(4, day),
+                       entry(6, priorDay, category: a, name: "Old name"),
+                       entry(99, priorDay, category: c, name: "Prior only"), entry(1, priorDay)]
+        for input in [entries, Array(entries.reversed())] {
+            let report = try WalletInsights.spendingReport(entries: input, currencyCode: "USD",
+                                                            start: day, end: day, calendar: utc)
+            XCTAssertEqual(report.categories.map(\.id), [.category(a), .category(b), .uncategorized, .category(c)])
+            XCTAssertEqual(report.categories.map(\.name), ["Same", "Same",
+                NSLocalizedString("Uncategorized", comment: "Category"), "Prior only"])
+            XCTAssertEqual(report.categories.map(\.currentMinor), [12, 12, 4, 0])
+            XCTAssertEqual(report.categories.map(\.previousMinor), [6, 0, 1, 99])
+            XCTAssertEqual(report.count, 4)
+            XCTAssertEqual(report.totalMinor, 28)
+            XCTAssertEqual(report.previousTotalMinor, 106)
+        }
+    }
+
+    func testReportKeepsEmptyAndPreviousOnlyPeriodsAndFullInt64Precision() throws {
+        let day = date(2026, 1, 1), priorDay = date(2025, 12, 31)
+        for (entries, current, previous, count) in [
+            ([WalletInsights.Entry](), 0 as Int64, 0 as Int64, 0),
+            ([entry(1, priorDay)], 0, 1, 0),
+            ([entry(Int64.max, day)], Int64.max, 0, 1),
+            ([entry(Int64.max - 1, day), entry(1, day), entry(Int64.max - 1, priorDay)], Int64.max, Int64.max - 1, 2)
+        ] {
+            let report = try WalletInsights.spendingReport(entries: entries, currencyCode: "USD",
+                                                            start: day, end: day, calendar: utc)
+            XCTAssertEqual(report.totalMinor, current)
+            XCTAssertEqual(report.previousTotalMinor, previous)
+            XCTAssertEqual(report.count, count)
+            XCTAssertEqual(report.categories.count, entries.isEmpty ? 0 : 1)
+            XCTAssertEqual(try Money.sum(report.categories.map(\.currentMinor)), current)
+            XCTAssertEqual(try Money.sum(report.categories.map(\.previousMinor)), previous)
+        }
+    }
+
+    func testReportRejectsOverflowInEitherPeriodWithinAndAcrossCategories() {
+        let day = date(2026, 1, 1), priorDay = date(2025, 12, 31)
+        for entryDate in [day, priorDay] {
+            for category in [nil, UUID()] {
+                let entries = [entry(Int64.max, entryDate), entry(1, entryDate, category: category)]
+                XCTAssertThrowsError(try WalletInsights.spendingReport(entries: entries, currencyCode: "USD",
+                                                                       start: day, end: day, calendar: utc)) {
+                    XCTAssertEqual($0 as? MoneyError, .overflow)
+                }
+            }
+        }
+    }
+
+    func testReportRejectsInvalidDatesCurrencyAndAmounts() {
+        let day = date(2026, 1, 1)
+        let invalid = Date(timeIntervalSince1970: .nan)
+        for (start, end) in [(day, date(2025, 12, 31)), (invalid, day), (day, invalid)] {
+            XCTAssertThrowsError(try WalletInsights.spendingReport(entries: [], currencyCode: "USD",
+                                                                    start: start, end: end, calendar: utc)) {
+                XCTAssertEqual($0 as? WalletStoreError, .invalidDate)
+            }
+        }
+        XCTAssertThrowsError(try WalletInsights.spendingReport(entries: [], currencyCode: "XYZ",
+                                                               start: day, end: day, calendar: utc)) {
+            XCTAssertEqual($0 as? MoneyError, .unsupportedCurrency)
+        }
+        XCTAssertThrowsError(try WalletInsights.spendingReport(entries: [entry(0, day)], currencyCode: "USD",
+                                                               start: day, end: day, calendar: utc)) {
+            XCTAssertEqual($0 as? MoneyError, .nonPositiveAmount)
+        }
+    }
+}

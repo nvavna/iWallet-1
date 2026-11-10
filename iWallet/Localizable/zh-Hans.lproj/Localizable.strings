@@ -424,3 +424,22 @@
 "Add expense" = "添加支出";
 
 "Add income" = "添加收入";
+
+"Spending report" = "支出报告";
+"Selected period" = "所选时段";
+"Previous period" = "上一时段";
+"Change in spending" = "支出变化";
+"Save PDF" = "保存 PDF";
+"Sample report" = "示例报告";
+"This report uses example expenses." = "本报告使用示例支出数据。";
+"No expenses in either period." = "这两个时段均无支出。";
+"Compare spending for any dates, see totals by category, and save a PDF." = "自选日期比较支出，查看各类别合计，并保存为 PDF。";
+"One-time purchase" = "一次性购买";
+"Unlock reports" = "解锁报告";
+"Restore purchases" = "恢复购买";
+"The App Store price is unavailable." = "暂时无法从 App Store 获取价格。";
+"Your purchase is awaiting approval." = "购买正在等待批准。";
+"The purchase could not be verified." = "无法验证购买。";
+"The purchase could not be completed." = "未能完成购买。";
+"No previous purchase was found." = "未找到以往的购买记录。";
+"Purchases could not be restored." = "无法恢复购买。";
