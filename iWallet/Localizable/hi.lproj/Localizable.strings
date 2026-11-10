@@ -433,6 +433,7 @@
 "Save PDF" = "PDF सहेजें";
 "Sample report" = "नमूना रिपोर्ट";
 "This report uses example expenses." = "इस रिपोर्ट में उदाहरण के तौर पर कुछ खर्च दिखाए गए हैं।";
+"Example expense dates" = "उदाहरण में खर्च की तारीखें";
 "No expenses in either period." = "दोनों में से किसी भी अवधि में कोई खर्च नहीं है।";
 "Compare spending for any dates, see totals by category, and save a PDF." = "अपनी पसंद की तारीखें चुनकर खर्च की तुलना करें, हर श्रेणी का कुल खर्च देखें और PDF सहेजें।";
 "One-time purchase" = "एक बार की खरीदारी";

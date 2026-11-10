@@ -30,18 +30,9 @@ struct SpendingReportView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
                 if isSample {
-                    Label("This report uses example expenses.", systemImage: "doc.text.magnifyingglass")
-                        .font(.subheadline)
-                        .foregroundStyle(WalletTheme.secondaryInk)
-                        .accessibilityIdentifier("sampleReportNotice")
-                    switch Result(catching: { try sampleReport(calendar: localCalendar) }) {
-                    case .success(let report):
-                        ReportSummary(report: report, calendar: localCalendar)
-                    case .failure(let error):
-                        ReportFailure(error: error)
-                    }
+                    sampleReport(calendar: localCalendar)
                 } else {
-                    LiveSpendingReport(currencyCode: currencyCode, calendar: localCalendar)
+                    liveReport(calendar: localCalendar)
                 }
             }
             .frame(maxWidth: 680, alignment: .leading)
@@ -55,49 +46,112 @@ struct SpendingReportView: View {
         .navigationBarTitleDisplayMode(.inline)
     }
 
-    private func sampleReport(calendar: Calendar) throws -> WalletInsights.SpendingReport {
-        // Fixed local civil dates keep the example separate from the user's actual reporting period.
+    @ViewBuilder private func sampleReport(calendar: Calendar) -> some View {
+        let sample = Result { try SampleExpenses(currencyCode: currencyCode, calendar: calendar, locale: locale) }
+        switch sample {
+        case .success(let expenses):
+            VStack(alignment: .leading, spacing: 6) {
+                Label("This report uses example expenses.", systemImage: "doc.text.magnifyingglass")
+                    .accessibilityIdentifier("sampleReportNotice")
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Example expense dates")
+                    Text(reportDateRange(from: expenses.dates.lowerBound, through: expenses.dates.upperBound,
+                                         calendar: calendar, locale: locale))
+                }
+                .accessibilityElement(children: .combine)
+                .accessibilityIdentifier("sampleReportAvailableDates")
+            }
+            .font(.subheadline)
+            .foregroundStyle(WalletTheme.secondaryInk)
+
+            ReportDateSelection(calendar: calendar, initialRange: expenses.initialRange, limits: expenses.dates) { start, end in
+                let result = Result {
+                    try WalletInsights.spendingReport(entries: expenses.entries, currencyCode: currencyCode,
+                                                      start: start, end: end, calendar: calendar)
+                }
+                switch result {
+                case .success(let report):
+                    ReportSummary(report: report, calendar: calendar)
+                case .failure(let error):
+                    ReportFailure(error: error)
+                }
+            }
+            .id(timeZone.identifier)
+        case .failure(let error):
+            ReportFailure(error: error)
+        }
+    }
+
+    private func liveReport(calendar: Calendar) -> some View {
+        let today = calendar.startOfDay(for: .now)
+        let monthStart = calendar.dateInterval(of: .month, for: today)?.start ?? today
+        return ReportDateSelection(calendar: calendar, initialRange: monthStart...today) { start, end in
+            let result = Result { try WalletInsights.spendingReportIntervals(start: start, end: end, calendar: calendar) }
+            switch result {
+            case .success(let intervals):
+                ReportTransactions(currencyCode: currencyCode, calendar: calendar, start: start, end: end,
+                                   lowerBound: intervals.previous.start, upperBound: intervals.selected.end)
+            case .failure(let error):
+                ReportFailure(error: error)
+            }
+        }
+    }
+}
+
+private struct SampleExpenses {
+    let dates: ClosedRange<Date>
+    let initialRange: ClosedRange<Date>
+    let entries: [WalletInsights.Entry]
+
+    init(currencyCode: String, calendar: Calendar, locale: Locale) throws {
         var gregorian = Calendar(identifier: .gregorian)
         gregorian.timeZone = calendar.timeZone
-        func date(_ day: Int) throws -> Date {
-            guard let date = gregorian.date(from: DateComponents(year: 2026, month: 3, day: day, hour: 12)) else {
+        func date(_ month: Int, _ day: Int) throws -> Date {
+            guard let date = gregorian.date(from: DateComponents(year: 2026, month: month, day: day, hour: 12)) else {
                 throw WalletStoreError.invalidDate
             }
-            return date
+            return calendar.startOfDay(for: date)
         }
+        let first = try date(9, 9)
+        let payday = try date(10, 10)
+        let last = try date(11, 9)
+        dates = first...last
+        initialRange = payday...last
         guard let currency = WalletCurrency(rawValue: currencyCode) else { throw MoneyError.unsupportedCurrency }
         let unit: Int64 = currency.fractionDigits == 0 ? 1 : 100
         let groceries = UUID(uuid: (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1))
         let transport = UUID(uuid: (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2))
-        func expense(_ amount: Int64, _ day: Int, category: UUID, name: String) throws -> WalletInsights.Entry {
-            try WalletInsights.Entry(amountMinor: amount * unit, currencyCode: currencyCode, date: date(day),
-                                     kind: .expense, categoryID: category, categoryName: name)
+        func expense(_ amount: Int64, on date: Date, category: UUID, name: String) -> WalletInsights.Entry {
+            WalletInsights.Entry(amountMinor: amount * unit, currencyCode: currencyCode, date: date,
+                                 kind: .expense, categoryID: category, categoryName: name)
         }
         let food = String(localized: "Groceries", locale: locale)
         let travel = String(localized: "Transport", locale: locale)
-        let entries = try [
-            expense(72, 3, category: groceries, name: food), expense(28, 6, category: transport, name: travel),
-            expense(45, 8, category: groceries, name: food), expense(36, 10, category: groceries, name: food),
-            expense(18, 12, category: transport, name: travel)
+        entries = try [
+            expense(72, on: first, category: groceries, name: food),
+            expense(28, on: date(10, 9), category: transport, name: travel),
+            expense(45, on: payday, category: groceries, name: food),
+            expense(36, on: date(10, 24), category: groceries, name: food),
+            expense(18, on: last, category: transport, name: travel)
         ]
-        return try WalletInsights.spendingReport(entries: entries, currencyCode: currencyCode,
-                                                 start: date(8), end: date(14), calendar: calendar)
     }
 }
 
-private struct LiveSpendingReport: View {
-    let currencyCode: String
+private struct ReportDateSelection<Content: View>: View {
     let calendar: Calendar
+    let limits: ClosedRange<Date>?
+    let content: (Date, Date) -> Content
     @Environment(\.dynamicTypeSize) private var typeSize
     @State private var start: Date
     @State private var end: Date
 
-    init(currencyCode: String, calendar: Calendar) {
-        self.currencyCode = currencyCode
+    init(calendar: Calendar, initialRange: ClosedRange<Date>, limits: ClosedRange<Date>? = nil,
+         @ViewBuilder content: @escaping (Date, Date) -> Content) {
         self.calendar = calendar
-        let today = calendar.startOfDay(for: .now)
-        _start = State(initialValue: calendar.dateInterval(of: .month, for: today)?.start ?? today)
-        _end = State(initialValue: today)
+        self.limits = limits
+        self.content = content
+        _start = State(initialValue: initialRange.lowerBound)
+        _end = State(initialValue: initialRange.upperBound)
     }
 
     var body: some View {
@@ -114,13 +168,7 @@ private struct LiveSpendingReport: View {
         }
         .walletSurface()
 
-        switch Result(catching: { try WalletInsights.spendingReportIntervals(start: start, end: end, calendar: calendar) }) {
-        case .success(let intervals):
-            ReportTransactions(currencyCode: currencyCode, calendar: calendar, start: start, end: end,
-                               lowerBound: intervals.previous.start, upperBound: intervals.selected.end)
-        case .failure(let error):
-            ReportFailure(error: error)
-        }
+        content(start, end)
     }
 
     private func dateRow(_ title: LocalizedStringKey, id: String, selection: Binding<Date>) -> some View {
@@ -129,10 +177,16 @@ private struct LiveSpendingReport: View {
             : AnyLayout(HStackLayout(spacing: 8))
         return layout {
             Text(title).frame(maxWidth: .infinity, alignment: .leading).accessibilityHidden(true)
-            DatePicker(title, selection: selection, displayedComponents: .date)
-                .labelsHidden()
-                .accessibilityLabel(title)
-                .accessibilityIdentifier(id)
+            Group {
+                if let limits {
+                    DatePicker(title, selection: selection, in: limits, displayedComponents: .date)
+                } else {
+                    DatePicker(title, selection: selection, displayedComponents: .date)
+                }
+            }
+            .labelsHidden()
+            .accessibilityLabel(title)
+            .accessibilityIdentifier(id)
         }
         .frame(minHeight: 44)
     }
@@ -299,18 +353,23 @@ private struct ReportSummary: View {
     }
 
     private func range(_ interval: DateInterval) -> String {
-        let formatter = DateIntervalFormatter()
-        formatter.locale = locale
-        formatter.calendar = calendar
-        formatter.timeZone = calendar.timeZone
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .none
-        return formatter.string(from: interval.start, to: interval.end.addingTimeInterval(-1))
+        reportDateRange(from: interval.start, through: interval.end.addingTimeInterval(-1),
+                        calendar: calendar, locale: locale)
     }
 
     private func money(_ amount: Int64) -> String {
         Money.format(amount, currencyCode: report.currencyCode, locale: locale)
     }
+}
+
+private func reportDateRange(from start: Date, through end: Date, calendar: Calendar, locale: Locale) -> String {
+    let formatter = DateIntervalFormatter()
+    formatter.locale = locale
+    formatter.calendar = calendar
+    formatter.timeZone = calendar.timeZone
+    formatter.dateStyle = .medium
+    formatter.timeStyle = .none
+    return formatter.string(from: start, to: end)
 }
 
 private struct ReportFailure: View {

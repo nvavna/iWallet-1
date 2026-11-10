@@ -432,6 +432,7 @@
 "Save PDF" = "Сохранить PDF";
 "Sample report" = "Пример отчёта";
 "This report uses example expenses." = "В этом отчёте показаны вымышленные расходы.";
+"Example expense dates" = "Даты расходов в примере";
 "No expenses in either period." = "За оба периода расходов нет.";
 "Compare spending for any dates, see totals by category, and save a PDF." = "Выберите любые даты, сравните расходы по категориям и сохраните отчёт в PDF.";
 "One-time purchase" = "Разовая покупка";

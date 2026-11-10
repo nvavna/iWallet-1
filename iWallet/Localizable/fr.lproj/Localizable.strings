@@ -433,6 +433,7 @@
 "Save PDF" = "Enregistrer le PDF";
 "Sample report" = "Exemple de rapport";
 "This report uses example expenses." = "Ce rapport présente des dépenses fictives.";
+"Example expense dates" = "Dates des dépenses de l’exemple";
 "No expenses in either period." = "Aucune dépense sur ces deux périodes.";
 "Compare spending for any dates, see totals by category, and save a PDF." = "Choisissez vos dates pour comparer vos dépenses, consulter les totaux par catégorie et enregistrer le rapport en PDF.";
 "One-time purchase" = "Achat unique";

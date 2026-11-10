@@ -433,6 +433,7 @@
 "Save PDF" = "Guardar PDF";
 "Sample report" = "Informe de ejemplo";
 "This report uses example expenses." = "Este informe utiliza gastos de ejemplo.";
+"Example expense dates" = "Fechas de los gastos de ejemplo";
 "No expenses in either period." = "No hay gastos en ninguno de los dos periodos.";
 "Compare spending for any dates, see totals by category, and save a PDF." = "Elige las fechas para comparar tus gastos, ver los totales por categoría y guardar el informe en PDF.";
 "One-time purchase" = "Compra única";
