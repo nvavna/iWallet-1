@@ -35,6 +35,28 @@ final class SpendingReportPurchaseTests: XCTestCase {
         app.buttons["settingsSpendingReport"].tap()
     }
 
+    func testUnavailableCatalogAllowsPreviewAndRetryWithoutBuying() async throws {
+        try await session.setSimulatedError(.generic(.unknown), forAPI: .loadProducts)
+        openReports()
+        let unavailable = app.staticTexts["The App Store price is unavailable."]
+        let buy = app.buttons["buySpendingReports"]
+        XCTAssertTrue(unavailable.waitForExistence(timeout: 15))
+        XCTAssertFalse(buy.exists)
+
+        app.buttons["openSampleSpendingReport"].tap()
+        XCTAssertTrue(app.staticTexts["This report uses example expenses."].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["exportSpendingReportPDF"].exists)
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        XCTAssertTrue(unavailable.waitForExistence(timeout: 15))
+
+        try await session.setSimulatedError(nil, forAPI: .loadProducts)
+        app.buttons["Try again"].tap()
+        XCTAssertTrue(buy.waitForExistence(timeout: 15))
+        XCTAssertTrue(buy.label.contains("4.99"), buy.label)
+        XCTAssertFalse(unavailable.exists)
+        XCTAssertTrue(session.allTransactions().isEmpty)
+    }
+
     func testPurchasePersistsOnRelaunchAndRefundLocksReport() throws {
         openReports()
         let buy = app.buttons["buySpendingReports"]
