@@ -1,19 +1,17 @@
-/* 
+/*
   Localizable.strings
   iWallet
 
   Created by Владислав Новошинский on 13.04.2023.
-  
 */
 
-// HomeView
+// Shared and legacy strings.
+
 "Balance" = "Balance";
 "Expense average" = "Expense average";
 "Income" = "Income";
 "Expense" = "Expense";
 "Settings" = "Settings";
-
-// AddTransaction
 "Enter amount:" = "Enter amount:";
 "Note" = "Note";
 "Enter note:" = "Enter note:";
@@ -30,29 +28,15 @@
 "Select a category" = "Select a category";
 "Category:" = "Category:";
 "Addendum" = "Addendum";
-
-// TransactionView
 "Transactions" = "Transactions";
 "Back" = "Back";
-
-// AddCategoryView
-"Back" = "Back";
 "New" = "New";
-
-// AddCategory
 "Select type:" = "Select type:";
 "Name" = "Name";
 "Enter Name" = "Enter Name";
 "Choose an icon:" = "Choose an icon:";
 "Choose color:" = "Choose color:";
 "Create a category" = "Create a category";
-"Back" = "Back";
-"Add" = "Add";
-
-// SettingView
-"Back" = "Back";
-"Settings" = "Settings";
-"Transactions" = "Transactions";
 "Categories" = "Categories";
 "Data" = "Data";
 "Web-site" = "Web-site";
@@ -66,19 +50,13 @@
 "https://t.me/idevnva" = "https://t.me/idevnva";
 "App version: 1.1.5" = "App version: 1.1.5";
 "Rounding numbers" = "Rounding numbers";
-
-//PreviewCard
-"Welcome" = "Welcome!";
+"Welcome" = "Welcome";
 "The list of transactions is currently empty," = "The list of transactions is currently empty,";
 "please add transaction." = "please add transaction.";
-"Welcome" = "Welcome";
 "The list of categories is currently empty," = "The list of categories is currently empty,";
 "please add category." = "please add category.";
 "There are currently no categories." = "There are currently no categories.";
 "Please add." = "Please add.";
-
-// DefaultCategories
-// Все категории для расхода
 "Car" = "Car";
 "Bank" = "Bank";
 "Business services" = "Business services";
@@ -99,28 +77,328 @@
 "Entertainment" = "Entertainment";
 "Technique" = "Technique";
 "Transport" = "Transport";
-
-// Все категории для дохода
 "Rent" = "Rent";
 "Exchange" = "Exchange";
 "Dividends" = "Dividends";
 "Wage" = "Wage";
-"Present" = "Present";
 "Part time job" = "Part time job";
 "Interest on accounts" = "Interest on accounts";
-
-// WelcomeView
 "iWallet" = "iWallet";
-"Currency" = "Currency";
 "Initial application setup" = "Initial application setup:";
 "Basic categories" = "Basic categories";
 "Note: Enabling this feature will create base categories for expenses and income." = "Note: Enabling this feature will create base categories for expenses and income.";
 "Continue" = "Continue";
-
-// PickerCategoryView
-"Categories" = "Categories";
 "Create category" = "Create category";
-
-// EditTransactionView
 "Editing" = "Editing";
 "Edit" = "Edit";
+
+/* Native application: navigation, forms, accessibility and errors. */
+
+"A clear view of your everyday finances." = "A clear view of your everyday finances.";
+"A little clarity, every day" = "A little clarity, every day";
+"About iWallet" = "About iWallet";
+"Add category" = "Add category";
+"Add first transaction" = "Add first transaction";
+"Add transaction" = "Add transaction";
+"Add your first transaction to see where your money goes." = "Add your first transaction to see where your money goes.";
+"Add your first transaction to see your money in perspective." = "Add your first transaction to see your money in perspective.";
+"All" = "All";
+"All time" = "All time";
+"Amount" = "Amount";
+"An exported file contains your financial history. Only share it with people and apps you trust." = "An exported file contains your financial history. Only share it with people and apps you trust.";
+"Archive" = "Archive";
+"Archive category" = "Archive category";
+"Archive category?" = "Archive category?";
+"Archiving a category preserves its transactions in your history." = "Archiving a category preserves its transactions in your history.";
+"Blue" = "Blue";
+"Brown" = "Brown";
+"Card" = "Card";
+"Cash" = "Cash";
+"Category name" = "Category name";
+"Changing the currency keeps the entered amount. No conversion is performed." = "Changing the currency keeps the entered amount. No conversion is performed.";
+"Choose a category" = "Choose a category";
+"Choose a supported currency." = "Choose a supported currency.";
+"Choose an active category for the new transaction." = "Choose an active category for the new transaction.";
+"Choose an available category." = "Choose an available category.";
+"Clothing" = "Clothing";
+"Coffee" = "Coffee";
+"Color" = "Color";
+"Create a category to organize this transaction." = "Create a category to organize this transaction.";
+"Create categories that match your everyday life." = "Create categories that match your everyday life.";
+"Default currency" = "Default currency";
+"Delete" = "Delete";
+"Delete transaction" = "Delete transaction";
+"Delete transaction?" = "Delete transaction?";
+"Dining" = "Dining";
+"Display currency" = "Display currency";
+"Done" = "Done";
+"Edit transaction" = "Edit transaction";
+"Enter a category name." = "Enter a category name.";
+"Enter a valid amount using your decimal separator." = "Enter a valid amount using your decimal separator.";
+"Expenses" = "Expenses";
+"Export all data" = "Export all data";
+"Export saves your categories and transactions as a JSON file. Keep it somewhere safe. Importing this file will be available in a future update." = "Export saves your categories and transactions as a JSON file. Keep it somewhere safe. Importing this file will be available in a future update.";
+"Games" = "Games";
+"Gifts" = "Gifts";
+"Gray" = "Gray";
+"Green" = "Green";
+"Groceries" = "Groceries";
+"Home" = "Home";
+"Icon" = "Icon";
+"Income minus expenses · all time" = "Income minus expenses · all time";
+"It will be hidden when adding transactions. Existing transactions will stay in your history." = "It will be hidden when adding transactions. Existing transactions will stay in your history.";
+"Make room for what matters" = "Make room for what matters";
+"Medicine" = "Medicine";
+"New category" = "New category";
+"New transaction" = "New transaction";
+"No expenses for this period" = "No expenses for this period";
+"No matching transactions" = "No matching transactions";
+"No tracking" = "No tracking";
+"Note (optional)" = "Note (optional)";
+"OK" = "OK";
+"On this device" = "On this device";
+"Opening your wallet" = "Opening your wallet";
+"Other" = "Other";
+"Overview" = "Overview";
+"Period" = "Period";
+"Personal care" = "Personal care";
+"Phone" = "Phone";
+"Privacy" = "Privacy";
+"Purple" = "Purple";
+"Recent transactions" = "Recent transactions";
+"Red" = "Red";
+"Save" = "Save";
+"Save a copy of previous data" = "Save a copy of previous data";
+"Search transactions" = "Search transactions";
+"See all" = "See all";
+"Shopping" = "Shopping";
+"Spending by category" = "Spending by category";
+"Sports" = "Sports";
+"Storage" = "Storage";
+"Stored on your device" = "Stored on your device";
+"The amount must be greater than zero." = "The amount must be greater than zero.";
+"The category must match the transaction type." = "The category must match the transaction type.";
+"The total exceeds the supported range." = "The total exceeds the supported range.";
+"This amount is too large." = "This amount is too large.";
+"This category is archived. It is kept here for your existing transaction." = "This category is archived. It is kept here for your existing transaction.";
+"This currency allows %d decimal places." = "This currency allows %d decimal places.";
+"This month" = "This month";
+"This transaction is no longer available." = "This transaction is no longer available.";
+"This transaction will be permanently removed." = "This transaction will be permanently removed.";
+"This version contains no advertising or analytics services and does not require an account." = "This version contains no advertising or analytics services and does not require an account.";
+"Total is too large to display" = "Total is too large to display";
+"Transaction type" = "Transaction type";
+"Travel" = "Travel";
+"Try a different search or transaction type." = "Try a different search or transaction type.";
+"Try again" = "Try again";
+"Unable to archive category" = "Unable to archive category";
+"Unable to delete transaction" = "Unable to delete transaction";
+"Unable to export data" = "Unable to export data";
+"Unable to open your wallet" = "Unable to open your wallet";
+"Unable to save category" = "Unable to save category";
+"Unable to save transaction" = "Unable to save transaction";
+"Uncategorized" = "Uncategorized";
+"Used for new transactions. Existing amounts keep their original currency; no conversion is performed." = "Used for new transactions. Existing amounts keep their original currency; no conversion is performed.";
+"Version" = "Version";
+"We found data from the previous version. This preview cannot import it yet. Your original wallet has not been changed. Please keep a backup until the transfer is ready." = "We found data from the previous version. This preview cannot import it yet. Your original wallet has not been changed. Please keep a backup until the transfer is ready.";
+"Work" = "Work";
+"Yellow" = "Yellow";
+"You control your exports" = "You control your exports";
+"Your categories, amounts and notes are saved locally. iWallet does not send them to a server." = "Your categories, amounts and notes are saved locally. iWallet does not send them to a server.";
+"Your data" = "Your data";
+"Your data has not been reset. Free up space on your device and try again." = "Your data has not been reset. Free up space on your device and try again.";
+"Your finances stay on your device" = "Your finances stay on your device";
+"Your previous wallet is safe" = "Your previous wallet is safe";
+"Your story starts here" = "Your story starts here";
+
+/* Backup import and legacy wallet transfer. */
+
+"A record in this backup conflicts with data already on this device. Nothing was imported." = "A record in this backup conflicts with data already on this device. Nothing was imported.";
+"A transaction and its category have different types." = "A transaction and its category have different types.";
+"A transaction refers to a category missing from the backup." = "A transaction refers to a category missing from the backup.";
+"Added %d categories and %d transactions. Skipped %d identical records." = "Added %d categories and %d transactions. Skipped %d identical records.";
+"Amounts requiring rounding" = "Amounts requiring rounding";
+"Backup contents" = "Backup contents";
+"Backup imported" = "Backup imported";
+"Bring your previous history into your updated wallet. The original file will be kept safely on this device." = "Bring your previous history into your updated wallet. The original file will be kept safely on this device.";
+"Choose a currency" = "Choose a currency";
+"Choose the original wallet's currency before importing. Currency symbols alone may be ambiguous." = "Choose the original wallet's currency before importing. Currency symbols alone may be ambiguous.";
+"Created" = "Created";
+"Existing records will not be overwritten. If a matching record has changed, nothing will be imported." = "Existing records will not be overwritten. If a matching record has changed, nothing will be imported.";
+"Finish or cancel your current changes before importing a backup." = "Finish or cancel your current changes before importing a backup.";
+"I have reviewed the rounding changes" = "I have reviewed the rounding changes";
+"Import a backup" = "Import a backup";
+"Import backup" = "Import backup";
+"Keep a JSON backup somewhere safe. Import adds missing records, skips identical records and stops if existing data conflicts." = "Keep a JSON backup somewhere safe. Import adds missing records, skips identical records and stops if existing data conflicts.";
+"More than one previous wallet was found" = "More than one previous wallet was found";
+"Original wallet currency" = "Original wallet currency";
+"Preparing your wallet" = "Preparing your wallet";
+"Reading your backup" = "Reading your backup";
+"Ready to transfer" = "Ready to transfer";
+"Review amounts" = "Review amounts";
+"Review backup" = "Review backup";
+"Review my previous history" = "Review my previous history";
+"Save copies of these files before continuing. They need to be reviewed separately to avoid mixing histories." = "Save copies of these files before continuing. They need to be reviewed separately to avoid mixing histories.";
+"Some old amounts need rounding to the currency's smallest unit. Review the changes before transferring." = "Some old amounts need rounding to the currency's smallest unit. Review the changes before transferring.";
+"Some previous amounts cannot be safely converted. Import stopped without changing your data." = "Some previous amounts cannot be safely converted. Import stopped without changing your data.";
+"Some previous wallet records need review before they can be imported. The original file has not been changed." = "Some previous wallet records need review before they can be imported. The original file has not been changed.";
+"Some transactions have missing or conflicting categories. Import stopped without changing your data." = "Some transactions have missing or conflicting categories. Import stopped without changing your data.";
+"The backup contains an invalid category or transaction." = "The backup contains an invalid category or transaction.";
+"The backup contains duplicate record identifiers." = "The backup contains duplicate record identifiers.";
+"The backup exceeds the 100,000 record limit." = "The backup exceeds the 100,000 record limit.";
+"The backup exceeds the 50 MB file limit." = "The backup exceeds the 50 MB file limit.";
+"The previous app did not record a currency for each transaction. Confirm which currency your old amounts represent. No conversion will be performed." = "The previous app did not record a currency for each transaction. Confirm which currency your old amounts represent. No conversion will be performed.";
+"The previous wallet changed while it was being copied. Close other copies of iWallet and try again." = "The previous wallet changed while it was being copied. Close other copies of iWallet and try again.";
+"The previous wallet could not be read. The original file has not been changed." = "The previous wallet could not be read. The original file has not been changed.";
+"The previous wallet file is unavailable. Your data has not been changed." = "The previous wallet file is unavailable. Your data has not been changed.";
+"The previous wallet has an unexpected structure. The original file has not been changed." = "The previous wallet has an unexpected structure. The original file has not been changed.";
+"The saved report contains every rounding change and the original values." = "The saved report contains every rounding change and the original values.";
+"This backup requires a different version of iWallet." = "This backup requires a different version of iWallet.";
+"This file is not a valid iWallet backup." = "This file is not a valid iWallet backup.";
+"This previous wallet version is not supported yet. Keep the original file for a future import." = "This previous wallet version is not supported yet. Keep the original file for a future import.";
+"Transfer my history" = "Transfer my history";
+"Unable to complete the operation" = "Unable to complete the operation";
+"Welcome back to iWallet" = "Welcome back to iWallet";
+"Your history" = "Your history";
+
+/* Date and retained snapshot validation. */
+"Contact support" = "Contact support";
+"Licenses" = "Licenses";
+"License information is unavailable." = "License information is unavailable.";
+"Privacy policy" = "Privacy policy";
+"Choose a date between years 1 and 9999." = "Choose a date between years 1 and 9999.";
+"The saved copy of your previous wallet failed verification. It has not been overwritten." = "The saved copy of your previous wallet failed verification. It has not been overwritten.";
+
+"Average expense per day with spending in the selected period." = "Average expense per day with spending in the selected period.";
+
+"No income for this period" = "No income for this period";
+
+"View category transactions" = "View category transactions";
+
+// Compact home overview
+"Total balance" = "Total balance";
+"Summary" = "Summary";
+"Per day with spending" = "Per day with spending";
+
+// Native forms and draft protection
+"Details" = "Details";
+"Discard changes?" = "Discard changes?";
+"Discard changes" = "Discard changes";
+"Keep editing" = "Keep editing";
+
+/* Dashboard and recurring payments. */
+"Choose an active expense category before recording this payment." = "Choose an active expense category before recording this payment.";
+"Delete payment" = "Delete payment";
+"Delete payment?" = "Delete payment?";
+"Deleting this payment keeps all recorded expenses in your history." = "Deleting this payment keeps all recorded expenses in your history.";
+"Due today" = "Due today";
+"Edit payment" = "Edit payment";
+"Expenses are recorded only when you mark a payment as paid." = "Expenses are recorded only when you mark a payment as paid.";
+"Mark as paid" = "Mark as paid";
+"Mark payment as paid?" = "Mark payment as paid?";
+"New payment" = "New payment";
+"Next payment" = "Next payment";
+"No payments yet" = "No payments yet";
+"Overdue" = "Overdue";
+"Pause payment" = "Pause payment";
+"Paused" = "Paused";
+"Payment" = "Payment";
+"Payments" = "Payments";
+"Plan subscriptions and other regular expenses." = "Plan subscriptions and other regular expenses.";
+"Repeat" = "Repeat";
+"Resume payment" = "Resume payment";
+"Schedule" = "Schedule";
+"Skip this payment" = "Skip this payment";
+"Skip this payment?" = "Skip this payment?";
+"Subscription" = "Subscription";
+"This advances the payment by one period without recording an expense." = "This advances the payment by one period without recording an expense.";
+"This records one expense of %@ on %@ and advances the payment by one period." = "This records one expense of %@ on %@ and advances the payment by one period.";
+"Time zone" = "Time zone";
+"Unable to save payment" = "Unable to save payment";
+"Unable to update payment" = "Unable to update payment";
+"Upcoming" = "Upcoming";
+"Month" = "Month";
+"Quarter" = "Quarter";
+"Year" = "Year";
+"Other categories" = "Other categories";
+"Income and expenses" = "Income and expenses";
+"No transactions in this period" = "No transactions in this period";
+"Values" = "Values";
+"Compared with previous period" = "Compared with previous period";
+"No amount in previous period" = "No amount in previous period";
+"Expenses by category" = "Expenses by category";
+"Income by category" = "Income by category";
+"Largest category" = "Largest category";
+"Selected category" = "Selected category";
+"Cash flow" = "Cash flow";
+"Upcoming payments" = "Upcoming payments";
+"Weekly" = "Weekly";
+"Monthly" = "Monthly";
+"Yearly" = "Yearly";
+"Enter a payment name." = "Enter a payment name.";
+"This recurring payment is no longer available." = "This recurring payment is no longer available.";
+"Choose a valid recurring payment date and schedule." = "Choose a valid recurring payment date and schedule.";
+"The payment's time zone is not supported." = "The payment's time zone is not supported.";
+"Resume this payment before recording or skipping an occurrence." = "Resume this payment before recording or skipping an occurrence.";
+"This payment has changed. Review its current details before continuing." = "This payment has changed. Review its current details before continuing.";
+"Finish or cancel your current changes before updating recurring payments." = "Finish or cancel your current changes before updating recurring payments.";
+"The backup contains an invalid category, transaction or recurring payment." = "The backup contains an invalid category, transaction or recurring payment.";
+"A record refers to a category missing from the backup." = "A record refers to a category missing from the backup.";
+"A record and its category have different types." = "A record and its category have different types.";
+"Added %d categories, %d transactions and %d payments. Skipped %d identical records." = "Added %d categories, %d transactions and %d payments. Skipped %d identical records.";
+"Your categories, transactions and payment schedules are saved locally. iWallet does not send them to a server." = "Your categories, transactions and payment schedules are saved locally. iWallet does not send them to a server.";
+"Type" = "Type";
+
+/* Payment planning. */
+"Monthly budgets" = "Monthly budgets";
+"New budget" = "New budget";
+"Edit budget" = "Edit budget";
+"Budget limit" = "Budget limit";
+"Spent" = "Spent";
+"Remaining" = "Remaining";
+"Over budget" = "Over budget";
+"Archived" = "Archived";
+"Previous month" = "Previous month";
+"Next month" = "Next month";
+"No budgets this month" = "No budgets this month";
+"Set a spending limit for a category." = "Set a spending limit for a category.";
+"Create an expense category in Settings to add a budget." = "Create an expense category in Settings to add a budget.";
+"Delete budget" = "Delete budget";
+"Delete this budget?" = "Delete this budget?";
+"Your transactions will be kept." = "Your transactions will be kept.";
+"Unable to calculate this total." = "Unable to calculate this total.";
+"Choose a valid budget month." = "Choose a valid budget month.";
+"Choose an active expense category for this budget." = "Choose an active expense category for this budget.";
+"This budget is no longer available." = "This budget is no longer available.";
+"This category already has a budget for this month and currency." = "This category already has a budget for this month and currency.";
+"The backup contains an invalid record." = "The backup contains an invalid record.";
+"Added %d categories, %d transactions, %d payments and %d budgets. Skipped %d identical records." = "Added %d categories, %d transactions, %d payments and %d budgets. Skipped %d identical records.";
+"Your categories, transactions, budgets and payment schedules are saved locally. iWallet does not send them to a server." = "Your categories, transactions, budgets and payment schedules are saved locally. iWallet does not send them to a server.";
+"All payments" = "All payments";
+"Forecast period" = "Forecast period";
+"7 days" = "7 days";
+"30 days" = "30 days";
+"Scheduled total" = "Scheduled total";
+"Includes today in each payment’s time zone." = "Includes today in each payment’s time zone.";
+"No payments scheduled in this period." = "No payments scheduled in this period.";
+"Scheduled dates" = "Scheduled dates";
+"One open date per overdue plan. Later scheduled dates appear in the forecast." = "One open date per overdue plan. Later scheduled dates appear in the forecast.";
+"Overdue dates" = "Overdue dates";
+"Unable to calculate forecast" = "Unable to calculate forecast";
+"Reminders" = "Reminders";
+"Payment reminders" = "Payment reminders";
+"Notifications hide payment names and amounts. Tap a reminder to open Payments." = "Notifications hide payment names and amounts. Tap a reminder to open Payments.";
+"Notifications are turned off in iOS Settings." = "Notifications are turned off in iOS Settings.";
+"Open notification settings" = "Open notification settings";
+"Remind me" = "Remind me";
+"On the due date" = "On the due date";
+"The day before" = "The day before";
+"Reminder time" = "Reminder time";
+"Times follow each payment’s time zone. A reminder whose time has passed is skipped." = "Times follow each payment’s time zone. A reminder whose time has passed is skipped.";
+"Scheduled alerts" = "Scheduled alerts";
+"iWallet schedules the next alert for up to 60 active payments. Open the app to refresh the queue." = "iWallet schedules the next alert for up to 60 active payments. Open the app to refresh the queue.";
+"Unable to update reminders" = "Unable to update reminders";
+"Payment reminder" = "Payment reminder";
+"A scheduled payment is due today." = "A scheduled payment is due today.";
+"A scheduled payment is due tomorrow." = "A scheduled payment is due tomorrow.";
+"Check the next payment date and reminder time for your active plans." = "Check the next payment date and reminder time for your active plans.";

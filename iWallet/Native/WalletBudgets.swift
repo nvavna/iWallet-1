@@ -1,0 +1,127 @@
+import Foundation
+import SwiftData
+
+enum WalletBudgetError: LocalizedError, Equatable {
+    case invalidMonth, duplicateBudget, unavailableBudget, inactiveCategory
+
+    var errorDescription: String? {
+        switch self {
+        case .invalidMonth: return NSLocalizedString("Choose a valid budget month.", comment: "Budget error")
+        case .duplicateBudget: return NSLocalizedString("This category already has a budget for this month and currency.", comment: "Budget error")
+        case .unavailableBudget: return NSLocalizedString("This budget is no longer available.", comment: "Budget error")
+        case .inactiveCategory: return NSLocalizedString("Choose an active expense category for this budget.", comment: "Budget error")
+        }
+    }
+}
+
+/// A civil month, independent of the user's display calendar.
+struct BudgetMonth: Equatable {
+    let year: Int
+    let month: Int
+
+    init(year: Int, month: Int) {
+        self.year = year
+        self.month = month
+    }
+
+    init(containing date: Date, timeZone: TimeZone = .current) {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = timeZone
+        year = calendar.component(.year, from: date)
+        month = calendar.component(.month, from: date)
+    }
+
+    func interval(in timeZoneIdentifier: String) throws -> DateInterval {
+        guard (1...9999).contains(year), (1...12).contains(month),
+              let zone = TimeZone(identifier: timeZoneIdentifier) else { throw WalletBudgetError.invalidMonth }
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = zone
+        guard let middle = calendar.date(from: DateComponents(year: year, month: month, day: 15, hour: 12)),
+              let interval = calendar.dateInterval(of: .month, for: middle) else { throw WalletBudgetError.invalidMonth }
+        return interval
+    }
+}
+
+struct BudgetProgress: Equatable {
+    let spentMinor: Int64
+    /// Negative when spending exceeds the limit.
+    let remainingMinor: Int64
+}
+
+@Model
+final class WalletBudget {
+    @Attribute(.unique) var id: UUID
+    @Attribute(.unique) var scopeKey: String
+    var categoryID: UUID
+    var year: Int
+    var month: Int
+    var currencyCode: String
+    var limitMinor: Int64
+    var timeZoneIdentifier: String
+
+    init(categoryID: UUID, year: Int, month: Int, currencyCode: String, limitMinor: Int64,
+         timeZoneIdentifier: String, id: UUID = UUID()) {
+        self.id = id
+        self.categoryID = categoryID
+        self.year = year
+        self.month = month
+        self.currencyCode = currencyCode
+        self.limitMinor = limitMinor
+        self.timeZoneIdentifier = timeZoneIdentifier
+        scopeKey = Self.key(categoryID: categoryID, year: year, month: month, currencyCode: currencyCode)
+    }
+
+    static func key(categoryID: UUID, year: Int, month: Int, currencyCode: String) -> String {
+        "\(categoryID.uuidString)|\(year)|\(month)|\(currencyCode)"
+    }
+
+    func progress(transactions: [WalletTransaction]) throws -> BudgetProgress {
+        let interval = try BudgetMonth(year: year, month: month).interval(in: timeZoneIdentifier)
+        let amounts = transactions.compactMap { transaction -> Int64? in
+            guard transaction.category?.id == categoryID, transaction.kindRaw == TransactionKind.expense.rawValue,
+                  transaction.currencyCode == currencyCode,
+                  transaction.date >= interval.start, transaction.date < interval.end else { return nil }
+            return transaction.amountMinor
+        }
+        guard amounts.allSatisfy({ $0 > 0 }) else { throw MoneyError.nonPositiveAmount }
+        let spent = try Money.sum(amounts)
+        // Both values are nonnegative, so their signed difference fits Int64.
+        return BudgetProgress(spentMinor: spent, remainingMinor: limitMinor - spent)
+    }
+}
+
+extension WalletStore {
+    @discardableResult
+    static func createBudget(context: ModelContext, category: WalletCategory, month: BudgetMonth,
+                             currencyCode: String, limitMinor: Int64,
+                             timeZoneIdentifier: String = TimeZone.current.identifier) throws -> WalletBudget {
+        guard category.modelContext === context, !category.isDeleted,
+              category.kindRaw == TransactionKind.expense.rawValue, !category.isArchived else { throw WalletBudgetError.inactiveCategory }
+        guard WalletCurrency(rawValue: currencyCode) != nil else { throw MoneyError.unsupportedCurrency }
+        try validateBudgetLimit(limitMinor)
+        _ = try month.interval(in: timeZoneIdentifier)
+        let key = WalletBudget.key(categoryID: category.id, year: month.year, month: month.month, currencyCode: currencyCode)
+        let matching = FetchDescriptor<WalletBudget>(predicate: #Predicate { $0.scopeKey == key })
+        guard try context.fetchCount(matching) == 0 else { throw WalletBudgetError.duplicateBudget }
+        let budget = WalletBudget(categoryID: category.id, year: month.year, month: month.month, currencyCode: currencyCode,
+                                  limitMinor: limitMinor, timeZoneIdentifier: timeZoneIdentifier)
+        try write(context: context) { context.insert(budget) }
+        return budget
+    }
+
+    static func updateBudgetLimit(context: ModelContext, budget: WalletBudget, limitMinor: Int64) throws {
+        guard budget.modelContext === context, !budget.isDeleted else { throw WalletBudgetError.unavailableBudget }
+        try validateBudgetLimit(limitMinor)
+        try write(context: context) { budget.limitMinor = limitMinor }
+    }
+
+    static func deleteBudget(context: ModelContext, budget: WalletBudget) throws {
+        guard budget.modelContext === context, !budget.isDeleted else { throw WalletBudgetError.unavailableBudget }
+        try write(context: context) { context.delete(budget) }
+    }
+
+    private static func validateBudgetLimit(_ limit: Int64) throws {
+        guard limit > 0 else { throw MoneyError.nonPositiveAmount }
+        guard limit <= Money.maximumAmountMinor else { throw MoneyError.amountTooLarge }
+    }
+}
