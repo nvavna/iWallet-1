@@ -6,6 +6,10 @@ iWallet помогает вести доходы и расходы на iPhone, 
 
 Track spending on your iPhone, set a monthly grocery budget and see which bills are due in the next seven days. [Download on the App Store](https://apps.apple.com/app/apple-store/id6447585809?pt=126245738&ct=github-project&mt=8) · [Support in English](docs/SUPPORT.md#english)
 
+<a href="https://apps.apple.com/app/apple-store/id6447585809?pt=126245738&amp;ct=github-project&amp;mt=8">
+  <img src="docs/images/planning/budget.png" width="260" alt="Скачать iWallet в App Store. Бюджет «Дом»: осталось 5 110 ₽ из 12 000 ₽. Download iWallet on the App Store. Home budget: ₽5,110 left of ₽12,000.">
+</a>
+
 ## Возможности
 
 - Четыре нативные вкладки: **Обзор, Операции, Платежи, Настройки**.
