@@ -1,8 +1,8 @@
 # iWallet — Privacy Policy / Политика конфиденциальности
 
-Updated / Обновлено: 6 November / ноября 2026
+Updated / Обновлено: 10 November / ноября 2026
 
-This policy describes version 2.0.0 of iWallet and its transitional import of older iWallet data. / Эта политика описывает версию 2.0.0 приложения iWallet и перенос данных из прежних версий iWallet.
+This policy covers iWallet 2.0 and 2.1, including import of older wallets. A separate section describes the spending reports planned for version 2.2. / Эта политика описывает iWallet 2.0 и 2.1, включая перенос прежних кошельков. Отдельный раздел посвящён отчётам о расходах, которые готовятся для версии 2.2.
 
 ## English
 
@@ -22,9 +22,15 @@ The original legacy database is retained. The app also keeps a local copy and a 
 
 ### Files you choose to export or import
 
-You can export categories, transactions, payment schedules and budgets to a JSON file and choose its destination through the system file interface. You can also choose a compatible JSON file to import. The app reads that file locally.
+You can export categories, transactions, payment schedules and budgets to a JSON file and choose its destination through the system file interface. In version 2.1 you can also export transactions for a selected date range to a CSV file and choose where to save it. You can choose a compatible JSON file to import. The app reads that file locally.
 
 An exported file, a copy of a legacy database or a migration report may contain your financial history. When you save or share one, the destination you select determines who can access it. The developer does not receive these files automatically. The practices of a file provider, sharing destination or system backup are governed by its own settings and policies; this policy does not promise how those services store, retain or restore data.
+
+### Spending reports and purchases planned for 2.2
+
+Version 2.2 is planned to offer spending reports as an optional one-time purchase. Apple will process the payment through the App Store. To unlock or restore reports, iWallet will check the purchase status supplied by Apple for your Apple Account. Your wallet entries are not part of that check. [App Store & Privacy](https://www.apple.com/legal/privacy/data/en/app-store/)
+
+iWallet will generate the report PDF on your device using the selected dates, currency and spending totals by category. If you tap **Save PDF**, you will choose where to save the file in the system file picker. CSV export will remain free.
 
 ### Retention and deletion
 
@@ -42,7 +48,7 @@ Do not send passwords, verification codes or your full financial database in an 
 
 This page will be updated when the described data practices change. The date above identifies the version of the policy. For privacy questions, contact [idevnva@icloud.com](mailto:idevnva@icloud.com).
 
-[iWallet support](https://github.com/nvavna/iWallet-1/blob/restoration/foundation/docs/SUPPORT.md)
+[iWallet support](https://github.com/nvavna/iWallet-1/blob/main/docs/SUPPORT.md)
 
 ## Русский
 
@@ -62,9 +68,15 @@ iWallet хранит категории, суммы, валюты, даты, з�
 
 ### Экспорт и импорт файлов
 
-Вы можете экспортировать категории, операции, расписания платежей и бюджеты в JSON-файл и выбрать место сохранения через системный интерфейс. Для импорта можно выбрать совместимый JSON-файл. Приложение читает его локально.
+Вы можете экспортировать категории, операции, расписания платежей и бюджеты в JSON-файл и выбрать место сохранения через системный интерфейс. В версии 2.1 можно также сохранить операции за выбранный период в CSV-файл и указать место сохранения. Для импорта можно выбрать совместимый JSON-файл. Приложение читает его локально.
 
 Экспорт, копия старой базы и отчёт о переносе могут содержать вашу финансовую историю. Доступ к сохранённому или отправленному файлу зависит от выбранного вами места назначения. Разработчик не получает эти файлы автоматически. Работа файлового сервиса, получателя или системной резервной копии регулируется их собственными настройками и правилами; эта политика не обещает, как такие сервисы сохраняют, удерживают или восстанавливают данные.
+
+### Отчёты о расходах и покупки в готовящейся версии 2.2
+
+В версии 2.2 планируется разовая покупка доступа к отчётам о расходах. Платёж обработает Apple через App Store. Чтобы открыть отчёты или восстановить доступ, iWallet проверит сведения о покупке, предоставленные Apple для вашего Аккаунта Apple. Записи кошелька в эту проверку не входят. [Об обработке данных в App Store](https://www.apple.com/legal/privacy/data/ru/app-store/)
+
+iWallet сформирует PDF на устройстве. В отчёте будут выбранные даты, валюта и суммы расходов по категориям. По кнопке **«Сохранить PDF»** откроется системное окно выбора места сохранения. Экспорт в CSV останется бесплатным.
 
 ### Хранение и удаление
 
@@ -82,4 +94,4 @@ iWallet хранит категории, суммы, валюты, даты, з�
 
 При изменении описанных правил обработки данных эта страница будет обновлена. Дата в начале страницы обозначает версию политики. По вопросам конфиденциальности пишите на [idevnva@icloud.com](mailto:idevnva@icloud.com).
 
-[Поддержка iWallet](https://github.com/nvavna/iWallet-1/blob/restoration/foundation/docs/SUPPORT.md)
+[Поддержка iWallet](https://github.com/nvavna/iWallet-1/blob/main/docs/SUPPORT.md)
