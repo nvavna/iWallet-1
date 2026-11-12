@@ -30,6 +30,8 @@ In the planned 2.2 release, open **Settings → Spending report → Sample repor
 
 **Unlock reports** opens Apple’s one-time purchase flow. After purchase, you can choose any dates for the expenses in your wallet. Use **Save PDF** to save the report on your device. **Settings → Export transactions as CSV** remains free.
 
+If you paid in both euros and dollars, each currency has its own report. On **Overview**, tap the currency code on the balance card, choose **EUR**, then open **Spending report**. Repeat with **USD** for your dollar expenses. Opening the report from **Settings** uses your **Default currency** instead.
+
 After reinstalling iWallet or switching devices, sign in to the App Store with the Apple Account used for the purchase. If the report is locked, open **Settings → Spending report → Restore purchases**. This restores access to reports. To recover your wallet entries, import your saved JSON backup. [Apple’s guide to restoring in-app purchases](https://support.apple.com/en-us/108096)
 
 ### JSON backups
@@ -42,7 +44,7 @@ The export contains financial information. Share it only with a destination you 
 
 ### Currency and categories
 
-The default currency applies to new transactions. Existing transactions keep their own currency, and totals are shown separately. No exchange-rate conversion is performed.
+On **Overview**, tap the currency code on the balance card to see totals for transactions recorded in that currency. iWallet keeps the original amounts without converting them. You can change the default for new transactions in **Settings → Default currency**.
 
 Archiving a category keeps its transactions in your history and hides the category when creating new entries. Deleting a transaction removes it from the active wallet, but does not remove copies from previously saved exports or retained legacy migration files.
 
@@ -76,6 +78,8 @@ iWallet — приложение для ручного учёта доходов
 
 Кнопка **«Открыть доступ к отчётам»** откроет окно разовой покупки Apple. После покупки можно выбрать любые даты для расходов своего кошелька и нажать **«Сохранить PDF»**, чтобы сохранить отчёт на устройстве. Экспорт операций в CSV через настройки остаётся бесплатным.
 
+Если вы платили и в евро, и в долларах, для каждой валюты можно сохранить отдельный отчёт. На вкладке **«Обзор»** нажмите на код валюты на карточке баланса, выберите **EUR** и откройте **«Отчёт о расходах»**. Для долларовых расходов повторите эти шаги с **USD**. Если открыть отчёт из **«Настроек»**, он покажет расходы в валюте, выбранной в пункте **«Основная валюта»**.
+
 После переустановки iWallet или смены устройства войдите в App Store с Аккаунтом Apple, с которого была совершена покупка. Если отчёт заблокирован, откройте **«Настройки» → «Отчёт о расходах» → «Восстановить покупки»**. Это восстановит доступ к отчётам. Чтобы вернуть записи кошелька, импортируйте сохранённую резервную копию JSON. [Как восстановить покупку через Apple](https://support.apple.com/ru-ru/108096)
 
 ### Резервные копии JSON
@@ -88,7 +92,7 @@ iWallet — приложение для ручного учёта доходов
 
 ### Валюта и категории
 
-Основная валюта используется для новых операций. Существующие операции сохраняют свою валюту, а итоги показываются отдельно. Пересчёт по обменному курсу не выполняется.
+На вкладке **«Обзор»** нажмите на код валюты на карточке баланса, чтобы увидеть итоги по операциям в выбранной валюте. iWallet сохраняет исходные суммы без пересчёта по курсу. Для новых операций валюту можно задать в разделе **«Настройки» → «Основная валюта»**.
 
 Архивирование категории сохраняет её операции в истории и скрывает категорию при создании новых записей. Удаление операции убирает её из действующего кошелька, но не удаляет копии из ранее сохранённых экспортов и оставленных файлов миграции.
 
