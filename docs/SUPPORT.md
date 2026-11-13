@@ -20,6 +20,7 @@ Review any rounding changes before confirming the transfer. Keep a copy of the o
 
 ### Everyday tools in 2.1
 
+- To record thirty-five thousand, type `35000` in the amount field. For cents, use the decimal separator from your iPhone’s region settings. For example, with US number formatting, enter `35000.50` for $35,000.50.
 - In **Transactions**, touch and hold a row and choose **Repeat transaction**. The draft uses today’s date. Review the amount and category, then tap **Save**.
 - In **Settings → Monthly budgets**, select the month you want to fill and tap **Copy last month’s budgets**. Each active category keeps its limit in the original currency. Limits already set for the selected month take precedence.
 - In **Settings → Export transactions as CSV**, select the first and last day, then tap **Save CSV**. Both days are included. The file opens in spreadsheet apps such as Excel and Numbers.
@@ -70,6 +71,7 @@ iWallet — приложение для ручного учёта доходов
 
 ### Повседневные действия в версии 2.1
 
+- Чтобы записать 35 000 ₽, выберите рубли и введите в поле суммы `35000`. Разделитель копеек зависит от региональных настроек iPhone. При российском формате 35 000 ₽ 50 коп. вводятся как `35000,50`.
 - Во вкладке **«Операции»** нажмите и удерживайте запись, затем выберите **«Повторить операцию»**. В черновике будет сегодняшняя дата. Проверьте сумму и категорию и нажмите **«Сохранить»**.
 - В разделе **«Настройки» → «Бюджеты на месяц»** выберите нужный месяц и нажмите **«Скопировать бюджеты прошлого месяца»**. Для активных категорий переносятся лимиты в исходных валютах. Приоритет у лимита, уже заданного на выбранный месяц.
 - В разделе **«Настройки» → «Экспорт операций в CSV»** выберите первый и последний день и нажмите **«Сохранить CSV»**. В файл войдут операции за обе даты. Его можно открыть в Excel или Numbers.
