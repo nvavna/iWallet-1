@@ -27,6 +27,8 @@ Review any rounding changes before confirming the transfer. Keep a copy of the o
 
 ### Spending reports planned for 2.2
 
+[Open an example PDF report](examples/spending-report.pdf). It shows one fictional $61.23 food expense for November 1–10 and compares it with the previous ten days.
+
 In the planned 2.2 release, open **Settings → Spending report → Sample report**. The free example starts on October 10 and ends on November 9. Change either date to see how category totals and the comparison with the preceding period change.
 
 **Unlock reports** opens Apple’s one-time purchase flow. After purchase, you can choose any dates for the expenses in your wallet. Use **Save PDF** to save the report on your device. **Settings → Export transactions as CSV** remains free.
@@ -77,6 +79,8 @@ iWallet — приложение для ручного учёта доходов
 - В разделе **«Настройки» → «Экспорт операций в CSV»** выберите первый и последний день и нажмите **«Сохранить CSV»**. В файл войдут операции за обе даты. Его можно открыть в Excel или Numbers.
 
 ### Отчёты о расходах в готовящейся версии 2.2
+
+[Открыть пример PDF на английском](examples/spending-report.pdf). В нём один вымышленный расход на продукты — 61,23 доллара США за 1–10 ноября. Рядом показаны траты за предыдущие десять дней.
 
 В готовящейся версии 2.2 откройте **«Настройки» → «Отчёт о расходах» → «Пример отчёта»**. Бесплатный пример показывает вымышленные расходы с 10 октября по 9 ноября. Измените любую из дат, чтобы увидеть, как изменятся суммы по категориям и сравнение с предыдущим периодом той же длины.
 
