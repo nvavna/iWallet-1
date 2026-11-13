@@ -46,6 +46,8 @@ The export contains financial information. Share it only with a destination you 
 
 On **Overview**, tap the currency code on the balance card to see totals for transactions recorded in that currency. iWallet keeps the original amounts without converting them. You can change the default for new transactions in **Settings → Default currency**.
 
+**Should I record a transfer between my own accounts?** If you track both accounts in one wallet and move $100 from checking to savings, you still have the same amount. Leave the transfer out of iWallet. Entering a $100 expense and a $100 income adds $100 to both totals on Overview. If your bank charges a transfer fee, record the fee as an expense.
+
 Archiving a category keeps its transactions in your history and hides the category when creating new entries. Deleting a transaction removes it from the active wallet, but does not remove copies from previously saved exports or retained legacy migration files.
 
 [Privacy policy](./PRIVACY.md)
@@ -93,6 +95,8 @@ iWallet — приложение для ручного учёта доходов
 ### Валюта и категории
 
 На вкладке **«Обзор»** нажмите на код валюты на карточке баланса, чтобы увидеть итоги по операциям в выбранной валюте. iWallet сохраняет исходные суммы без пересчёта по курсу. Для новых операций валюту можно задать в разделе **«Настройки» → «Основная валюта»**.
+
+**Записывать ли перевод между своими счетами?** Если вы учитываете оба счёта в одном кошельке и переводите 5 000 ₽ с карты на накопительный счёт, общая сумма ваших денег остаётся прежней. Такой перевод можно пропустить. Если внести 5 000 ₽ как расход и ещё 5 000 ₽ как доход, в «Обзоре» на эту сумму вырастут оба итога. Если банк взял комиссию, запишите её как расход.
 
 Архивирование категории сохраняет её операции в истории и скрывает категорию при создании новых записей. Удаление операции убирает её из действующего кошелька, но не удаляет копии из ранее сохранённых экспортов и оставленных файлов миграции.
 
