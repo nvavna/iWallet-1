@@ -29,7 +29,7 @@ Review any rounding changes before confirming the transfer. Keep a copy of the o
 
 [Open an example PDF report](examples/spending-report.pdf). It shows one fictional $61.23 food expense for November 1–10 and compares it with the previous ten days.
 
-In the planned 2.2 release, open **Settings → Spending report → Sample report**. The free example starts on October 10 and ends on November 9. Change either date to see how category totals and the comparison with the preceding period change.
+In the planned 2.2 release, you can try the free example before buying reports. Open **Settings → Spending report → Sample report**. The example starts on October 10 and ends on November 9. Change either date to see how category totals and the comparison with the preceding period change. If **Spending report** opens your own wallet's report directly, access is already unlocked.
 
 **Unlock reports** opens Apple’s one-time purchase flow. After purchase, you can choose any dates for the expenses in your wallet. Use **Save PDF** to save the report on your device. **Settings → Export transactions as CSV** remains free.
 
@@ -82,7 +82,7 @@ iWallet — приложение для ручного учёта доходов
 
 [Открыть пример PDF на английском](examples/spending-report.pdf). В нём один вымышленный расход на продукты — 61,23 доллара США за 1–10 ноября. Рядом показаны траты за предыдущие десять дней.
 
-В готовящейся версии 2.2 откройте **«Настройки» → «Отчёт о расходах» → «Пример отчёта»**. Бесплатный пример показывает вымышленные расходы с 10 октября по 9 ноября. Измените любую из дат, чтобы увидеть, как изменятся суммы по категориям и сравнение с предыдущим периодом той же длины.
+В готовящейся версии 2.2 можно попробовать бесплатный пример до покупки отчётов. Откройте **«Настройки» → «Отчёт о расходах» → «Пример отчёта»**. Пример показывает вымышленные расходы с 10 октября по 9 ноября. Измените любую из дат, чтобы увидеть, как изменятся суммы по категориям и сравнение с предыдущим периодом той же длины. Если пункт **«Отчёт о расходах»** сразу открывает отчёт вашего кошелька, доступ уже разблокирован.
 
 Кнопка **«Открыть доступ к отчётам»** откроет окно разовой покупки Apple. После покупки можно выбрать любые даты для расходов своего кошелька и нажать **«Сохранить PDF»**, чтобы сохранить отчёт на устройстве. Экспорт операций в CSV через настройки остаётся бесплатным.
 
