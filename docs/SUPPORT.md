@@ -33,6 +33,8 @@ In the planned 2.2 release, you can try the free example before buying reports. 
 
 **Unlock reports** opens Apple’s one-time purchase flow. After purchase, you can choose any dates for the expenses in your wallet. Use **Save PDF** to save the report on your device. **Settings → Export transactions as CSV** remains free.
 
+If iWallet says the App Store price is unavailable, tap **Try again** to reload it. You can open **Sample report** even before a price appears.
+
 If you paid in both euros and dollars, each currency has its own report. On **Overview**, tap the currency code on the balance card, choose **EUR**, then open **Spending report**. Repeat with **USD** for your dollar expenses. Opening the report from **Settings** uses your **Default currency** instead.
 
 After reinstalling iWallet or switching devices, sign in to the App Store with the Apple Account used for the purchase. If the report is locked, open **Settings → Spending report → Restore purchases**. This restores access to reports. To recover your wallet entries, import your saved JSON backup. [Apple’s guide to restoring in-app purchases](https://support.apple.com/en-us/108096)
@@ -85,6 +87,8 @@ iWallet — приложение для ручного учёта доходов
 В готовящейся версии 2.2 можно попробовать бесплатный пример до покупки отчётов. Откройте **«Настройки» → «Отчёт о расходах» → «Пример отчёта»**. Пример показывает вымышленные расходы с 10 октября по 9 ноября. Измените любую из дат, чтобы увидеть, как изменятся суммы по категориям и сравнение с предыдущим периодом той же длины. Если пункт **«Отчёт о расходах»** сразу открывает отчёт вашего кошелька, доступ уже разблокирован.
 
 Кнопка **«Открыть доступ к отчётам»** откроет окно разовой покупки Apple. После покупки можно выбрать любые даты для расходов своего кошелька и нажать **«Сохранить PDF»**, чтобы сохранить отчёт на устройстве. Экспорт операций в CSV через настройки остаётся бесплатным.
+
+Если появилось сообщение «Не удалось получить цену из App Store», нажмите **«Попробовать снова»**. Даже если цена не появилась, вы можете открыть **«Пример отчёта»**.
 
 Если вы платили и в евро, и в долларах, для каждой валюты можно сохранить отдельный отчёт. На вкладке **«Обзор»** нажмите на код валюты на карточке баланса, выберите **EUR** и откройте **«Отчёт о расходах»**. Для долларовых расходов повторите эти шаги с **USD**. Если открыть отчёт из **«Настроек»**, он покажет расходы в валюте, выбранной в пункте **«Основная валюта»**.
 
