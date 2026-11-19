@@ -1,5 +1,7 @@
 # iWallet — Support / Поддержка
 
+[Current iWallet guide in English](https://github.com/nvavna/iWallet-1/blob/main/docs/SUPPORT.md#english) · [Актуальное руководство на русском](https://github.com/nvavna/iWallet-1/blob/main/docs/SUPPORT.md#русский)
+
 Contact / Написать: [idevnva@icloud.com](mailto:idevnva@icloud.com)
 
 ## English
