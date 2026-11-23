@@ -22,6 +22,7 @@ Review any rounding changes before confirming the transfer. Keep a copy of the o
 
 - To record thirty-five thousand, type `35000` in the amount field. For cents, use the decimal separator from your iPhone’s region settings. For example, with US number formatting, enter `35000.50` for $35,000.50.
 - In **Transactions**, touch and hold a row and choose **Repeat transaction**. The draft uses today’s date. Review the amount and category, then tap **Save**.
+- In **Payments**, **Mark as paid** records the expense on the date shown in the confirmation. If you paid a bill on October 31 but marked it as paid on November 1, open the expense in **Transactions**, change its date to October 31 and tap **Save**. It will count toward October’s spending.
 - In **Settings → Monthly budgets**, select the month you want to fill and tap **Copy last month’s budgets**. Each active category keeps its limit in the original currency. Limits already set for the selected month take precedence.
 - In **Settings → Export transactions as CSV**, select the first and last day, then tap **Save CSV**. Both days are included. The file opens in spreadsheet apps such as Excel and Numbers.
 
@@ -77,6 +78,7 @@ iWallet — приложение для ручного учёта доходов
 
 - Чтобы записать 35 000 ₽, выберите рубли и введите в поле суммы `35000`. Разделитель копеек зависит от региональных настроек iPhone. При российском формате 35 000 ₽ 50 коп. вводятся как `35000,50`.
 - Во вкладке **«Операции»** нажмите и удерживайте запись, затем выберите **«Повторить операцию»**. В черновике будет сегодняшняя дата. Проверьте сумму и категорию и нажмите **«Сохранить»**.
+- В разделе **«Платежи»** команда **«Отметить оплаченным»** запишет расход на дату, указанную при подтверждении. Если вы оплатили счёт 31 октября, а отметили оплату 1 ноября, откройте расход в разделе **«Операции»**, измените дату на 31 октября и нажмите **«Сохранить»**. Расход войдёт в итоги октября.
 - В разделе **«Настройки» → «Бюджеты на месяц»** выберите нужный месяц и нажмите **«Скопировать бюджеты прошлого месяца»**. Для активных категорий переносятся лимиты в исходных валютах. Приоритет у лимита, уже заданного на выбранный месяц.
 - В разделе **«Настройки» → «Экспорт операций в CSV»** выберите первый и последний день и нажмите **«Сохранить CSV»**. В файл войдут операции за обе даты. Его можно открыть в Excel или Numbers.
 
