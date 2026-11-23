@@ -28,7 +28,7 @@ Review any rounding changes before confirming the transfer. Keep a copy of the o
 
 ### Spending reports planned for 2.2
 
-[Open an example PDF report](examples/spending-report.pdf). It shows one fictional $61.23 food expense for November 1–10 and compares it with the previous ten days.
+[Download an example PDF report](https://raw.githubusercontent.com/nvavna/iWallet-1/main/docs/examples/spending-report.pdf). It shows one fictional $61.23 food expense for November 1–10 and compares it with the previous ten days.
 
 In the planned 2.2 release, you can try the free example before buying reports. Open **Settings → Spending report → Sample report**. The example starts on October 10 and ends on November 9. Change either date to see how category totals and the comparison with the preceding period change. If **Spending report** opens your own wallet's report directly, access is already unlocked.
 
@@ -84,7 +84,7 @@ iWallet — приложение для ручного учёта доходов
 
 ### Отчёты о расходах в готовящейся версии 2.2
 
-[Открыть пример PDF на английском](examples/spending-report.pdf). В нём один вымышленный расход на продукты — 61,23 доллара США за 1–10 ноября. Рядом показаны траты за предыдущие десять дней.
+[Скачать пример отчёта в PDF на английском](https://raw.githubusercontent.com/nvavna/iWallet-1/main/docs/examples/spending-report.pdf). В нём один вымышленный расход на продукты — 61,23 доллара США за 1–10 ноября. Рядом показаны траты за предыдущие десять дней.
 
 В готовящейся версии 2.2 можно попробовать бесплатный пример до покупки отчётов. Откройте **«Настройки» → «Отчёт о расходах» → «Пример отчёта»**. Пример показывает вымышленные расходы с 10 октября по 9 ноября. Измените любую из дат, чтобы увидеть, как изменятся суммы по категориям и сравнение с предыдущим периодом той же длины. Если пункт **«Отчёт о расходах»** сразу открывает отчёт вашего кошелька, доступ уже разблокирован.
 
