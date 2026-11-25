@@ -1,5 +1,7 @@
 # iWallet — Support / Поддержка
 
+[English](#english) · [Русский](#русский)
+
 Contact / Написать: [idevnva@icloud.com](mailto:idevnva@icloud.com)
 
 ## English
