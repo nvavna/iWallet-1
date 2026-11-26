@@ -8,6 +8,8 @@ Contact / Написать: [idevnva@icloud.com](mailto:idevnva@icloud.com)
 
 iWallet is a manual income and expense tracker. Version 2.1 requires iOS 17 or later and stores your wallet locally on your device.
 
+[Download iWallet on the App Store](https://apps.apple.com/app/apple-store/id6447585809?pt=126245738&ct=github-project&mt=8)
+
 ### Get help
 
 Email [idevnva@icloud.com](mailto:idevnva@icloud.com). Include your iWallet version from Settings, device model, iOS version, what you tried and what happened. A screenshot with private details removed can help.
@@ -63,6 +65,8 @@ Archiving a category keeps its transactions in your history and hides the catego
 ## Русский
 
 iWallet — приложение для ручного учёта доходов и расходов. Версия 2.1 требует iOS 17 или новее и хранит кошелёк локально на устройстве.
+
+[Скачать iWallet в App Store](https://apps.apple.com/app/apple-store/id6447585809?pt=126245738&ct=github-project&mt=8)
 
 ### Как получить помощь
 
